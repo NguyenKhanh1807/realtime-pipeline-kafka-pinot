@@ -1,0 +1,27 @@
+{
+  "tableName": "transactions",
+  "tableType": "OFFLINE",
+  "segmentsConfig": {
+    "replication": "1",
+    "timeColumnName": "eventTimeMs",
+    "timeType": "MILLISECONDS"
+  },
+  "tenants": {
+    "broker": "DefaultTenant",
+    "server": "DefaultTenant"
+  },
+  "tableIndexConfig": {
+    "invertedIndexColumns": ["label", "country_code", "receiving_country", "payment_method"],
+    "rangeIndexColumns": ["deposit_amount"],
+    "bloomFilterColumns": ["user_seq"]
+  },
+  "ingestionConfig": {
+    "transformConfigs": [
+      {
+        "columnName": "eventTimeMs",
+        "transformFunction": "toEpochMillis(create_dt,'MM/dd/yyyy HH:mm')"
+      }
+    ]
+  },
+  "metadata": {}
+}

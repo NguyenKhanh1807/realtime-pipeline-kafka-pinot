@@ -1,0 +1,29 @@
+{
+  "tableName": "transactions",
+  "tableType": "OFFLINE",
+  "segmentsConfig": {
+    "replication": "1"
+  },
+  "tenants": {
+    "broker": "DefaultTenant",
+    "server": "DefaultTenant"
+  },
+  "tableIndexConfig": {
+    "nullHandlingEnabled": true,
+    "invertedIndexColumns": [
+      "label",
+      "country_code",
+      "receiving_country",
+      "payment_method"
+    ],
+    "rangeIndexColumns": [
+      "deposit_amount"
+    ],
+    "bloomFilterColumns": [
+      "user_seq"
+    ],
+    "loadMode": "HEAP"
+  },
+  "ingestionConfig": {},
+  "metadata": {}
+}

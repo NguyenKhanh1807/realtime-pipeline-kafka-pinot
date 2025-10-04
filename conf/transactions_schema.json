@@ -1,0 +1,111 @@
+{
+  "schemaName": "transactions",
+  "dimensionFieldSpecs": [
+    {
+      "name": "transaction_seq",
+      "dataType": "LONG"
+    },
+    {
+      "name": "user_seq",
+      "dataType": "LONG"
+    },
+    {
+      "name": "receiving_country",
+      "dataType": "STRING"
+    },
+    {
+      "name": "country_code",
+      "dataType": "STRING"
+    },
+    {
+      "name": "id_type",
+      "dataType": "STRING"
+    },
+    {
+      "name": "stay_qualify",
+      "dataType": "STRING"
+    },
+    {
+      "name": "visa_expire_date",
+      "dataType": "STRING"
+    },
+    {
+      "name": "user_name",
+      "dataType": "STRING"
+    },
+    {
+      "name": "payment_method",
+      "dataType": "STRING"
+    },
+    {
+      "name": "autodebit_account",
+      "dataType": "DOUBLE"
+    },
+    {
+      "name": "register_date",
+      "dataType": "STRING"
+    },
+    {
+      "name": "first_transaction_date",
+      "dataType": "STRING"
+    },
+    {
+      "name": "birth_date",
+      "dataType": "STRING"
+    },
+    {
+      "name": "recheck_date",
+      "dataType": "STRING"
+    },
+    {
+      "name": "invite_code",
+      "dataType": "STRING"
+    },
+    {
+      "name": "face_pin_date",
+      "dataType": "STRING"
+    },
+    {
+      "name": "transaction_count_24hour",
+      "dataType": "LONG"
+    },
+    {
+      "name": "transaction_amount_24hour",
+      "dataType": "LONG"
+    },
+    {
+      "name": "transaction_count_1week",
+      "dataType": "LONG"
+    },
+    {
+      "name": "transaction_amount_1week",
+      "dataType": "LONG"
+    },
+    {
+      "name": "transaction_count_1month",
+      "dataType": "LONG"
+    },
+    {
+      "name": "transaction_amount_1month",
+      "dataType": "LONG"
+    },
+    {
+      "name": "label",
+      "dataType": "INT"
+    }
+  ],
+  "metricFieldSpecs": [
+    {
+      "name": "deposit_amount",
+      "dataType": "DOUBLE"
+    }
+  ],
+  "dateTimeFieldSpecs": [
+    {
+      "name": "create_dt",
+      "dataType": "STRING",
+      "format": "1:MILLISECONDS:SIMPLE_DATE_FORMAT:yyyy-MM-dd HH:mm:ss",
+      "granularity": "1:MILLISECONDS"
+    }
+  ]
+}

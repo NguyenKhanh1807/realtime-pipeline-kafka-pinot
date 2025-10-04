@@ -1,0 +1,18 @@
+jobType: SegmentCreation
+executionFrameworkSpec:
+  name: "standalone"
+inputDirURI: "/data"
+includeFileNamePattern: "glob:**/*.csv"
+outputDirURI: "/segments"
+overwriteOutput: true
+recordReaderSpec:
+  dataFormat: "csv"
+  className: "org.apache.pinot.plugin.inputformat.csv.CSVRecordReader"
+  configClassName: "org.apache.pinot.plugin.inputformat.csv.CSVRecordReaderConfig"
+  configs:
+    header: "true"
+    multiValueDelimiter: ";"
+tableSpec:
+  tableName: "transactions"
+  schemaURI: "/conf/transactions_schema.json"
+  tableConfigURI: "/conf/transactions_offline_table_simple.json"

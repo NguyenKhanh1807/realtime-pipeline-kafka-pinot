@@ -1,0 +1,106 @@
+version: "3.8"
+
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: "2181"
+      ZOOKEEPER_TICK_TIME: "2000"
+    ports:
+      - "2181:2181"
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: kafka-rt
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: "1"
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
+      # Hai listener: 9092 (public) & 19092 (nội bộ docker)
+      KAFKA_LISTENERS: "PLAINTEXT://0.0.0.0:9092,PLAINTEXT_INTERNAL://0.0.0.0:19092"
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://${PUBLIC_IP}:9092,PLAINTEXT_INTERNAL://kafka-rt:19092"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT"
+      KAFKA_INTER_BROKER_LISTENER_NAME: "PLAINTEXT_INTERNAL"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: "1"
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: "1"
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: "1"
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: "0"
+    ports:
+      - "9092:9092"
+
+  pinot-controller:
+    image: apachepinot/pinot:latest
+    container_name: pinot-controller
+    command: >
+      StartController
+      -zkAddress zookeeper:2181
+      -controllerPort 9000
+    depends_on:
+      - zookeeper
+    ports:
+      - "9000:9000"
+
+  pinot-broker:
+    image: apachepinot/pinot:latest
+    container_name: pinot-broker
+    command: >
+      StartBroker
+      -zkAddress zookeeper:2181
+      -clusterName PinotCluster
+      -brokerPort 8099
+    depends_on:
+      - pinot-controller
+    ports:
+      - "8099:8099"
+
+  pinot-server:
+    image: apachepinot/pinot:latest
+    container_name: pinot-server
+    command: >
+      StartServer
+      -zkAddress zookeeper:2181
+    depends_on:
+      - pinot-controller
+
+  # upload schema & table sau khi Controller sẵn sàng
+  pinot-init:
+    image: curlimages/curl:8.10.1
+    container_name: pinot-init
+    depends_on:
+      - pinot-controller
+      - pinot-broker
+      - pinot-server
+      - kafka
+    volumes:
+      - ./conf:/conf:ro
+    entrypoint: ["/bin/sh","-lc"]
+    command: |
+      "
+      echo 'waiting controller...';
+      until curl -sf http://pinot-controller:9000/health; do sleep 2; done;
+      echo 'upload schema';
+      curl -sS -X POST -H 'Content-Type: application/json' --data-binary @/conf/transactions_schema.json http://pinot-controller:9000/schemas;
+      echo 'upload realtime table';
+      curl -sS -X POST -H 'Content-Type: application/json' --data-binary @/conf/transactions_realtime_table.json http://pinot-controller:9000/tables;
+      echo 'done';
+      "
+
+  tx-producer:
+    image: python:3.11-slim
+    container_name: tx-producer
+    depends_on:
+      - kafka
+    environment:
+      TOPIC: "transactions_rt"
+      BOOTSTRAP_SERVERS: "kafka-rt:19092"
+      INTERVAL_SEC: "86400"
+      START_SEQ: "1"
+    working_dir: /app
+    volumes:
+      - ./crawl_data:/app:ro
+    command: >
+      sh -c "pip install --no-cache-dir kafka-python Faker &&
+             python /app/rt_producer.py"
