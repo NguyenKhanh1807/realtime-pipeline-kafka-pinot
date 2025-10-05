@@ -96,7 +96,7 @@ services:
     environment:
       TOPIC: "transactions_rt"
       BOOTSTRAP_SERVERS: "kafka-rt:19092"
-      INTERVAL_SEC: "86400"
+      INTERVAL_SEC: "60"
       START_SEQ: "1"
     working_dir: /app
     volumes:
