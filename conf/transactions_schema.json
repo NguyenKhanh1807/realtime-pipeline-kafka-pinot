@@ -38,10 +38,6 @@
       "dataType": "STRING"
     },
     {
-      "name": "autodebit_account",
-      "dataType": "DOUBLE"
-    },
-    {
       "name": "register_date",
       "dataType": "STRING"
     },
@@ -64,10 +60,16 @@
     {
       "name": "face_pin_date",
       "dataType": "STRING"
+    }
+  ],
+  "metricFieldSpecs": [
+    {
+      "name": "autodebit_account",
+      "dataType": "DOUBLE"
     },
     {
       "name": "transaction_count_24hour",
-      "dataType": "LONG"
+      "dataType": "INT"
     },
     {
       "name": "transaction_amount_24hour",
@@ -75,7 +77,7 @@
     },
     {
       "name": "transaction_count_1week",
-      "dataType": "LONG"
+      "dataType": "INT"
     },
     {
       "name": "transaction_amount_1week",
@@ -83,7 +85,7 @@
     },
     {
       "name": "transaction_count_1month",
-      "dataType": "LONG"
+      "dataType": "INT"
     },
     {
       "name": "transaction_amount_1month",
@@ -92,9 +94,7 @@
     {
       "name": "label",
       "dataType": "INT"
-    }
-  ],
-  "metricFieldSpecs": [
+    },
     {
       "name": "deposit_amount",
       "dataType": "DOUBLE"
@@ -103,9 +103,9 @@
   "dateTimeFieldSpecs": [
     {
       "name": "create_dt",
-      "dataType": "STRING",
+      "dataType": "TIMESTAMP",
       "format": "1:MILLISECONDS:SIMPLE_DATE_FORMAT:yyyy-MM-dd HH:mm:ss",
-      "granularity": "1:MILLISECONDS"
+      "granularity": "1:SECONDS"
     }
   ]
 }

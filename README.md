@@ -1,113 +1,168 @@
-# Apache Pinot Ingestion Guide
+# Real-time Data Pipeline with Apache Pinot & Kafka
 
-This guide explains how to ingest CSV data into Apache Pinot (using Docker), including schema creation, table setup, segment generation, uploading, and querying.
+This guide explains how to run a full end-to-end **real-time pipeline** with Kafka and Apache Pinot, including **data generation, processing, ingestion, and querying**.
 
-------------------------------------------------------------------------
+---
 
-## 1. Start Pinot Cluster (Quickstart)
+## 1. Start Pinot Cluster (Realtime Quickstart)
 
-``` bash
-docker run -it   -p 9000:9000 -p 8099:8099   apachepinot/pinot:latest QuickStart -type batch
+```bash
+docker run -it \
+  -p 9000:9000 -p 8099:8099 \
+  apachepinot/pinot:latest QuickStart -type realtime
 ```
 
-This starts Controller (9000), Broker (8099), Server, and Zookeeper.
+- Controller: **9000**  
+- Broker: **8099**  
+- Zookeeper + Server được start kèm.  
 
-------------------------------------------------------------------------
+👉 Pinot UI: [http://localhost:9000](http://localhost:9000)
 
-## 2. Create Schema
+---
 
-Make sure you have your schema file (e.g., `transactions_schema.json`).
+## 2. Deploy Schema
 
-Run in **PowerShell** (Windows):
+Schema file: `conf/transactions_schema.json`
 
-``` powershell
-Invoke-WebRequest -Uri "http://localhost:9000/schemas" `
+```powershell
+$controller = "http://<pinot-host>:9000"
+
+Invoke-RestMethod `
   -Method POST `
-  -ContentType "application/json" `
-  -InFile "C:\Users\Dinh Khanh\Downloads\BTL\transactions_schema.json"
+  -Uri "$controller/schemas?override=true" `
+  -InFile "C:\Users\Dinh Khanh\Downloads\BTL_VSC\conf\transactions_schema.json" `
+  -ContentType "application/json"
 ```
 
-------------------------------------------------------------------------
+---
 
-## 3. Create Table
+## 3. Deploy Realtime Table
 
-Prepare table config file (e.g.,
-`transactions_offline_table_simple.json`).
+Table config: `conf/transactions_realtime_table.json`  
+(Source Kafka topic = `transactions_rt`)
 
-``` powershell
-Invoke-WebRequest -Uri "http://localhost:9000/tables" `
+```powershell
+Invoke-RestMethod `
   -Method POST `
-  -ContentType "application/json" `
-  -InFile "C:\Users\Dinh Khanh\Downloads\BTL\transactions_offline_table_simple.json"
+  -Uri "$controller/tables" `
+  -InFile "C:\Users\Dinh Khanh\Downloads\BTL_VSC\conf\transactions_realtime_table.json" `
+  -ContentType "application/json"
 ```
 
-------------------------------------------------------------------------
+---
 
-## 4. Build Segment
+## 4. Run Data Generator (Producer)
 
-Run Docker to create a Pinot segment from CSV:
+👉 Container sinh dữ liệu giả (Faker) và push vào Kafka topic `transactions_raw`.
 
-``` powershell
-docker run --rm -it `
-  --mount type=bind,source="C:\Users\Dinh Khanh\Downloads\BTL\data",target=/data,readonly `
-  --mount type=bind,source="C:\Users\Dinh Khanh\Downloads\BTL\segments",target=/segments `
-  --mount type=bind,source="C:\Users\Dinh Khanh\Downloads\BTL",target=/conf,readonly `
-  apachepinot/pinot:latest `
-  CreateSegment `
-  -dataDir /data `
-  -tableConfigFile /conf/transactions_offline_table_simple.json `
-  -schemaFile /conf/transactions_schema.json `
-  -format CSV `
-  -outDir /segments/out `
-  -overwrite
+```powershell
+# Stop old container if exists
+docker rm -f tx-producer 2>$null
+
+# Start producer
+docker run -d --name tx-producer `
+  --restart unless-stopped `
+  -v "C:\Users\Dinh Khanh\Downloads\BTL_VSC\crawl_data:/app" `
+  -e BOOTSTRAP_SERVERS=93.115.172.151:9092 `
+  -e TOPIC_RAW=transactions_raw `
+  -e INTERVAL_SEC=2 `
+  -e PYTHONUNBUFFERED=1 `
+  python:3.11-slim sh -lc `
+  "pip install --no-cache-dir kafka-python Faker >/dev/null && python -u /app/rt_producer.py"
 ```
 
-After running, check `/segments/out` for generated segment.
+- Script `rt_producer.py` đã có `while True`, **không cần vòng lặp ngoài shell**.  
+- Kiểm tra log:
 
-------------------------------------------------------------------------
-
-## 5. Upload Segment to Pinot
-
-``` powershell
-docker run --rm -it `
-  --mount type=bind,source="C:\Users\Dinh Khanh\Downloads\BTL\segments",target=/segments `
-  apachepinot/pinot:latest `
-  UploadSegment `
-  -controllerHost localhost `
-  -controllerPort 9000 `
-  -segmentDir /segments/out `
-  -tableName transactions
+```powershell
+docker logs -f --tail=100 tx-producer
 ```
 
-------------------------------------------------------------------------
+Kỳ vọng output:
 
-## 6. Query Data
-
-Open <http://localhost:9000/#/query> or use REST API.
-
-Example query:
-
-``` powershell
-Invoke-RestMethod -Method Post `
-  -Uri "http://localhost:8099/query/sql" `
-  -ContentType "application/json" `
-  -Body (@{ sql = "SELECT COUNT(*) AS cnt FROM transactions_OFFLINE" } | ConvertTo-Json)
+```
+RAW sent seq=... p=0 off=...
 ```
 
-Query all data (with LIMIT):
+---
 
-``` sql
-SELECT * FROM transactions_OFFLINE LIMIT 100;
+## 5. Run Processor
+
+👉 Container đọc từ `transactions_raw`, dedup + risk scoring, rồi đẩy ra `transactions_rt`.
+
+```powershell
+# Stop old container if exists
+docker rm -f tx-processor 2>$null
+
+# Start processor
+docker run -d --name tx-processor `
+  --restart unless-stopped `
+  -v "C:\Users\Dinh Khanh\Downloads\BTL_VSC\crawl_data:/app" `
+  -e BOOTSTRAP_SERVERS=93.115.172.151:9092 `
+  -e TOPIC_RAW=transactions_raw `
+  -e TOPIC_CLEAN=transactions_rt `
+  -e GROUP_ID=rt-processor-v1 `
+  -e DEDUP_MAX_KEYS=50000 `
+  -e PYTHONUNBUFFERED=1 `
+  python:3.11-slim sh -lc `
+  "pip install --no-cache-dir kafka-python >/dev/null && python -u /app/rt_processor.py"
 ```
 
-------------------------------------------------------------------------
+Kiểm tra trạng thái container + log:
+
+```powershell
+docker ps --format "table {{.Names}}\t{{.Status}}"
+docker logs -f --tail=100 tx-producer
+docker logs -f --tail=100 tx-processor
+```
+
+Ở `tx-processor` bạn phải thấy các dòng kiểu:
+
+```
+CLEAN <- RAW off=... → p=0, off=... | label=1 risk=0.20
+```
+
+---
+
+## 6. Query Data in Pinot
+
+👉 Query trực tiếp qua REST API hoặc Pinot UI.
+
+```powershell
+$body = @{ sql = @"
+SELECT create_dt, user_seq, payment_method, transaction_amount_24hour, label
+FROM transactions
+ORDER BY create_dt DESC
+LIMIT 10
+"@ } | ConvertTo-Json
+
+Invoke-RestMethod -Method POST -Uri "$controller/sql" -Body $body -ContentType "application/json"
+```
+
+---
+
+## 7. Architecture Diagram
+
+```mermaid
+flowchart LR
+    A[tx-producer\nFake Data Generator] -->|transactions_raw| B((Kafka Broker))
+    B -->|consume + clean| C[tx-processor\nDedup + Risk Scoring]
+    C -->|transactions_rt| B
+    B -->|Pinot Realtime Ingestion| D[Apache Pinot\nRealtime Table]
+
+    D --> E[Pinot UI / SQL Queries]
+```
+
+---
 
 ## Notes
 
--   Replace `localhost` with your server IP if accessing remotely (e.g., `93.115.172.151`).
--   On Windows PowerShell, **curl** maps to `Invoke-WebRequest`. Use syntax shown above.
--   Always check **Controller UI** at http://localhost:9000 to verify schemas, tables, and segments.
+- `transactions_raw` → raw Kafka topic (input from producer).  
+- `transactions_rt` → clean Kafka topic (output từ processor).  
+- Pinot **realtime table** consume từ `transactions_rt`.  
+- Controller UI: <http://<pinot-host>:9000>  
+- Broker queries chạy trên port **8099**.  
 
-------------------------------------------------------------------------
+---
 
-✅ You have successfully ingested and queried data in Apache Pinot!
+✅ Bạn đã có **working real-time ingestion pipeline** với Kafka + Pinot + custom Producer/Processor!

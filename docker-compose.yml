@@ -91,16 +91,32 @@ services:
   tx-producer:
     image: python:3.11-slim
     container_name: tx-producer
-    depends_on:
-      - kafka
-    environment:
-      TOPIC: "transactions_rt"
-      BOOTSTRAP_SERVERS: "kafka-rt:19092"
-      INTERVAL_SEC: "60"
-      START_SEQ: "1"
     working_dir: /app
     volumes:
-      - ./crawl_data:/app:ro
+      - ./crawl_data:/app
+    environment:
+      BOOTSTRAP_SERVERS: ${BOOTSTRAP_SERVERS:-93.115.172.151:9092}
+      TOPIC_RAW: ${TOPIC_RAW:-transactions_raw}
+      PYTHONUNBUFFERED: "1"
     command: >
-      sh -c "pip install --no-cache-dir kafka-python Faker &&
-             python /app/rt_producer.py"
+      sh -lc "pip install --no-cache-dir kafka-python >/dev/null &&
+              python -u /app/rt_producer.py"
+    restart: unless-stopped
+
+  tx-processor:
+    image: python:3.11-slim
+    container_name: tx-processor
+    working_dir: /app
+    volumes:
+      - ./crawl_data:/app
+    environment:
+      BOOTSTRAP_SERVERS: ${BOOTSTRAP_SERVERS:-93.115.172.151:9092}
+      TOPIC_RAW: ${TOPIC_RAW:-transactions_raw}
+      TOPIC_CLEAN: ${TOPIC_CLEAN:-transactions_rt}
+      GROUP_ID: ${GROUP_ID:-rt-processor-v1}
+      DEDUP_MAX_KEYS: ${DEDUP_MAX_KEYS:-50000}
+      PYTHONUNBUFFERED: "1"
+    command: >
+      sh -lc "pip install --no-cache-dir kafka-python >/dev/null &&
+              python -u /app/rt_processor.py"
+    restart: unless-stopped
