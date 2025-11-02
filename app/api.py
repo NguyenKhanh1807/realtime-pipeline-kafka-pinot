@@ -1,16 +1,14 @@
 import io
 import json
-from fastapi import FastAPI, UploadFile, File, HTTPException, Depends, status  
-from fastapi.security import OAuth2PasswordRequestForm  
-from pydantic import BaseModel, constr 
+from typing import List, Optional
+
 import pandas as pd
-from typing import Optional, List
-from sqlalchemy import func, select  
-from sqlalchemy.orm import Session  
-from app.model_io import load_model_and_artifacts
-from app.preprocess import df_align, encode_categoricals, sanitize_for_model
-from app.scoring import score_decide_with_explanations
-from app.config import settings
+from fastapi import Depends, FastAPI, File, HTTPException, UploadFile, status
+from fastapi.security import OAuth2PasswordRequestForm
+from pydantic import BaseModel, constr
+from sqlalchemy import func, select
+from sqlalchemy.orm import Session
+
 from app.auth import (
     AuthContext,
     authenticate_user,
@@ -20,13 +18,16 @@ from app.auth import (
     require_active_user,
     revoke_token,
 )
-from app.database import get_db  
+from app.config import settings
+from app.database import get_db
+from app.model_io import load_model_and_artifacts
 from app.models_auth import AuthUser
+from app.preprocess import df_align, encode_categoricals, sanitize_for_model
+from app.scoring import score_decide_with_explanations
 from utils.logging_utils import configure_logging
 
-# uvicorn app.api:app --host 0.0.0.0 --port 8080 
 
-configure_logging()  
+configure_logging()
 
 app = FastAPI(
     title="Fraud Scoring Service",
@@ -39,6 +40,7 @@ app = FastAPI(
     redoc_url="/redoc",
 )
 
+
 def _hydrate():
     global _model, _encoders, _schema_pack, _th, _alias, _registry_version, _feat_cols, _medians, _train_like
     _model, _encoders, _schema_pack, _th = load_model_and_artifacts()
@@ -46,7 +48,9 @@ def _hydrate():
     _alias = settings.MLFLOW_MODEL_ALIAS if settings.MLFLOW_MODEL_NAME else None
     _registry_version = _th.get("model_version_registry") or _th.get("registry_version")
 
+
 _hydrate()
+
 
 class Tx(BaseModel):
     transaction_seq: int
@@ -69,33 +73,33 @@ class Tx(BaseModel):
     transaction_count_1month: int = 0
     transaction_amount_1month: float = 0.0
 
+
 class TxBatch(BaseModel):
     transactions: List[Tx]
 
 
 class TokenResponse(BaseModel):
-    access_token: str  # Chuỗi JWT đã ký
-    token_type: str = "bearer"  # Loại token để client format header
-    expires_in: int  # TTL token tính bằng giây
-    username: str  # Username đã đăng nhập
+    access_token: str
+    token_type: str = "bearer"
+    expires_in: int
+    username: str
+
 
 class RegisterRequest(BaseModel):
-    username: constr(min_length=3, max_length=150)  # Ràng buộc độ dài username
-    password: constr(min_length=8, max_length=128)  # Ràng buộc độ dài mật khẩu
+    username: constr(min_length=3, max_length=150)
+    password: constr(min_length=8, max_length=128)
 
 
-# Helper tính TTL token dựa trên cấu hình phút -> giây
 def _jwt_ttl_seconds() -> int:
-    return settings.JWT_ACCESS_EXPIRE_MINUTES * 60  # Chuyển cấu hình phút sang giây
+    return settings.JWT_ACCESS_EXPIRE_MINUTES * 60
+
 
 @app.post("/auth/login", tags=["Auth"], response_model=TokenResponse, summary="Đăng nhập và nhận JWT")
 def login(
-    form_data: OAuth2PasswordRequestForm = Depends(),  # Đọc username/password từ form chuẩn
-    db: Session = Depends(get_db),  # Dependency tạo session DB.hi bạn đặt tham_so: Kieu = Depends(ham_dependency), FastAPI sẽ tự gọi ham_dependency trước khi chạy endpoint
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    db: Session = Depends(get_db),
 ):
-    # Gọi helper xác thực người dùng với thông tin đăng nhập
     user = authenticate_user(db, form_data.username, form_data.password)
-    # Nếu thông tin không khớp thì trả lỗi 401 chuẩn OAuth2
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -103,23 +107,21 @@ def login(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    # Phát hành JWT mới và lưu record token vào DB
     token = issue_token(db, user)
-    return TokenResponse(  # Chuẩn hóa payload trả về cho client
+    return TokenResponse(
         access_token=token,
         expires_in=_jwt_ttl_seconds(),
         username=user.username,
-    )  # Trả kết quả đăng nhập cho client
+    )
 
 
 @app.post("/auth/logout", tags=["Auth"], summary="Đăng xuất và thu hồi JWT")
 def logout(
-    auth: AuthContext = Depends(require_active_user),  # Lấy thông tin user từ token hiện tại
-    db: Session = Depends(get_db),  # Session DB để cập nhật trạng thái token
+    auth: AuthContext = Depends(require_active_user),
+    db: Session = Depends(get_db),
 ):
-    # Thu hồi token bằng cách set revoked_at trong DB
     revoke_token(db, auth.token_jti)
-    return {"status": "logged_out"}  # Thông báo logout thành công
+    return {"status": "logged_out"}
 
 
 @app.post(
@@ -129,27 +131,22 @@ def logout(
     summary="Đăng ký người dùng mới",
 )
 def register(
-    payload: RegisterRequest,  # Request body chứa username/password
-    db: Session = Depends(get_db),  # Session DB để tạo user
-    auth: Optional[AuthContext] = Depends(optional_active_user),  # Cho phép truyền token (nếu có) để kiểm soát quyền tạo user
+    payload: RegisterRequest,
+    db: Session = Depends(get_db),
+    auth: Optional[AuthContext] = Depends(optional_active_user),
 ):
-    """
-    - Cho phép tạo user đầu tiên không cần đăng nhập.
-    - Các lần tiếp theo yêu cầu JWT hợp lệ (đã đăng nhập).
-    """
-    stmt_count = select(func.count()).select_from(AuthUser)  # Đếm số user hiện có
-    existing_count = db.scalar(stmt_count) or 0  # Lấy kết quả đếm (mặc định 0 nếu None)
-    if existing_count > 0 and auth is None:  # Nếu đã có user và chưa đăng nhập thì chặn tạo thêm
+    stmt_count = select(func.count()).select_from(AuthUser)
+    existing_count = db.scalar(stmt_count) or 0
+    if existing_count > 0 and auth is None:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Yêu cầu đăng nhập trước khi tạo thêm người dùng.",
         )
 
-    stmt = select(AuthUser).where(AuthUser.username == payload.username)  # Kiểm tra username đã tồn tại chưa
-    if db.execute(stmt).scalar_one_or_none():  # Nếu trùng username thì trả mã lỗi 409
+    stmt = select(AuthUser).where(AuthUser.username == payload.username)
+    if db.execute(stmt).scalar_one_or_none():
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Username đã tồn tại.")
 
-    # bcrypt chỉ hỗ trợ tối đa 72 byte nên cần kiểm tra trước khi băm
     password_bytes = payload.password.encode("utf-8")
     if len(password_bytes) > 72:
         raise HTTPException(
@@ -157,14 +154,15 @@ def register(
             detail="Mật khẩu quá dài (tối đa 72 byte khi mã hóa UTF-8).",
         )
 
-    new_user = AuthUser(  # Tạo entity user mới với mật khẩu đã băm
+    new_user = AuthUser(
         username=payload.username,
         password_hash=hash_password(payload.password),
     )
-    db.add(new_user)  # Đưa entity vào session
-    db.commit()  # Commit để lưu vào DB
-    db.refresh(new_user)  # Refresh để có ID auto-increment
-    return {"id": new_user.id, "username": new_user.username}  # Trả về thông tin tóm tắt user vừa tạo
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+    return {"id": new_user.id, "username": new_user.username}
+
 
 @app.get("/health", tags=["Health"], summary="Kiểm tra tình trạng dịch vụ")
 def health():
@@ -175,26 +173,32 @@ def health():
         payload["alias"] = _alias
     return payload
 
+
 @app.post(
     "/reload",
     tags=["Admin"],
     summary="Nạp lại model và artifacts hiện hành",
-    dependencies=[Depends(require_active_user)],  # Chỉ cho phép người dùng đã đăng nhập
+    dependencies=[Depends(require_active_user)],
 )
 def reload_model():
     _hydrate()
     return {"status": "reloaded", "model_version": _th.get("model_version"), "registry_version": _registry_version}
 
+
 @app.post(
     "/score",
     tags=["Scoring"],
     summary="Chấm điểm một giao dịch",
-    dependencies=[Depends(require_active_user)],  # Bảo vệ endpoint bằng JWT
+    dependencies=[Depends(require_active_user)],
 )
 def score(tx: Tx):
     df = pd.DataFrame([tx.dict()])
     X = df_align(df)
-    cat_cols = [c for c in ["receiving_country","country_code","id_type","stay_qualify","payment_method"] if c in X.columns]
+    cat_cols = [
+        c
+        for c in ["receiving_country", "country_code", "id_type", "stay_qualify", "payment_method"]
+        if c in X.columns
+    ]
     Xe, _ = encode_categoricals(X, cat_cols, _encoders)
     Xs = sanitize_for_model(Xe, _feat_cols, _medians)
 
@@ -219,14 +223,15 @@ def score(tx: Tx):
         "threshold_low": _th["threshold_low"],
         "threshold_high": _th["threshold_high"],
         "model_version": _th["model_version"],
-        "reasons": reasons
+        "reasons": reasons,
     }
+
 
 @app.post(
     "/score/batch",
     tags=["Scoring"],
     summary="Chấm điểm nhiều giao dịch dạng JSON",
-    dependencies=[Depends(require_active_user)],  # Bảo vệ endpoint bằng JWT
+    dependencies=[Depends(require_active_user)],
 )
 def score_batch(payload: TxBatch):
     if not payload.transactions:
@@ -240,7 +245,11 @@ def score_batch(payload: TxBatch):
 
     df = pd.DataFrame([tx.dict() for tx in payload.transactions])
     X = df_align(df)
-    cat_cols = [c for c in ["receiving_country","country_code","id_type","stay_qualify","payment_method"] if c in X.columns]
+    cat_cols = [
+        c
+        for c in ["receiving_country", "country_code", "id_type", "stay_qualify", "payment_method"]
+        if c in X.columns
+    ]
     Xe, _ = encode_categoricals(X, cat_cols, _encoders)
     Xs = sanitize_for_model(Xe, _feat_cols, _medians)
 
@@ -269,11 +278,12 @@ def score_batch(payload: TxBatch):
         "results": detail_rows.to_dict(orient="records"),
     }
 
+
 @app.post(
     "/score/upload",
     tags=["Scoring"],
     summary="Chấm điểm hàng loạt từ tệp CSV",
-    dependencies=[Depends(require_active_user)],  # Bảo vệ endpoint bằng JWT
+    dependencies=[Depends(require_active_user)],
 )
 async def score_upload(file: UploadFile = File(...), include_allow: bool = True, top_k: int = 3):
     if not file.filename.lower().endswith(".csv"):
@@ -291,7 +301,11 @@ async def score_upload(file: UploadFile = File(...), include_allow: bool = True,
         raise HTTPException(status_code=400, detail=f"Thiếu cột bắt buộc trong CSV: {', '.join(sorted(missing))}")
 
     X = df_align(df)
-    cat_cols = [c for c in ["receiving_country","country_code","id_type","stay_qualify","payment_method"] if c in X.columns]
+    cat_cols = [
+        c
+        for c in ["receiving_country", "country_code", "id_type", "stay_qualify", "payment_method"]
+        if c in X.columns
+    ]
     Xe, _ = encode_categoricals(X, cat_cols, _encoders)
     Xs = sanitize_for_model(Xe, _feat_cols, _medians)
 
