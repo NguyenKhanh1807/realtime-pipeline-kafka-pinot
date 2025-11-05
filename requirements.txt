@@ -1,14 +1,4 @@
-# Core runtime dependencies
-kafka-python
-faker
-pinotdb
-pandas
-requests
-
-# Optional for Parquet export support
-pyarrow
-
-
+pandas==2.2.2
 numpy==1.26.4
 scikit-learn==1.5.1
 fastapi==0.115.0
@@ -26,5 +16,7 @@ ydf
 passlib[bcrypt]==1.7.4  
 PyJWT==2.9.0  
 bcrypt==4.1.2  
+apscheduler
+
 
 # pip install -r requirements.txt

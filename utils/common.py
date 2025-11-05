@@ -1,4 +1,3 @@
-# utils/common.py
 import numpy as np
 import pandas as pd
 from sklearn.metrics import precision_recall_curve, roc_auc_score, auc, confusion_matrix
@@ -46,5 +45,3 @@ def compute_thresholds(y_true_bin: np.ndarray, scores: np.ndarray, fpr_cap: floa
         th_rec = th_f1  # fallback nếu không chạm được recall mục tiêu
 
     return {"th_f1": th_f1, "th_fpr_cap": th_cap, "th_recall": th_rec}
-
-

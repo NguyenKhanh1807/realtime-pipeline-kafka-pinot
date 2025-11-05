@@ -22,9 +22,7 @@ class AuthUser(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
 
     tokens: Mapped[list["AuthToken"]] = relationship(
-        "AuthToken",
-        back_populates="user",
-        cascade="all, delete-orphan",
+        "AuthToken", back_populates="user", cascade="all, delete-orphan"
     )
 
 
@@ -43,3 +41,4 @@ class AuthToken(Base):
     @staticmethod
     def new_jti() -> str:
         return str(uuid4())
+    
