@@ -1,4 +1,3 @@
-# # File: util/thresholds.py
 import logging
 import os, yaml
 
@@ -16,7 +15,5 @@ def write_thresholds_yaml(th_low: float, th_high: float, model_version: str = "y
     path = os.path.join(out_dir, "{name}.yaml").format(name=name)
     with open(path, "w") as f:
         yaml.safe_dump(blob, f, allow_unicode=True)
-    LOGGER.info("Wrote %s", path)
+    # LOGGER.info("Wrote %s", path)
     return path
-
-# ví dụ:

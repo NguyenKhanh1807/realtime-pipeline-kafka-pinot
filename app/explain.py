@@ -4,9 +4,11 @@ from sklearn.metrics import precision_recall_curve, roc_auc_score, auc, confusio
 from app.scoring import fraud_scores_from_model
 from app.preprocess import sanitize_for_model
 
+# Hàm tính baseline và thống kê số học cho các đặc trưng số
 def compute_baselines(train_like_cols: List[str], medians: Dict[str,float]) -> Dict[str, Any]:
     return {c: ("num", float(medians.get(c, 0.0))) for c in train_like_cols}
 
+# Hàm tính thống kê số học (trung bình, độ lệch chuẩn) cho các đặc trưng số
 def fit_numeric_stats(feat_cols: List[str], medians: Dict[str,float], X_sample: pd.DataFrame=None):
     stats = {} 
     if X_sample is None or X_sample.empty: 
@@ -21,6 +23,7 @@ def fit_numeric_stats(feat_cols: List[str], medians: Dict[str,float], X_sample: 
         stats[c] = (float(np.mean(s)), float(np.std(s) + 1e-9)) 
     return stats
 
+# Hàm giải thích một giao dịch
 def explain_one_transaction(model, row: pd.Series, baselines, num_stats, top_k: int, feat_cols: List[str], medians: Dict[str,float]): 
     row = row.drop(labels=[c for c in ["is_fraud"] if c in row.index])
     row_df = sanitize_for_model(row.to_frame().T, feat_cols, medians)
@@ -43,6 +46,7 @@ def explain_one_transaction(model, row: pd.Series, baselines, num_stats, top_k: 
     top = [r for r in sorted(reasons, key=lambda r: r["delta_score"], reverse=True) if r["delta_score"]>0][:top_k]
     return {"base_score": base_score, "top_reasons": top}
 
+# Hàm giải thích hàng loạt giao dịch
 def batch_explanations(model, test_ds: pd.DataFrame, key_col: str, top_k: int, feat_cols: List[str], medians: Dict[str,float]) -> pd.DataFrame:
     baselines = compute_baselines(feat_cols, medians)
     num_stats = fit_numeric_stats(feat_cols, medians, X_sample=test_ds.drop(columns=[c for c in ["is_fraud"] if c in test_ds.columns], errors="ignore"))
@@ -59,3 +63,4 @@ def batch_explanations(model, test_ds: pd.DataFrame, key_col: str, top_k: int, f
     out = pd.DataFrame(rows)
     out["reasons_json"] = out["reasons"].apply(lambda r: json.dumps(r, ensure_ascii=False))
     return out[["id","score","reasons_json"]].sort_values("score", ascending=False)
+
