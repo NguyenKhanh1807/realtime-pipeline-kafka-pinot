@@ -1,14 +1,18 @@
 import logging
-import os
-import os, json
+import os, sys
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+
+import os, json, argparse, pickle, glob, joblib
 from datetime import datetime
 import numpy as np, pandas as pd, ydf
 from sklearn.metrics import precision_recall_curve, roc_auc_score, auc
-from sklearn.preprocessing import StandardScaler
+from typing import Optional
+
 import mlflow
 import mlflow.pyfunc
 from mlflow.models import infer_signature
-from app.preprocess import df_align, encode_categoricals, prepare_features_for_inference,sanitize_for_model
+
+from app.preprocess import df_align, encode_categoricals, prepare_features_for_inference
 from utils.encoders import export_encoders
 from utils.medians import export_medians_and_schema
 from utils.thresholds import write_thresholds_yaml
@@ -17,20 +21,16 @@ from utils.azure import (
     configure_azure_credentials_from_settings,
     ensure_azure_identity_env,
 )
-from utils.artifact_loaders import load_encoders_flexible, load_medians_and_schema_flexible
-from scripts.config import settings
+from app.config import settings
 from utils.logging_utils import configure_logging
-from typing import Optional
 from scripts.pinot_timewindow_fetch import (
     PinotFetchConfig,
     configure as configure_pinot_fetch,
     fetch_by_end_date as pinot_fetch_by_end_date,
 )
 
-
 configure_azure_credentials_from_settings()
 LOGGER = logging.getLogger(__name__)
-
 
 def load_training_dataframe(data_path: Optional[str], pinot_cfg: Optional[dict]) -> pd.DataFrame:
     if pinot_cfg:
@@ -68,8 +68,78 @@ def load_training_dataframe(data_path: Optional[str], pinot_cfg: Optional[dict])
     LOGGER.info("Loading training data from CSV: %s", data_path)
     return pd.read_csv(data_path)
 
+def _first_existing(paths):
+    for p in paths:
+        if os.path.exists(p):
+            return p
+    return None
 
-# Định nghĩa lớp mô hình MLflow pyfunc
+def load_encoders_flexible(artifacts_dir: str):
+    cand = _first_existing([
+        os.path.join(artifacts_dir, "encoders.pkl"),
+        os.path.join(artifacts_dir, "encoders.pickle"),
+        os.path.join(artifacts_dir, "encoders.json"),
+    ])
+    if cand is None:
+        hits = glob.glob(os.path.join(artifacts_dir, "encoders*"))
+        if hits:
+            cand = hits[0]
+    if cand is None:
+        raise FileNotFoundError(f"Cannot find encoders in {artifacts_dir}")
+
+    if cand.endswith((".pkl", ".pickle")):
+        try:
+            LOGGER.info("1Loading encoders from joblib file: %s", cand)
+            return joblib.load(cand)
+        except Exception:
+            with open(cand, "rb") as f:
+                LOGGER.info("Loading encoders from pickle file: %s", cand)
+                return pickle.load(f)
+    elif cand.endswith(".json"):
+        with open(cand, "r", encoding="utf-8") as f:
+            data = json.load(f)
+            LOGGER.info("Loading encoders from JSON file: %s", cand)
+        return data
+    else:
+        raise ValueError(f"Unsupported encoders file: {cand}")
+
+def load_medians_and_schema_flexible(artifacts_dir: str):
+    cand_main = _first_existing([
+        os.path.join(artifacts_dir, "medians_schema.json"),
+        os.path.join(artifacts_dir, "schema_medians.json"),
+    ])
+    if cand_main and os.path.exists(cand_main):
+        with open(cand_main, "r", encoding="utf-8") as f:
+            obj = json.load(f)
+        schema = obj.get("schema") or obj.get("feature_schema")
+        medians = obj.get("medians") or obj.get("feature_medians")
+        LOGGER.info("1Loaded medians and schema from %s", cand_main)
+        return schema, medians
+
+    cand_medians = _first_existing([
+        os.path.join(artifacts_dir, "medians.json"),
+        os.path.join(artifacts_dir, "feature_medians.json"),
+    ])
+    cand_schema = _first_existing([
+        os.path.join(artifacts_dir, "schema.json"),
+        os.path.join(artifacts_dir, "feature_schema.json"),
+    ])
+    medians = None
+    schema = None
+    if cand_medians:
+        with open(cand_medians, "r", encoding="utf-8") as f:
+            medians = json.load(f)
+    if cand_schema:
+        with open(cand_schema, "r", encoding="utf-8") as f:
+            schema = json.load(f)
+    if (schema is None) and (medians is None):# kiểm tra manifest.json
+        cand_manifest = os.path.join(artifacts_dir, "manifest.json")# kiểm tra trong manifest.json
+        if os.path.exists(cand_manifest):
+            with open(cand_manifest, "r", encoding="utf-8") as f:
+                _ = json.load(f)
+    LOGGER.info("Loaded medians and schema from %s and %s", cand_schema, cand_medians)
+    return schema, medians
+
 class FraudYDFPythonModel(mlflow.pyfunc.PythonModel):
     def load_context(self, context):
   
@@ -83,40 +153,21 @@ class FraudYDFPythonModel(mlflow.pyfunc.PythonModel):
         except Exception as e:
             raise RuntimeError(f"Cannot load encoders: {e}")
 
-        self.schema, self.medians, self.clipping_bounds = load_medians_and_schema_flexible(self.artifacts_dir)
+        self.schema, self.medians = load_medians_and_schema_flexible(self.artifacts_dir)
 
         self.maybe_cats = ["receiving_country","country_code","id_type","stay_qualify","payment_method"]
-        self.feat_cols = self.schema 
-        
-        if not isinstance(self.feat_cols, list):
-             if isinstance(self.schema, dict):
-                 self.feat_cols = self.schema.get("feature_columns") or self.schema.get("schema")
-             else:
-                 raise ValueError("Could not extract feature_columns list from schema.")
 
     def predict(self, context, model_input: pd.DataFrame):
-        """
-        Tiền xử lý dữ liệu đầu vào mới (model_input) và dự đoán xác suất gian lận.
-        """
-        X_ready = prepare_features_for_inference(
-            df_raw=model_input,
-            feat_cols=self.feat_cols,  # Danh sách cột cuối cùng
-            encoders=self.encoders,
-            medians=self.medians,
-            maybe_cats=self.maybe_cats,
-            clipping_bounds=self.clipping_bounds # ÁP DỤNG NGƯỠNG ĐÃ HỌC
-        )
-        if X_ready.shape[1] != len(self.feat_cols):
-             raise ValueError(f"Feature mismatch: Expected {len(self.feat_cols)} cols, got {X_ready.shape[1]}")
-        # Dự đoán xác suất
-        probs = fraud_prob_from_model(self.model, X_ready)
+        X = df_align(model_input)
+        cat_cols = [c for c in self.maybe_cats if c in X.columns]
+        X_enc, _ = encode_categoricals(X, cat_cols, encoders=self.encoders)
+        probs = fraud_prob_from_model(self.model, X_enc)
         return probs
-    
-# Định nghĩa ngoại lệ để bỏ qua huấn luyện
+
 class SkipTraining(RuntimeError):
    """Raised to signal that this window should skip training (e.g., label issues)."""
    pass
-# Hàm huấn luyện một lần
+
 def train_once(data_path: Optional[str],
                artifacts_dir: str, model_dir: str,
                test_ratio: float = 0.20, fpr_cap: float = 0.01, recall_tgt: float = 0.80,
@@ -124,6 +175,7 @@ def train_once(data_path: Optional[str],
                stamp: str = None,
                nest_version: bool = True,
                # MLflow
+               mlflow_uri: str = None,
                mlflow_exp: str = "KTDL-fraud-detection",
                mlflow_tags: dict = None,
                registered_model_name: str = "KTDL-fraud-ydf",
@@ -133,7 +185,7 @@ def train_once(data_path: Optional[str],
     LOGGER.info("Starting training with data source=%s", data_source_desc)
     LOGGER.info("Artifacts dir: %s, Model dir: %s", artifacts_dir, model_dir)
     LOGGER.info("Test ratio: %s, FPR cap: %s, Recall target: %s", test_ratio, fpr_cap, recall_tgt)
-    LOGGER.info("Experiment: %s, Registered model name: %s",  mlflow_exp, registered_model_name)
+    LOGGER.info("MLflow URI: %s, Experiment: %s, Registered model name: %s", mlflow_uri, mlflow_exp, registered_model_name)
     LOGGER.info("-" * 53)
     if stamp:
         if nest_version:
@@ -145,30 +197,11 @@ def train_once(data_path: Optional[str],
         if not save_holdout:
             save_holdout = os.path.join(artifacts_dir, "holdout.csv")
 
-    # load
-  # load data
+    # load data
     df = load_training_dataframe(data_path, pinot_cfg)
 
-    prep_df = df.copy()
-    # Điền giá trị thiếu cho cột chuỗi bằng 'Unknown' để encode ổn định
-    string_cols = prep_df.select_dtypes(include=['object']).columns
-    for col in string_cols:
-        prep_df[col] = prep_df[col].fillna('Unknown')#Nếu giá trị thiếu thì điền 'Unknown'
-
-    # Cắt ngoại lệ bằng IQR cho các cột amount. Giới hạn giá trị trong khoảng [lower, upper]
-    amount_cols = [c for c in prep_df.columns if 'amount' in c] 
-    clipping_bounds = {}
-    for col in amount_cols:
-        series = pd.to_numeric(prep_df[col], errors='coerce')
-        q1, q3 = series.quantile([0.25, 0.75])# [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], thì Q1 = 3.25 và Q3 = 7.75
-        iqr = q3 - q1 #Tính IQR. ví dụ IQR = Q3 - Q1 = 7.75 - 3.25 = 4.5
-        upper = q3 + 1.5 * iqr 
-        lower = max(q1 - 1.5 * iqr, 0) 
-        prep_df[col] = series.clip(lower=lower, upper=upper)# lower = 0 và upper = 14.5, giá trị < 0 -> 0, giá trị > 14.5 -> 14.5
-        clipping_bounds[col] = [float(lower), float(upper)]
-
     # split
-    train_raw, test_raw, cutoff = split_oot(prep_df, test_ratio=test_ratio)
+    train_raw, test_raw, cutoff = split_oot(df, test_ratio=test_ratio)
     LOGGER.info("Cutoff time: %s | Train=%s Test=%s", cutoff, f"{len(train_raw):,}", f"{len(test_raw):,}")
     LOGGER.info("Train label counts: %s", train_raw["label"].value_counts().to_dict())
     LOGGER.info("Test  label counts: %s", test_raw["label"].value_counts().to_dict())
@@ -178,7 +211,7 @@ def train_once(data_path: Optional[str],
     Xtr = df_align(train_raw.drop(columns=[c for c in drop_cols if c in train_raw.columns], errors="ignore"))
     Xte = df_align(test_raw .drop(columns=[c for c in drop_cols if c in test_raw.columns],  errors="ignore"))
 
-    # encode
+    # encode, lưu lại bộ encoder
     maybe_cats = ["receiving_country","country_code","id_type","stay_qualify","payment_method"]
     cat_cols = [c for c in maybe_cats if c in Xtr.columns]
     Xtr_enc, encoders = encode_categoricals(Xtr, cat_cols, encoders=None)
@@ -187,21 +220,8 @@ def train_once(data_path: Optional[str],
     # label
     ytr = train_raw["label"].map({0:"NO_FRAUD", 1:"FRAUD"})
     yte = test_raw ["label"].map({0:"NO_FRAUD", 1:"FRAUD"})
-   
-    # sanitize_for_model
-    feat_cols, med = export_medians_and_schema(Xtr_enc, out_dir=artifacts_dir, clipping_bounds=clipping_bounds)
-    Xtr_sanitize = sanitize_for_model(Xtr_enc, feat_cols, med)
-    Xte_sanitize = sanitize_for_model(Xte_enc, feat_cols, med)
-
-    # numeric_cols = Xtr_enc.select_dtypes(include=['number']).columns # chọn các cột số
-    # scaler = StandardScaler() # Chuẩn hoá dữ liệu về phân phối chuẩn (mean=0, std=1) để cho huấn luyện mô hình được tốt hơn bởi vì nhiều thuật toán ML nhạy cảm với thang đo của dữ liệu(KNN)
-    # Xtr_scaled = Xtr_sanitize.copy()
-    # Xtr_scaled[numeric_cols] = scaler.fit_transform(Xtr_scaled[numeric_cols])
-    # Xte_scaled = Xte_sanitize.copy()
-    # Xte_scaled[numeric_cols] = scaler.transform(Xte_scaled[numeric_cols])
-
-    train_ds = Xtr_sanitize.copy(); train_ds["is_fraud"] = ytr.values
-    test_ds  = Xte_sanitize.copy(); test_ds ["is_fraud"] = yte.values
+    train_ds = Xtr_enc.copy(); train_ds["is_fraud"] = ytr.values
+    test_ds  = Xte_enc.copy(); test_ds ["is_fraud"] = yte.values
 
     # class_weight
     pos = int((train_raw["label"]==1).sum())
@@ -228,7 +248,7 @@ def train_once(data_path: Optional[str],
         raise
 
     # eval + thresholds
-    y_true = (test_ds["is_fraud"].to_numpy()=="FRAUD").astype(int)
+    y_true = (test_ds["is_fraud"].to_numpy()=="FRAUD").astype(int) # 1 if FRAUD else 0. ví dụ như [0,0,1,0,1,...]
     scores = fraud_prob_from_model(model, test_ds.drop(columns=["is_fraud"]))
     if len(np.unique(y_true)) < 2:
         LOGGER.warning("Test set has a single class; ROC/PR undefined. Skip this window.")
@@ -246,8 +266,9 @@ def train_once(data_path: Optional[str],
     model.save(model_dir) 
 
     export_encoders(encoders, out_dir=artifacts_dir)
-    write_thresholds_yaml(th_low, th_high, model_version=os.path.basename(model_dir),
-                          out_dir=artifacts_dir, fpr_cap=fpr_cap)
+    feat_cols, med = export_medians_and_schema(train_ds, out_dir=artifacts_dir)
+    write_thresholds_yaml(th_low, th_high, model_version=os.path.basename(model_dir),out_dir=artifacts_dir, fpr_cap=fpr_cap)
+
     manifest = {
         "model_version": os.path.basename(model_dir),
         "trained_at": datetime.utcnow().isoformat(timespec="seconds") + "Z",
@@ -266,6 +287,12 @@ def train_once(data_path: Optional[str],
     test_raw.to_csv(holdout_raw_path, index=False)
 
     LOGGER.info("PR-AUC=%.3f | ROC-AUC=%.3f | th_low=%.3f | th_high=%.3f", pr_auc, roc, th_low, th_high)
+    LOGGER.info("-" * 53)
+
+
+    if mlflow_uri:
+        mlflow.set_tracking_uri(mlflow_uri)
+        LOGGER.info("MLflow tracking_uri = %s", mlflow_uri)
 
     mlflow.set_experiment(mlflow_exp)
     run_name = os.path.basename(model_dir)
@@ -280,9 +307,6 @@ def train_once(data_path: Optional[str],
             "fpr_cap": float(fpr_cap),
             "recall_tgt": float(recall_tgt),
             "feature_count": len(feat_cols),
-            "train_size": int(len(train_raw)),
-            "test_size": int(len(test_raw)),
-            "clipping_bounds": json.dumps(clipping_bounds),
         })
         mlflow.log_metrics({
             "pr_auc": pr_auc,
@@ -310,20 +334,22 @@ def train_once(data_path: Optional[str],
         mlflow.set_tags(base_tags)
 
         ensure_azure_identity_env()
+        # Log artifacts and model
         mlflow.log_artifacts(artifacts_dir, artifact_path="artifacts")
         mlflow.log_artifacts(model_dir,     artifact_path="ydf_model")
 
+        #Chuẩn bị input_example và signature
         raw_cols = [c for c in train_raw.columns if c not in ("is_fraud", "transaction_seq")]
-        input_example = train_raw[raw_cols].head(5).copy() 
-
-        Xe = prepare_features_for_inference(input_example, feat_cols, encoders, med, maybe_cats,clipping_bounds)
-        probs_example = fraud_prob_from_model(model, Xe)
+        input_example = train_raw[raw_cols].head(5).copy() # nên lấy 5 dòng để có đủ biến phân loại của tập huấn luyện
+        Xe = prepare_features_for_inference(input_example, feat_cols, encoders, med, maybe_cats)
+        probs_example = fraud_prob_from_model(model, Xe) # đầu ra tương ứng của input_example
 
         try:
             signature = infer_signature(input_example, probs_example)
         except Exception:
             signature = None
 
+        # Log MLflow PyFunc model
         model_info = mlflow.pyfunc.log_model(
             artifact_path="model",
             python_model=FraudYDFPythonModel(),
@@ -347,3 +373,70 @@ def train_once(data_path: Optional[str],
         LOGGER.info("MLflow Registered name: %s", registered_model_name)
 
     return True  
+
+def main():
+    configure_logging()
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--data", default="data/data.csv")
+    ap.add_argument("--artifacts-dir", default="artifacts")
+    ap.add_argument("--model-dir",     default="models")
+    ap.add_argument("--test-ratio", type=float, default=0.20)
+    ap.add_argument("--fpr-cap",   type=float, default=0.01)
+    ap.add_argument("--recall-tgt",type=float, default=0.80)
+    ap.add_argument("--save-holdout", default="artifacts/holdout.csv")
+    ap.add_argument("--use-pinot", dest="use_pinot", action="store_true", help="Lấy dữ liệu huấn luyện trực tiếp từ Pinot.")
+    ap.add_argument("--no-pinot", dest="use_pinot", action="store_false", help="Tắt lấy dữ liệu từ Pinot, dùng CSV.")
+    ap.set_defaults(use_pinot=True)
+    ap.add_argument("--pinot-host", default="93.115.172.151")
+    ap.add_argument("--pinot-port", type=int, default=8099)
+    ap.add_argument("--pinot-scheme", default="http", choices=["http", "https"])
+    ap.add_argument("--pinot-path", default="/query/sql")
+    ap.add_argument("--pinot-table", default="transactions")
+    ap.add_argument("--pinot-mode", choices=["dbapi", "rest"], default="dbapi")
+    ap.add_argument("--pinot-timeout", type=int, default=60)
+    ap.add_argument("--pinot-verify", action="store_true")
+    ap.add_argument("--pinot-end-date", default=None, help="YYYY-MM-DD; bỏ trống dùng thời gian hiện tại.")
+    ap.add_argument("--pinot-window-months", type=int, default=6, help="Số tháng lùi lại từ end-date.")
+    ap.add_argument("--pinot-limit", type=int, default=None, help="Giới hạn số dòng trả về.")
+
+    # ===== MLflow args =====
+    ap.add_argument("--mlflow-uri",  default=settings.MLFLOW_TRACKING_URI, help="MLflow Tracking URI")
+    ap.add_argument("--mlflow-exp",  default="KTDL-fraud-detection",help="Tên Experiment trong MLflow") 
+    ap.add_argument("--mlflow-tags", default=None,help='JSON tags, VD: {"project":"KTDL-fraud_service","owner":"Group 9"}')
+    ap.add_argument("--registered-model-name", default="KTDL-fraud-ydf",help="Tên model trong Model Registry")
+
+    args = ap.parse_args()
+
+    mlflow_uri = args.mlflow_uri or settings.MLFLOW_TRACKING_URI
+    pinot_cfg = None
+    data_source = args.data
+    print("use_pinot:", args.use_pinot)
+    if args.use_pinot:
+        pinot_cfg = {
+            "host": args.pinot_host,
+            "port": args.pinot_port,
+            "scheme": args.pinot_scheme,
+            "path": args.pinot_path,
+            "table": args.pinot_table,
+            "mode": args.pinot_mode,
+            "timeout": args.pinot_timeout,
+            "verify": args.pinot_verify,
+            "end_date": args.pinot_end_date,
+            "window_months": args.pinot_window_months,
+            "limit": args.pinot_limit,
+        }
+        data_source = None
+
+    train_once(data_source,
+               artifacts_dir=args.artifacts_dir, model_dir=args.model_dir,
+               test_ratio=args.test_ratio, fpr_cap=args.fpr_cap, recall_tgt=args.recall_tgt,
+               save_holdout=None, stamp=datetime.now().strftime("%Y%m%d-%H%M%S"),
+               nest_version=True,
+               mlflow_uri=mlflow_uri,
+               mlflow_exp=args.mlflow_exp,
+               mlflow_tags=args.mlflow_tags,
+               registered_model_name=args.registered_model_name,
+               pinot_cfg=pinot_cfg)
+
+if __name__ == "__main__":
+    main()

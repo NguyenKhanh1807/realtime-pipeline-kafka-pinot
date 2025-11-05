@@ -1,6 +1,7 @@
 import numpy as np, pandas as pd
 from typing import Optional, Sequence, Tuple
 
+# Hàm tính điểm gian lận từ model YDF đã train
 def fraud_scores_from_model(model, X: pd.DataFrame) -> np.ndarray:
     """
     YDF RF predict trả P(NO_FRAUD) -> đổi sang P(FRAUD)
@@ -8,17 +9,18 @@ def fraud_scores_from_model(model, X: pd.DataFrame) -> np.ndarray:
     p_no = model.predict(X).astype(float)
     return 1.0 - p_no
 
+# Hàm quyết định hành động dựa trên điểm và ngưỡng
 def decide(scores: np.ndarray, th_low: float, th_high: float) -> np.ndarray:
     out = np.full(scores.shape, "ALLOW", dtype=object)
     out[(scores >= th_low) & (scores < th_high)] = "REVIEW"
     out[scores >= th_high] = "BLOCK"
     return out
-
+# Hàm tính điểm và quyết định hành động
 def score_and_decide(model, X: pd.DataFrame, th_low: float, th_high: float):
     s = fraud_scores_from_model(model, X)
     d = decide(s, th_low, th_high)
     return s, d
-
+# Hàm tính điểm, quyết định hành động và giải thích
 def score_decide_with_explanations(
     model,
     X: pd.DataFrame,
@@ -75,3 +77,4 @@ def score_decide_with_explanations(
             result.loc[target_idx, "reasons_json"] = mapped.where(pd.notna(mapped), None)
 
     return scores, decisions, result
+
