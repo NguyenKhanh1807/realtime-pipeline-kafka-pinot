@@ -7,7 +7,7 @@ import { FormFieldViewModel } from '@/src/viewmodels/types';
  */
 
 export interface LoginFormData {
-  email: string;
+  username: string;
   password: string;
   rememberMe?: boolean;
 }
@@ -30,16 +30,16 @@ export interface ResetPasswordFormData {
  */
 export const validateLoginForm = (data: LoginFormData): Record<keyof LoginFormData, string | null> => {
   const errors: Record<string, string | null> = {
-    email: null,
+    username: null,
     password: null,
     rememberMe: null,
   };
 
-  // Email validation
-  if (!data.email) {
-    errors.email = 'Email is required';
-  } else if (!VALIDATION_RULES.email.pattern.test(data.email)) {
-    errors.email = 'Please enter a valid email address';
+  // Username validation
+  if (!data.username) {
+    errors.username = 'Username is required';
+  } else if (data.username.length < 2) {
+    errors.username = 'Username must be at least 2 characters';
   }
 
   // Password validation

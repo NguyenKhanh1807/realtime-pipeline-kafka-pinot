@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
+import { websiteApiClient, type ApiUser } from '@/src/services/website-api';
 
 // Types for the app store
 export interface User {
@@ -51,8 +52,8 @@ export interface AppActions {
   setSidebarOpen: (open: boolean) => void;
   setCurrentPage: (page: string) => void;
 
-  // Async actions
-  login: (credentials: { email: string; password: string }) => Promise<void>;
+      // Async actions
+      login: (credentials: { username: string; password: string }) => Promise<void>;
   register: (userData: RegisterData) => Promise<void>;
   logout: () => void;
   initializeApp: () => Promise<void>;
@@ -97,23 +98,20 @@ export const useAppStore = create<AppStore>()(
           setLoading(true);
           setError(null);
 
-          // Simulate API call - replace with actual API service
-          await new Promise(resolve => setTimeout(resolve, 1000));
+          // Call real API
+          const response = await websiteApiClient.login({
+            username: credentials.username,
+            password: credentials.password,
+          });
 
-          // Mock successful login - replace with actual authentication
-          const mockUser: User = {
-            id: '1',
-            email: credentials.email,
-            name: {
-              first: 'John',
-              last: 'Doe',
-            },
-            avatar: undefined,
-            role: 'user',
-            createdAt: new Date('2024-01-15'), // Mock creation date
-          };
+          if (!response.success || !response.user) {
+            throw new Error(response.message || 'Login failed');
+          }
 
-          setUser(mockUser);
+          // Transform API user to app user format
+          const appUser = websiteApiClient.transformApiUser(response.user);
+
+          setUser(appUser);
           setAuthenticated(true);
 
         } catch (error) {

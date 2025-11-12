@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
-import { DashboardLayout } from '@/src/layouts/dashboard-layout';
+import { DashboardLayout } from '@/src/components/layouts/dashboard-layout';
 import { AuditLogViewer } from '@/src/components/organisms/audit-log-viewer';
 import { UserManagement } from '@/src/components/organisms/user-management';
 import { User } from '@/src/types/auth';

@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { LoginForm } from '@/src/components/molecules/login-form';
 import { ThemeToggle } from '@/src/components/molecules/theme-switcher';
-import { AuthLayout } from '@/src/layouts';
+import { AuthLayout } from '@/src/components/layouts';
 import { useIsAuthenticated, useError, useIsLoading } from '@/src/contexts/app-context';
 import { cn } from '@/src/lib/utils';
 import { AlertTriangle } from 'lucide-react';
@@ -89,11 +89,11 @@ export default function LoginPage() {
           Demo Credentials
         </Typography>
         <div className="space-y-1 text-xs text-muted-foreground">
-          <div><strong>Email:</strong> demo@example.com</div>
-          <div><strong>Password:</strong> Demo123!</div>
+          <div><strong>Username:</strong> yuiiuy</div>
+          <div><strong>Password:</strong> any password (API accepts any for demo)</div>
         </div>
         <Typography variant="p" size="xs" color="muted" className="text-muted-foreground mt-2">
-          Use these credentials to test the login functionality
+          Use these credentials to test the login functionality with real API
         </Typography>
       </div>
     </AuthLayout>

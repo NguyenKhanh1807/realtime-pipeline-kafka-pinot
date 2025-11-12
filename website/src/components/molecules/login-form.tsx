@@ -20,7 +20,7 @@ interface LoginFormProps {
 export function LoginForm({ onSuccess, onSwitchToRegister, className }: LoginFormProps) {
   const { correlationId } = useCorrelation();
   const [formData, setFormData] = useState<LoginFormData>({
-    email: '',
+    username: '',
     password: '',
     rememberMe: false,
   });
@@ -59,7 +59,7 @@ export function LoginForm({ onSuccess, onSwitchToRegister, className }: LoginFor
       await auditLogger.logAuthentication(
         'login',
         'user-id-placeholder', // In real app, get from response
-        formData.email,
+        formData.username,
         'success',
         correlationId,
         {
@@ -77,7 +77,7 @@ export function LoginForm({ onSuccess, onSwitchToRegister, className }: LoginFor
       await auditLogger.logAuthentication(
         'login',
         '',
-        formData.email,
+        formData.username,
         'failure',
         correlationId,
         {
@@ -108,28 +108,28 @@ export function LoginForm({ onSuccess, onSwitchToRegister, className }: LoginFor
 
       {/* Form */}
       <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Email Field */}
+        {/* Username Field */}
         <div className="space-y-2">
           <Typography variant="span" size="sm" weight="medium" className="text-foreground">
-            Email
+            Username
           </Typography>
           <div className="relative">
             <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              type="email"
-              placeholder="Enter your email"
-              value={formData.email}
-              onChange={(e) => handleInputChange('email', e.target.value)}
+              type="text"
+              placeholder="Enter your username"
+              value={formData.username}
+              onChange={(e) => handleInputChange('username', e.target.value)}
               className={cn(
                 'pl-10 h-11',
-                errors.email && 'border-destructive focus:border-destructive'
+                errors.username && 'border-destructive focus:border-destructive'
               )}
               disabled={isLoading}
             />
           </div>
-          {errors.email && (
+          {errors.username && (
             <Typography variant="p" size="sm" color="destructive" className="text-destructive">
-              {errors.email}
+              {errors.username}
             </Typography>
           )}
         </div>

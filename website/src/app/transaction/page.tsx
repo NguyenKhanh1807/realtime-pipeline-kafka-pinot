@@ -5,7 +5,7 @@ import { TransactionForm, type TransactionData } from '@/src/components/molecule
 import { FraudCheckDialog, type FraudResult } from '@/src/components/molecules/fraud-check-dialog';
 import { Typography } from '@/src/components/atoms/typography';
 import { Button } from '@/src/components/atoms/button';
-import { DashboardLayout } from '@/src/layouts/dashboard-layout';
+import { DashboardLayout } from '@/src/components/layouts/dashboard-layout';
 import { ArrowLeft, Shield, TrendingUp, AlertTriangle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useCorrelation } from '@/src/contexts/correlation-context';

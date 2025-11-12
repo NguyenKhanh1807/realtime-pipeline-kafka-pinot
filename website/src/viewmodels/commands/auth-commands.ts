@@ -33,7 +33,7 @@ export class AuthCommands {
 
       // Step 4: Execute login
       await login({
-        email: credentials.email,
+        username: credentials.username,
         password: credentials.password,
       });
 
@@ -94,7 +94,7 @@ export class AuthCommands {
 
       // Step 6: Auto-login after registration
       await this.login({
-        email: userData.email,
+        username: userData.email, // Using email as username for registration
         password: userData.password,
       });
 

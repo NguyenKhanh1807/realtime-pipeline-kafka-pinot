@@ -18,7 +18,7 @@ interface AppContextValue {
   currentPage: string;
 
   // Actions
-  login: (credentials: { email: string; password: string }) => Promise<void>;
+  login: (credentials: { username: string; password: string }) => Promise<void>;
   logout: () => void;
   setSidebarOpen: (open: boolean) => void;
   setCurrentPage: (page: string) => void;

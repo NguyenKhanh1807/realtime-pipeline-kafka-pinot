@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { DashboardLayout } from '@/src/layouts/dashboard-layout';
+import { DashboardLayout } from '@/src/components/layouts/dashboard-layout';
 import { Typography } from '@/src/components/atoms/typography';
 import { Button } from '@/src/components/atoms/button';
 import { useUserDisplayName, useIsAuthenticated, useIsAdmin } from '@/src/contexts/app-context';
@@ -21,10 +21,10 @@ import {
   CreditCard,
   Target
 } from 'lucide-react';
-import { FraudTrendsChart } from '@/src/components/charts/fraud-trends-chart';
-import { RiskFactorsChart } from '@/src/components/charts/risk-factors-chart';
-import { FraudMetricsOverview } from '@/src/components/charts/fraud-metrics-overview';
-import { FraudMap } from '@/src/components/charts/fraud-map';
+import { FraudTrendsChart } from '@/src/components/organisms/fraud-trends-chart';
+import { RiskFactorsChart } from '@/src/components/organisms/risk-factors-chart';
+import { FraudMetricsOverview } from '@/src/components/organisms/fraud-metrics-overview';
+import { FraudMap } from '@/src/components/organisms/fraud-map';
 import { RealtimeTransactionFeed } from '@/src/components/molecules/realtime-transaction-feed';
 import { FraudAlertsPanel } from '@/src/components/molecules/fraud-alerts-panel';
 
@@ -343,14 +343,14 @@ export default function DashboardPage() {
             </Typography>
             <FraudMap
               data={[
-                { country: 'United States', fraudCount: 45, transactionCount: 1250, riskLevel: 'high' },
-                { country: 'United Kingdom', fraudCount: 23, transactionCount: 680, riskLevel: 'medium' },
-                { country: 'Germany', fraudCount: 18, transactionCount: 520, riskLevel: 'medium' },
-                { country: 'China', fraudCount: 67, transactionCount: 1890, riskLevel: 'high' },
-                { country: 'Japan', fraudCount: 12, transactionCount: 430, riskLevel: 'low' },
-                { country: 'India', fraudCount: 34, transactionCount: 980, riskLevel: 'medium' },
-                { country: 'Canada', fraudCount: 15, transactionCount: 380, riskLevel: 'low' },
-                { country: 'Australia', fraudCount: 8, transactionCount: 290, riskLevel: 'low' },
+                { country: 'United States', fraudCount: 45, totalTransactions: 1250, fraudRate: 3.6 },
+                { country: 'United Kingdom', fraudCount: 23, totalTransactions: 680, fraudRate: 3.38 },
+                { country: 'Germany', fraudCount: 18, totalTransactions: 520, fraudRate: 3.46 },
+                { country: 'China', fraudCount: 67, totalTransactions: 1890, fraudRate: 3.55 },
+                { country: 'Japan', fraudCount: 12, totalTransactions: 430, fraudRate: 2.79 },
+                { country: 'India', fraudCount: 34, totalTransactions: 980, fraudRate: 3.47 },
+                { country: 'Canada', fraudCount: 15, totalTransactions: 380, fraudRate: 3.95 },
+                { country: 'Australia', fraudCount: 8, totalTransactions: 290, fraudRate: 2.76 },
               ]}
               height={350}
             />
@@ -406,7 +406,7 @@ export default function DashboardPage() {
             {/* Summary stats */}
             <div className="mt-6 pt-4 border-t border-border">
               <div className="text-center">
-                <Typography variant="h4" size="md" weight="bold" className="text-red-600">
+                <Typography variant="h4" size="lg" weight="bold" className="text-red-600">
                   3.45%
                 </Typography>
                 <Typography variant="span" size="xs" color="muted" className="text-muted-foreground">

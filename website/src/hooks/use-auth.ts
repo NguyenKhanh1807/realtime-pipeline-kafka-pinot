@@ -22,10 +22,10 @@ export const useAuth = () => {
   const userDisplayName = user?.name || user?.email || 'Anonymous User';
 
   // Enhanced login with additional validation
-  const enhancedLogin = useCallback(async (credentials: { email: string; password: string }) => {
+  const enhancedLogin = useCallback(async (credentials: { username: string; password: string }) => {
     // Additional client-side validation
-    if (!credentials.email || !credentials.password) {
-      throw new Error('Email and password are required');
+    if (!credentials.username || !credentials.password) {
+      throw new Error('Username and password are required');
     }
 
     if (credentials.password.length < 8) {

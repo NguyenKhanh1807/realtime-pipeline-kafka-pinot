@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/src/components/atoms/button';
 import { Input } from '@/src/components/atoms/input';
 import { Typography } from '@/src/components/atoms/typography';
@@ -14,6 +14,7 @@ import {
   hasPermission,
   canManageRole
 } from '@/src/types/auth';
+import { websiteApiClient, type ApiUser } from '@/src/services/website-api';
 import {
   Users,
   User,
@@ -79,13 +80,59 @@ export function UserManagement({
   onUserDelete,
   className
 }: UserManagementProps) {
-  const [users, setUsers] = useState<UserType[]>(mockUsers);
+  const [users, setUsers] = useState<UserType[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState<UserRole | 'all'>('all');
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [editingUser, setEditingUser] = useState<UserType | null>(null);
   const [loading, setLoading] = useState(false);
+  const [apiLoading, setApiLoading] = useState(true);
+
+  // Load users from API
+  useEffect(() => {
+    const loadUsers = async () => {
+      try {
+        setApiLoading(true);
+        const response = await websiteApiClient.getUsers();
+
+        if (response.success && response.data) {
+          // Transform API users to component format
+          const transformedUsers: UserType[] = Object.values(response.data.users).map((apiUser: ApiUser) => {
+            const userRole = apiUser.role.toLowerCase() as UserRole;
+            return {
+              id: apiUser.username,
+              email: apiUser.username, // Using username as email
+              name: {
+                first: apiUser.username.split('_')[0] || 'User',
+                last: apiUser.component,
+              },
+              role: userRole,
+              permissions: ROLE_DEFINITIONS[userRole]?.permissions || [], // Use role-based permissions
+              isActive: true, // API doesn't provide this, assume active
+              lastLogin: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000), // Mock login time
+              createdAt: new Date(Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000), // Mock creation time
+              updatedAt: new Date(),
+            };
+          });
+
+          setUsers(transformedUsers);
+        } else {
+          // Fallback to mock data if API fails
+          console.warn('Failed to load users from API, using mock data');
+          setUsers(mockUsers);
+        }
+      } catch (error) {
+        console.error('Failed to load users:', error);
+        // Fallback to mock data
+        setUsers(mockUsers);
+      } finally {
+        setApiLoading(false);
+      }
+    };
+
+    loadUsers();
+  }, []);
 
   // Filter users based on search and filters
   const filteredUsers = users.filter(user => {
@@ -210,7 +257,7 @@ export function UserManagement({
               Total Users
             </Typography>
             <Typography variant="h3" size="lg" weight="bold" className="text-foreground">
-              {users.length}
+              {apiLoading ? '...' : users.length}
             </Typography>
           </div>
           <div className="bg-muted/50 rounded-lg p-3">
@@ -218,7 +265,7 @@ export function UserManagement({
               Active Users
             </Typography>
             <Typography variant="h3" size="lg" weight="bold" className="text-foreground">
-              {users.filter(u => u.isActive).length}
+              {apiLoading ? '...' : users.filter(u => u.isActive).length}
             </Typography>
           </div>
           <div className="bg-muted/50 rounded-lg p-3">
@@ -226,7 +273,7 @@ export function UserManagement({
               Admins
             </Typography>
             <Typography variant="h3" size="lg" weight="bold" className="text-foreground">
-              {users.filter(u => u.role === 'admin').length}
+              {apiLoading ? '...' : users.filter(u => u.role === 'admin').length}
             </Typography>
           </div>
           <div className="bg-muted/50 rounded-lg p-3">
@@ -234,7 +281,7 @@ export function UserManagement({
               Analysts
             </Typography>
             <Typography variant="h3" size="lg" weight="bold" className="text-foreground">
-              {users.filter(u => u.role === 'analyst').length}
+              {apiLoading ? '...' : users.filter(u => u.role === 'analyst').length}
             </Typography>
           </div>
         </div>
@@ -392,7 +439,17 @@ export function UserManagement({
           </tbody>
         </table>
 
-        {filteredUsers.length === 0 && (
+        {apiLoading ? (
+          <div className="p-8 text-center">
+            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+            <Typography variant="h3" size="lg" color="muted" className="text-muted-foreground">
+              Loading users...
+            </Typography>
+            <Typography variant="p" size="sm" color="muted" className="text-muted-foreground">
+              Fetching user data from API
+            </Typography>
+          </div>
+        ) : filteredUsers.length === 0 ? (
           <div className="p-8 text-center">
             <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
             <Typography variant="h3" size="lg" color="muted" className="text-muted-foreground">
@@ -402,7 +459,7 @@ export function UserManagement({
               Try adjusting your search or filters
             </Typography>
           </div>
-        )}
+        ) : null}
       </div>
 
       {/* Create User Modal */}

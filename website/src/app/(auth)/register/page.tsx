@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { LoginForm } from '@/src/components/molecules/login-form';
 import { ThemeToggle } from '@/src/components/molecules/theme-switcher';
-import { AuthLayout } from '@/src/layouts';
+import { AuthLayout } from '@/src/components/layouts';
 import { Typography } from '@/src/components/atoms/typography';
 import { Button } from '@/src/components/atoms/button';
 import { Input } from '@/src/components/atoms/input';

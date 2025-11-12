@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
-import { DashboardLayout } from '@/src/layouts/dashboard-layout';
+import { DashboardLayout } from '@/src/components/layouts/dashboard-layout';
 import { Typography } from '@/src/components/atoms/typography';
 import { Button } from '@/src/components/atoms/button';
 import { useIsAuthenticated, useUserDisplayName, useUser } from '@/src/contexts/app-context';
