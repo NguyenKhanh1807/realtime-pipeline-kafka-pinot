@@ -3,26 +3,31 @@
  * Business rule validation for domain entities
  */
 
-import type { Money, GeographicLocation, Email, Username } from '../types';
+import type { GeographicLocation, Email, Username, CurrencyCode } from '../types';
+import { Money } from '../value-objects/money';
 
-// Money validation
-export function validateMoney(amount: Money): { isValid: boolean; errors: string[] } {
+// Money validation - accepts both Money value object and interface
+export function validateMoney(amount: Money | { amount: number; currency: CurrencyCode }): { isValid: boolean; errors: string[] } {
   const errors: string[] = [];
 
-  if (!amount || typeof amount.amount !== 'number') {
+  // Handle both Money value object and interface
+  const amountValue = amount instanceof Money ? amount.getAmount() : amount.amount;
+  const currencyValue = amount instanceof Money ? amount.getCurrency() : amount.currency;
+
+  if (typeof amountValue !== 'number' || isNaN(amountValue)) {
     errors.push('Amount must be a valid number');
   } else {
-    if (amount.amount < 0) {
+    if (amountValue < 0) {
       errors.push('Amount cannot be negative');
     }
-    if (amount.amount > 10000000) { // $10M limit
+    if (amountValue > 10000000) { // $10M limit
       errors.push('Amount exceeds maximum transaction limit');
     }
   }
 
-  if (!amount.currency || typeof amount.currency !== 'string') {
+  if (!currencyValue || typeof currencyValue !== 'string') {
     errors.push('Currency is required');
-  } else if (!['USD', 'EUR', 'GBP', 'JPY', 'CAD', 'AUD'].includes(amount.currency)) {
+  } else if (!['USD', 'EUR', 'GBP', 'JPY', 'CAD', 'AUD'].includes(currencyValue)) {
     errors.push('Unsupported currency');
   }
 
@@ -151,7 +156,7 @@ export function validatePassword(password: string): { isValid: boolean; errors: 
 }
 
 // Transaction amount validation
-export function validateTransactionAmount(amount: Money, context?: {
+export function validateTransactionAmount(amount: Money | { amount: number; currency: CurrencyCode }, context?: {
   userDailyLimit?: number;
   merchantDailyLimit?: number;
 }): { isValid: boolean; errors: string[]; warnings: string[] } {
@@ -163,13 +168,17 @@ export function validateTransactionAmount(amount: Money, context?: {
   errors.push(...amountValidation.errors);
 
   if (amountValidation.isValid) {
+    // Handle both Money value object and interface
+    const amountValue = amount instanceof Money ? amount.getAmount() : amount.amount;
+    const currencyValue = amount instanceof Money ? amount.getCurrency() : amount.currency;
+
     // Context-specific validations
-    if (context?.userDailyLimit && amount.amount > context.userDailyLimit) {
-      errors.push(`Amount exceeds daily user limit of ${context.userDailyLimit} ${amount.currency}`);
+    if (context?.userDailyLimit && amountValue > context.userDailyLimit) {
+      errors.push(`Amount exceeds daily user limit of ${context.userDailyLimit} ${currencyValue}`);
     }
 
-    if (context?.merchantDailyLimit && amount.amount > context.merchantDailyLimit) {
-      warnings.push(`Amount exceeds merchant daily limit of ${context.merchantDailyLimit} ${amount.currency}`);
+    if (context?.merchantDailyLimit && amountValue > context.merchantDailyLimit) {
+      warnings.push(`Amount exceeds merchant daily limit of ${context.merchantDailyLimit} ${currencyValue}`);
     }
 
     // Business rule warnings

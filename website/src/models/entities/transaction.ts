@@ -5,12 +5,13 @@
 
 import type {
   TransactionId,
-  Money,
   Timestamp,
   TransactionType,
   PaymentMethod,
   GeographicLocation,
+  CurrencyCode,
 } from '@/src/models/types';
+import { Money } from '@/src/models/value-objects/money';
 
 export interface TransactionProps {
   id: TransactionId;
@@ -38,7 +39,7 @@ export class Transaction {
 
   // Getters
   get id(): TransactionId { return this.props.id; }
-  get amount(): Money { return { ...this.props.amount }; }
+  get amount(): Money { return this.props.amount; }
   get merchant(): string { return this.props.merchant; }
   get description(): string | undefined { return this.props.description; }
   get type(): TransactionType { return this.props.type; }
@@ -54,13 +55,14 @@ export class Transaction {
   // Business logic methods
   getAmountInUSD(): number {
     // In real implementation, this would use currency conversion rates
-    if (this.props.amount.currency === 'USD') {
-      return this.props.amount.amount;
+    const currency = this.props.amount.getCurrency();
+    if (currency === 'USD') {
+      return this.props.amount.getAmount();
     }
     // Simplified conversion for demo
     const rates: Record<string, number> = { EUR: 1.1, GBP: 1.3, JPY: 0.009, CAD: 0.8, AUD: 0.7 };
-    const rate = rates[this.props.amount.currency] || 1;
-    return this.props.amount.amount * rate;
+    const rate = rates[currency] || 1;
+    return this.props.amount.getAmount() * rate;
   }
 
   isHighValue(threshold: number = 1000): boolean {
@@ -93,10 +95,10 @@ export class Transaction {
   }
 
   private validateAmount(amount: Money): void {
-    if (amount.amount < 0) {
+    if (amount.isNegative()) {
       throw new Error('Transaction amount cannot be negative');
     }
-    if (amount.amount > 1000000) { // $1M limit
+    if (amount.getAmount() > 1000000) { // $1M limit
       throw new Error('Transaction amount exceeds maximum allowed');
     }
   }
@@ -115,6 +117,78 @@ export class Transaction {
     });
   }
 
+  /**
+   * Create Transaction entity from Pinot API data
+   * Transforms Pinot response to domain entity
+   */
+  static fromPinotData(data: {
+    transaction_seq: number;
+    user_seq: number;
+    user_name?: string | null;
+    receiving_country?: string | null;
+    country_code?: string | null;
+    payment_method?: string | null;
+    transaction_amount_24hour?: number | null;
+    transaction_count_24hour?: number | null;
+    transaction_amount_1week?: number | null;
+    transaction_count_1week?: number | null;
+    transaction_amount_1month?: number | null;
+    transaction_count_1month?: number | null;
+    label?: number | null; // 0 = legitimate, 1 = fraudulent
+    create_dt: number; // Timestamp in milliseconds
+  }): Transaction {
+    // Transform Pinot data to domain entity
+    const amount = Money.create(
+      data.transaction_amount_24hour || 0,
+      'USD' // Default to USD, could be determined from country_code
+    );
+
+    const location: GeographicLocation = {
+      country: data.receiving_country || 'Unknown',
+      countryCode: data.country_code || 'XX',
+    };
+
+    // Map payment method
+    const paymentMethodMap: Record<string, PaymentMethod> = {
+      'credit_card': 'visa',
+      'debit_card': 'visa',
+      'digital_wallet': 'paypal',
+      'bank_transfer': 'bank_transfer',
+    };
+    const paymentMethod: PaymentMethod = paymentMethodMap[data.payment_method || ''] || 'visa';
+
+    // Determine transaction type from payment method
+    const transactionType: TransactionType = 
+      data.payment_method?.includes('card') ? 'credit_card' :
+      data.payment_method?.includes('wallet') ? 'digital_wallet' :
+      data.payment_method?.includes('transfer') ? 'bank_transfer' :
+      'credit_card'; // Default
+
+    return new Transaction({
+      id: `TXN-${data.transaction_seq}`,
+      amount,
+      merchant: data.user_name || 'Unknown Merchant',
+      description: `Transaction #${data.transaction_seq}`,
+      type: transactionType,
+      paymentMethod,
+      location,
+      timestamp: new Date(data.create_dt),
+      userId: data.user_seq.toString(),
+      metadata: {
+        transactionSeq: data.transaction_seq,
+        userSeq: data.user_seq,
+        transactionCount24h: data.transaction_count_24hour,
+        transactionAmount24h: data.transaction_amount_24hour,
+        transactionCount1week: data.transaction_count_1week,
+        transactionAmount1week: data.transaction_amount_1week,
+        transactionCount1month: data.transaction_count_1month,
+        transactionAmount1month: data.transaction_amount_1month,
+        fraudLabel: data.label || 0,
+        isFraudulent: data.label === 1,
+      },
+    });
+  }
+
   // Serialization for external use
   toJSON(): TransactionProps {
     return { ...this.props };
@@ -123,7 +197,7 @@ export class Transaction {
   // For display purposes (ViewModel layer)
   toDisplay(): {
     id: TransactionId;
-    amount: Money;
+    amount: { amount: number; currency: CurrencyCode }; // Convert to interface for ViewModel
     merchant: string;
     description?: string;
     type: TransactionType;
@@ -136,7 +210,7 @@ export class Transaction {
   } {
     return {
       id: this.id,
-      amount: this.amount,
+      amount: this.amount.toJSON(), // Convert value object to interface
       merchant: this.merchant,
       description: this.description,
       type: this.type,

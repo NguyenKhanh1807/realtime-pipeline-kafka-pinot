@@ -37,19 +37,16 @@ export interface ThemeActions {
 
 export type ThemeStore = ThemeState & ThemeActions;
 
-// Default theme configuration
+// Default theme configuration - Always dark theme
 const defaultTheme: Omit<ThemeState, 'resolvedMode' | 'systemPreference'> = {
-  mode: 'system',
+  mode: 'dark',
   colorScheme: 'neutral',
   borderRadius: 'md',
 };
 
-// Helper function to resolve theme mode
+// Helper function to resolve theme mode - Always returns dark
 const resolveThemeMode = (mode: ThemeMode, systemPreference: 'light' | 'dark'): 'light' | 'dark' => {
-  if (mode === 'system') {
-    return systemPreference;
-  }
-  return mode;
+  return 'dark'; // Always dark theme
 };
 
 // Create the theme store with persistence
@@ -58,8 +55,8 @@ export const useThemeStore = create<ThemeStore>()(
     persist(
       (set, get) => ({
         ...defaultTheme,
-        resolvedMode: 'light',
-        systemPreference: 'light',
+        resolvedMode: 'dark',
+        systemPreference: 'dark',
 
         // Theme actions
         setMode: (mode) => {
@@ -81,20 +78,10 @@ export const useThemeStore = create<ThemeStore>()(
 
         // Utility actions
         toggleMode: () => {
-          const { mode, systemPreference } = get();
-          let newMode: ThemeMode;
-
-          // Simple toggle between light and dark (ignore system mode)
-          if (mode === 'light' || mode === 'system') {
-            // If currently light or system, switch to dark
-            newMode = 'dark';
-          } else {
-            // If currently dark, switch to light
-            newMode = 'light';
-          }
-
-          const resolvedMode = resolveThemeMode(newMode, systemPreference);
-          set({ mode: newMode, resolvedMode }, false, 'toggleMode');
+          // No-op: Always dark theme, no toggle
+          const { systemPreference } = get();
+          const resolvedMode = resolveThemeMode('dark', systemPreference);
+          set({ mode: 'dark', resolvedMode }, false, 'toggleMode');
         },
 
         resetToDefaults: () => {

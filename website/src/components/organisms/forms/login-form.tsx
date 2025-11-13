@@ -1,13 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import { Button, Input, Typography } from '@/src/components/atoms';
+import { Button, Input, Loading, Typography } from '@/src/components/atoms';
 import { InputField, FormField } from '@/src/components/molecules';
-import { AuthCommands } from '@/src/viewmodels';
-import { type LoginFormData } from '@/src/viewmodels';
 import { useCorrelation } from '@/src/contexts/correlation-context';
 import { log as logger, cn } from '@/src/lib';
 import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
+import { AuthCommands, validateLoginForm, type LoginFormData } from '@/src/view-models';
 
 interface LoginFormProps {
   onSuccess?: () => void;
@@ -38,11 +37,10 @@ export function LoginForm({ onSuccess, onSwitchToRegister, className }: LoginFor
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // TEMPORARILY DISABLED: Skip validation
-    // const validationErrors = validateLoginForm(formData);
-    // setErrors(validationErrors);
-    // const hasErrors = Object.values(validationErrors).some(error => error !== null && error !== undefined);
-    // if (hasErrors) return;
+    const validationErrors = validateLoginForm(formData);
+    setErrors(validationErrors);
+    const hasErrors = Object.values(validationErrors).some(error => error !== null && error !== undefined);
+    if (hasErrors) return;
 
     setIsLoading(true);
     const startTime = Date.now();
@@ -77,8 +75,6 @@ export function LoginForm({ onSuccess, onSwitchToRegister, className }: LoginFor
         }
       });
 
-      // Error is handled by the command and displayed through the store
-      // Error already logged above with structured format
     } finally {
       setIsLoading(false);
     }
@@ -148,8 +144,8 @@ export function LoginForm({ onSuccess, onSwitchToRegister, className }: LoginFor
         >
           {isLoading ? (
             <div className="flex items-center space-x-2">
-              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              <span className="pb-0.5">Signing in...</span>
+              <Loading size="sm" variant="spinner" className="border-white border-t-transparent" />
+              <span className="text-white">Signing in...</span>
             </div>
           ) : (
             'Sign In'

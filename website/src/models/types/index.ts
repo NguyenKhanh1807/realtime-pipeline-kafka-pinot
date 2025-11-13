@@ -18,10 +18,6 @@ export type Timestamp = Date;
 // Status types
 export type EntityStatus = 'active' | 'inactive' | 'suspended' | 'deleted';
 
-// User roles and permissions
-export type UserRole = 'admin' | 'analyst' | 'viewer';
-export type Permission = 'read' | 'write' | 'delete' | 'admin';
-
 // Risk levels
 export type RiskLevel = 'low' | 'medium' | 'high' | 'critical';
 
@@ -44,11 +40,16 @@ export interface GeographicLocation {
   longitude?: number;
 }
 
-// Money value object
+// Money type - Interface for data structures
+// Note: For domain operations with behavior, use Money class from value-objects/money.ts
+// This interface is used for DTOs, API contracts, and type definitions
 export interface Money {
   amount: number;
   currency: CurrencyCode;
 }
+
+// Note: Money value object class is exported from '../value-objects/money'
+// Import it directly: import { Money } from '@/src/models/value-objects'
 
 // Time range for queries
 export interface DateRange {
@@ -74,3 +75,10 @@ export interface PaginatedResult<T> {
   hasNext: boolean;
   hasPrev: boolean;
 }
+
+// Export transaction types
+export * from './transaction';
+
+// Re-export auth types (UserRole) from auth.ts
+export type { UserRole, RoleDefinition } from './auth';
+export { ROLE_DEFINITIONS } from './auth';

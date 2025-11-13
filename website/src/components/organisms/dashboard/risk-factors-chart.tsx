@@ -21,17 +21,26 @@ interface RiskFactorsChartProps {
   height?: number;
 }
 
-// Predefined colors for risk factors
+// Predefined colors for risk factors - using custom dark theme palette
 const RISK_FACTOR_COLORS = [
-  '#ef4444', // red-500 - High risk
-  '#f97316', // orange-500 - Medium-high risk
-  '#eab308', // yellow-500 - Medium risk
-  '#22c55e', // green-500 - Low risk
-  '#3b82f6', // blue-500 - Info
-  '#8b5cf6', // violet-500 - Other
-  '#ec4899', // pink-500 - Additional
-  '#06b6d4', // cyan-500 - Additional
+  '#d94a4a', // Critical Risk - danger-a10
+  '#d7ac61', // Medium Risk - warning-a10
+  '#47d5a6', // Low Risk - success-a10
+  '#4077d1', // Info - info-a10
+  '#e7cbe2', // Primary - primary-a0
+  '#92b2e5', // Info light - info-a20
+  '#9ae8ce', // Success light - success-a20
+  '#ecd7b2', // Warning light - warning-a20
 ];
+
+// Map risk factor names to specific colors
+const getRiskFactorColor = (factor: string): string => {
+  const factorLower = factor.toLowerCase();
+  if (factorLower.includes('critical')) return '#d94a4a';
+  if (factorLower.includes('medium')) return '#d7ac61';
+  if (factorLower.includes('low')) return '#47d5a6';
+  return '#4077d1';
+};
 
 interface TooltipProps {
   active?: boolean;
@@ -47,14 +56,32 @@ interface TooltipProps {
 const CustomTooltip = ({ active, payload }: TooltipProps) => {
   if (active && payload && payload.length) {
     const data = payload[0];
+    const total = payload.reduce((sum, item) => sum + (item.value || 0), 0);
+    const percentage = total > 0 ? ((data.value || 0) / total * 100).toFixed(1) : '0';
+    
     return (
-      <div className="bg-card border border-border rounded-lg p-3 shadow-lg">
-        <Typography variant="p" size="sm" weight="semibold" className="text-foreground mb-1">
+      <div className="bg-[var(--clr-surface-a10)] border-2 border-border rounded-lg p-4 shadow-lg">
+        <Typography variant="p" size="sm" weight="semibold" className="text-foreground mb-2">
           {data.payload.factor}
         </Typography>
-        <Typography variant="span" size="sm" className="text-muted-foreground">
-          Count: {data.value}
-        </Typography>
+        <div className="space-y-1">
+          <div className="flex items-center justify-between gap-4">
+            <Typography variant="span" size="xs" className="text-muted-foreground">
+              Count:
+            </Typography>
+            <Typography variant="span" size="xs" weight="semibold" className="text-foreground">
+              {data.value.toLocaleString()}
+            </Typography>
+          </div>
+          <div className="flex items-center justify-between gap-4 pt-1 border-t border-border">
+            <Typography variant="span" size="xs" className="text-muted-foreground">
+              Percentage:
+            </Typography>
+            <Typography variant="span" size="xs" weight="semibold" className="text-foreground">
+              {percentage}%
+            </Typography>
+          </div>
+        </div>
       </div>
     );
   }
@@ -87,11 +114,12 @@ export function RiskFactorsChart({
       <text
         x={x}
         y={y}
-        fill="white"
+        fill="var(--clr-light-a0)"
         textAnchor={x > cx ? 'start' : 'end'}
         dominantBaseline="central"
-        fontSize={12}
+        fontSize={13}
         fontWeight="bold"
+        style={{ textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}
       >
         {`${(typeof percent === 'number' && !isNaN(percent) ? (percent * 100).toFixed(0) : '0')}%`}
       </text>
@@ -108,28 +136,33 @@ export function RiskFactorsChart({
             cy="50%"
             labelLine={false}
             label={renderCustomizedLabel}
-            outerRadius={80}
+            outerRadius={90}
+            innerRadius={30}
             fill="#8884d8"
             dataKey="count"
           >
             {data.map((entry, index) => (
               <Cell
                 key={`cell-${index}`}
-                fill={RISK_FACTOR_COLORS[index % RISK_FACTOR_COLORS.length]}
+                fill={getRiskFactorColor(entry.factor) || RISK_FACTOR_COLORS[index % RISK_FACTOR_COLORS.length]}
               />
             ))}
           </Pie>
           <Tooltip content={<CustomTooltip />} />
           <Legend
             verticalAlign="bottom"
-            height={36}
+            height={40}
+            iconType="circle"
+            wrapperStyle={{ paddingTop: '16px' }}
             formatter={(value, entry) => {
               const count = entry.payload && typeof entry.payload === 'object' && 'count' in entry.payload
                 ? (entry.payload as { count: number }).count
                 : 0;
+              const total = data.reduce((sum, item) => sum + item.count, 0);
+              const percentage = total > 0 ? ((count / total) * 100).toFixed(1) : '0';
               return (
-                <span style={{ color: entry.color }}>
-                  {value} ({count})
+                <span style={{ color: 'var(--clr-light-a0)', fontSize: '12px' }}>
+                  {value} <span style={{ color: 'var(--clr-surface-a50)' }}>({count} - {percentage}%)</span>
                 </span>
               );
             }}

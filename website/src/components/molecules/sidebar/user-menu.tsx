@@ -13,7 +13,7 @@ import { User, LogOut } from 'lucide-react';
 export interface UserMenuProps {
   initials: string;
   displayName: string;
-  status?: string;
+  role?: string;
   onProfileClick: () => void;
   onLogout: () => void;
   className?: string;
@@ -22,7 +22,7 @@ export interface UserMenuProps {
 export function UserMenu({
   initials,
   displayName,
-  status,
+  role,
   onProfileClick,
   onLogout,
   className,
@@ -34,7 +34,7 @@ export function UserMenu({
           <UserMenuTrigger
             initials={initials}
             displayName={displayName}
-            status={status}
+            role={role}
           />
         </DropdownMenuTrigger>
         <DropdownMenuContent

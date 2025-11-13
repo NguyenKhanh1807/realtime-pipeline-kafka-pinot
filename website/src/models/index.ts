@@ -20,3 +20,6 @@ export * from './services';
 
 // Domain validators
 export * from './validators';
+
+// Domain errors
+export * from './errors';

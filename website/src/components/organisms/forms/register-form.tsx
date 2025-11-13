@@ -3,10 +3,9 @@
 import { useState } from 'react';
 import { Button, Input, Typography } from '@/src/components/atoms';
 import { InputField, FormField } from '@/src/components/molecules';
-import { useAppStore } from '@/src/viewmodels';
-import { type RegisterFormData } from '@/src/viewmodels';
+import { AuthCommands, type RegisterFormData } from '@/src/view-models';
 import { cn } from '@/src/lib';
-import { Eye, EyeOff, Mail, Lock, User, UserCheck } from 'lucide-react';
+import { Eye, EyeOff, Lock, User } from 'lucide-react';
 
 interface RegisterFormProps {
   onSuccess?: () => void;
@@ -15,16 +14,13 @@ interface RegisterFormProps {
 }
 
 export function RegisterForm({ onSuccess, onSwitchToLogin, className }: RegisterFormProps) {
-  const { register } = useAppStore();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const [formData, setFormData] = useState<RegisterFormData>({
-    email: '',
+    username: '',
     password: '',
     confirmPassword: '',
-    firstName: '',
-    lastName: '',
   });
 
   const [errors, setErrors] = useState<Partial<Record<keyof RegisterFormData, string | null>>>({});
@@ -53,7 +49,7 @@ export function RegisterForm({ onSuccess, onSwitchToLogin, className }: Register
     setError(null);
 
     try {
-      await register(formData);
+      await AuthCommands.register(formData);
       onSuccess?.();
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Registration failed';
@@ -84,47 +80,16 @@ export function RegisterForm({ onSuccess, onSwitchToLogin, className }: Register
 
       {/* Registration Form */}
       <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Name Fields */}
-        <div className="grid grid-cols-2 gap-4">
-          {/* First Name */}
-          <InputField
-            label="First Name"
-            type="text"
-            placeholder="John"
-            value={formData.firstName}
-            onChange={(e) => handleInputChange('firstName', e.target.value)}
-            error={errors.firstName}
-            disabled={isLoading}
-            icon={<User className="h-4 w-4" />}
-            inputClassName="h-11"
-            className="space-y-3"
-          />
-
-          {/* Last Name */}
-          <InputField
-            label="Last Name"
-            type="text"
-            placeholder="Doe"
-            value={formData.lastName}
-            onChange={(e) => handleInputChange('lastName', e.target.value)}
-            error={errors.lastName}
-            disabled={isLoading}
-            icon={<UserCheck className="h-4 w-4" />}
-            inputClassName="h-11"
-            className="space-y-3"
-          />
-        </div>
-
-        {/* Email Field */}
+        {/* Username Field */}
         <InputField
-          label="Email"
-          type="email"
-          placeholder="john.doe@company.com"
-          value={formData.email}
-          onChange={(e) => handleInputChange('email', e.target.value)}
-          error={errors.email}
+          label="Username"
+          type="text"
+          placeholder="Enter your username"
+          value={formData.username}
+          onChange={(e) => handleInputChange('username', e.target.value)}
+          error={errors.username}
           disabled={isLoading}
-          icon={<Mail className="h-4 w-4" />}
+          icon={<User className="h-4 w-4" />}
           inputClassName="h-11"
           className="space-y-3"
         />

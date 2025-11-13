@@ -19,7 +19,6 @@ export class UserTransformer {
       role: user.role,
       isOnline: this.isUserOnline(user),
       lastActive: this.getLastActive(user),
-      permissions: this.getPermissions(user.role),
     };
   }
 
@@ -37,14 +36,9 @@ export class UserTransformer {
     const payload: Partial<User> = {};
 
     if (viewModel.displayName !== undefined) {
-      // Parse display name back to first/last name if needed
-      const names = viewModel.displayName.split(' ');
-      if (names.length >= 2) {
-        payload.name = {
-          first: names[0],
-          last: names.slice(1).join(' '),
-        };
-      }
+      // Use display name as username
+      payload.username = viewModel.displayName;
+      payload.id = viewModel.displayName; // Keep id in sync
     }
 
     if (viewModel.email !== undefined) {
@@ -62,10 +56,12 @@ export class UserTransformer {
    * Get user display name with fallback logic
    */
   private static getDisplayName(user: User): string {
-    if (user.name?.first || user.name?.last) {
-      return formatUserName(user.name.first, user.name.last, user.email);
+    // Use username as primary display name
+    if (user.username) {
+      return user.username;
     }
-    return user.email.split('@')[0]; // Fallback to email username
+    // Fallback to email or id
+    return user.email || user.id || 'Unknown User';
   }
 
   /**
@@ -88,42 +84,6 @@ export class UserTransformer {
     // In a real app, this would come from user.lastActivity or similar
     // For now, return a recent timestamp
     return new Date(Date.now() - Math.random() * 24 * 60 * 60 * 1000); // Random within last 24h
-  }
-
-  /**
-   * Get permissions based on user role
-   */
-  private static getPermissions(role: string): string[] {
-    const basePermissions = [
-      'read:profile',
-      'write:profile',
-      'read:own-data',
-    ];
-
-    switch (role) {
-      case 'admin':
-        return [
-          ...basePermissions,
-          'write:users',
-          'delete:users',
-          'manage:system',
-          'view:analytics',
-          'manage:billing',
-          'moderate:content',
-          'view:all-data',
-        ];
-      case 'moderator':
-        return [
-          ...basePermissions,
-          'moderate:users',
-          'view:reports',
-          'manage:content',
-          'moderate:comments',
-        ];
-      case 'user':
-      default:
-        return basePermissions;
-    }
   }
 
   /**

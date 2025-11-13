@@ -6,6 +6,7 @@ import { LoginForm } from '@/src/components/organisms';
 import { ThemeToggle } from '@/src/components/molecules';
 import { AuthTemplate } from '@/src/components/templates';
 import { useError, useApp } from '@/src/contexts/app-context';
+import { useAppStore } from '@/src/view-models/stores';
 import { toast } from '@/src/components/atoms';
 
 export default function LoginPage() {
@@ -25,13 +26,22 @@ export default function LoginPage() {
       const timeoutId = setTimeout(() => {
         clearError();
       }, 100);
-      
+
       return () => clearTimeout(timeoutId);
     }
   }, [error, clearError]);
 
   const handleLoginSuccess = () => {
-    router.push('/dashboard');
+    // Get user from store (Zustand updates synchronously, so user is available immediately)
+    const user = useAppStore.getState().user;
+
+    // Redirect based on user role
+    // USER role goes to checkout, ADMIN role goes to dashboard
+    if (user?.role === 'user') {
+      router.push('/checkout');
+    } else {
+      router.push('/dashboard');
+    }
   };
 
   const handleSwitchToRegister = () => {

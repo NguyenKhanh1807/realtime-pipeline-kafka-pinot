@@ -12,40 +12,22 @@ import { type FraudResult } from '@/src/components/molecules';
 import { useCorrelation } from '@/src/contexts/correlation-context';
 import { log as logger } from '@/src/lib';
 import { Shield, CreditCard } from 'lucide-react';
+import { FraudDetectionCommands } from '@/src/view-models';
 
 export default function UserDashboardPage() {
   const router = useRouter();
   const { correlationId } = useCorrelation();
   const [isCheckingFraud, setIsCheckingFraud] = useState(false);
 
-  // Fraud detection using Pinot API
+  // Fraud detection using ViewModel command
   const checkFraud = async (transactionData: UserTransactionData): Promise<FraudResult> => {
-    const { pinotClient } = await import('@/src/services/pinot-client');
-
-    // Transform transaction data for Pinot analysis
-    const pinotData = {
-      cardNumber: transactionData.cardNumber.replace(/\s/g, ''),
-      amount: transactionData.amount,
+    return FraudDetectionCommands.analyzeTransaction({
+      cardNumber: transactionData.cardNumber,
+      amount: parseFloat(transactionData.amount),
       merchant: 'User Transaction',
       location: 'Unknown',
       customerEmail: 'user@example.com',
-    };
-
-    try {
-      const result = await pinotClient.analyzeTransaction(pinotData);
-      return result;
-    } catch (error) {
-      console.error('Pinot fraud analysis failed:', error);
-      // Fallback to mock result if Pinot is unavailable
-      return {
-        score: Math.floor(Math.random() * 40) + 30, // 30-70 range for fallback
-        riskLevel: 'medium' as const,
-        confidence: 75,
-        factors: ['Analysis temporarily unavailable - using fallback scoring'],
-        processingTime: 150,
-        transactionId: `TXN-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
-      };
-    }
+    });
   };
 
   const handleTransactionSubmit = async (data: UserTransactionData) => {

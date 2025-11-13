@@ -50,12 +50,18 @@ export function DashboardTemplate({ children }: DashboardTemplateProps) {
   }, [setSidebarOpen, sidebarOpen]);
 
   const userInitials = useMemo(() => {
-    if (user?.name) {
-      const { first, last } = user.name;
-      return `${first.charAt(0)}${last.charAt(0)}`.toUpperCase();
+    // Extract initials from display name (username or email)
+    const parts = userDisplayName.split(' ');
+    if (parts.length >= 2) {
+      return `${parts[0].charAt(0)}${parts[1].charAt(0)}`.toUpperCase();
     }
-    return userDisplayName.split(' ').map(n => n.charAt(0)).join('').toUpperCase();
-  }, [user, userDisplayName]);
+    // If single word, use first two characters
+    return userDisplayName.slice(0, 2).toUpperCase();
+  }, [userDisplayName]);
+
+  const userRole = useMemo(() => {
+    return user?.role || 'user';
+  }, [user]);
 
   return (
     <div className="flex h-screen bg-background">
@@ -67,7 +73,7 @@ export function DashboardTemplate({ children }: DashboardTemplateProps) {
         isAdmin={isAdmin}
         userInitials={userInitials}
         userDisplayName={userDisplayName}
-        userStatus="Online"
+        userRole={userRole}
         onNavigate={handleNavigate}
         onProfileClick={handleProfileClick}
         onLogout={handleLogout}

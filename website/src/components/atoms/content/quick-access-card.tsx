@@ -15,40 +15,36 @@ export interface QuickAccessCardProps {
 
 const colorClasses = {
   blue: {
-    hoverShadow: 'hover:shadow-blue-500/10',
-    hoverBorder: 'hover:border-blue-500/50',
-    iconBg: 'bg-blue-100 dark:bg-blue-900',
-    iconBgHover: 'group-hover:bg-blue-200 dark:group-hover:bg-blue-800',
-    iconColor: 'text-blue-600 dark:text-blue-400',
-    textHover: 'group-hover:text-blue-600 dark:group-hover:text-blue-400',
-    gradient: 'from-blue-500/0 to-blue-500/0 group-hover:from-blue-500/5 group-hover:to-blue-500/10',
+    iconBg: 'bg-[#21498a]/20',
+    iconColor: 'text-[#4077d1]',
+    borderColor: 'border-[#4077d1]/30',
+    hoverBg: 'hover:bg-[#21498a]/30',
+    hoverBorder: 'hover:border-[#4077d1]/50',
+    accent: 'text-[#4077d1]',
   },
   green: {
-    hoverShadow: 'hover:shadow-green-500/10',
-    hoverBorder: 'hover:border-green-500/50',
-    iconBg: 'bg-green-100 dark:bg-green-900',
-    iconBgHover: 'group-hover:bg-green-200 dark:group-hover:bg-green-800',
-    iconColor: 'text-green-600 dark:text-green-400',
-    textHover: 'group-hover:text-green-600 dark:group-hover:text-green-400',
-    gradient: 'from-green-500/0 to-green-500/0 group-hover:from-green-500/5 group-hover:to-green-500/10',
+    iconBg: 'bg-[#22946e]/20',
+    iconColor: 'text-[#47d5a6]',
+    borderColor: 'border-[#47d5a6]/30',
+    hoverBg: 'hover:bg-[#22946e]/30',
+    hoverBorder: 'hover:border-[#47d5a6]/50',
+    accent: 'text-[#47d5a6]',
   },
   purple: {
-    hoverShadow: 'hover:shadow-purple-500/10',
-    hoverBorder: 'hover:border-purple-500/50',
-    iconBg: 'bg-purple-100 dark:bg-purple-900',
-    iconBgHover: 'group-hover:bg-purple-200 dark:group-hover:bg-purple-800',
-    iconColor: 'text-purple-600 dark:text-purple-400',
-    textHover: 'group-hover:text-purple-600 dark:group-hover:text-purple-400',
-    gradient: 'from-purple-500/0 to-purple-500/0 group-hover:from-purple-500/5 group-hover:to-purple-500/10',
+    iconBg: 'bg-[#e7cbe2]/20',
+    iconColor: 'text-[#e7cbe2]',
+    borderColor: 'border-[#e7cbe2]/30',
+    hoverBg: 'hover:bg-[#e7cbe2]/30',
+    hoverBorder: 'hover:border-[#e7cbe2]/50',
+    accent: 'text-[#e7cbe2]',
   },
   orange: {
-    hoverShadow: 'hover:shadow-orange-500/10',
-    hoverBorder: 'hover:border-orange-500/50',
-    iconBg: 'bg-orange-100 dark:bg-orange-900',
-    iconBgHover: 'group-hover:bg-orange-200 dark:group-hover:bg-orange-800',
-    iconColor: 'text-orange-600 dark:text-orange-400',
-    textHover: 'group-hover:text-orange-600 dark:group-hover:text-orange-400',
-    gradient: 'from-orange-500/0 to-orange-500/0 group-hover:from-orange-500/5 group-hover:to-orange-500/10',
+    iconBg: 'bg-[#a87a2a]/20',
+    iconColor: 'text-[#d7ac61]',
+    borderColor: 'border-[#d7ac61]/30',
+    hoverBg: 'hover:bg-[#a87a2a]/30',
+    hoverBorder: 'hover:border-[#d7ac61]/50',
+    accent: 'text-[#d7ac61]',
   },
 };
 
@@ -66,37 +62,64 @@ export function QuickAccessCard({
     <button
       onClick={onClick}
       className={cn(
-        'bg-card border border-border rounded-lg p-4 hover:shadow-lg transition-all hover:-translate-y-1 text-left group relative overflow-hidden',
-        colors.hoverShadow,
+        'group relative w-full rounded-lg border-2 bg-[var(--clr-surface-a10)] p-5 text-left',
+        'transition-all duration-200 ease-out',
+        'hover:shadow-lg hover:shadow-black/20',
+        colors.borderColor,
         colors.hoverBorder,
         className
       )}
     >
-      <div className={cn('absolute inset-0 bg-gradient-to-br transition-all duration-300', colors.gradient)} />
-      <div className="relative">
-        <div className="flex items-center space-x-2.5 mb-2">
-          <div
-            className={cn(
-              'p-1.5 rounded-lg group-hover:scale-110 transition-all duration-300',
-              colors.iconBg,
-              colors.iconBgHover
-            )}
-          >
-            <Icon className={cn('h-4 w-4', colors.iconColor)} />
-          </div>
+      <div className="flex items-start gap-4">
+        {/* Icon Container */}
+        <div
+          className={cn(
+            'flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border-2 transition-all duration-200',
+            colors.iconBg,
+            colors.borderColor,
+            'group-hover:shadow-md',
+            colors.hoverBorder
+          )}
+        >
+          <Icon className={cn('h-5 w-5', colors.iconColor)} />
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 min-w-0">
           <Typography
             variant="h3"
             size="sm"
             weight="semibold"
-            className={cn('text-foreground transition-colors', colors.textHover)}
+            className={cn(
+              'mb-1.5 text-foreground transition-colors duration-200',
+              {
+                'group-hover:text-[#4077d1]': color === 'blue',
+                'group-hover:text-[#47d5a6]': color === 'green',
+                'group-hover:text-[#e7cbe2]': color === 'purple',
+                'group-hover:text-[#d7ac61]': color === 'orange',
+              }
+            )}
           >
             {title}
           </Typography>
+          <Typography
+            variant="p"
+            size="xs"
+            className="text-muted-foreground leading-relaxed"
+          >
+            {description}
+          </Typography>
         </div>
-        <Typography variant="p" size="xs" color="muted" className="text-muted-foreground">
-          {description}
-        </Typography>
       </div>
+
+      {/* Subtle accent line on hover */}
+      <div
+        className={cn(
+          'absolute bottom-0 left-0 h-0.5 w-0 transition-all duration-300',
+          colors.iconBg,
+          'group-hover:w-full'
+        )}
+      />
     </button>
   );
 }

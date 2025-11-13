@@ -15,7 +15,7 @@ export interface SidebarProps {
   isAdmin: boolean;
   userInitials: string;
   userDisplayName: string;
-  userStatus?: string;
+  userRole?: string;
   onNavigate: (href: string) => void;
   onProfileClick: () => void;
   onLogout: () => void;
@@ -29,7 +29,7 @@ export function Sidebar({
   isAdmin,
   userInitials,
   userDisplayName,
-  userStatus,
+  userRole,
   onNavigate,
   onProfileClick,
   onLogout,
@@ -59,7 +59,7 @@ export function Sidebar({
         <UserMenu
           initials={userInitials}
           displayName={userDisplayName}
-          status={userStatus}
+          role={userRole}
           onProfileClick={onProfileClick}
           onLogout={onLogout}
         />

@@ -12,11 +12,9 @@ export interface LoginFormData {
 }
 
 export interface RegisterFormData {
-  email: string;
+  username: string;
   password: string;
   confirmPassword: string;
-  firstName: string;
-  lastName: string;
 }
 
 export interface ResetPasswordFormData {
@@ -55,18 +53,16 @@ export const validateLoginForm = (data: LoginFormData): Record<keyof LoginFormDa
  */
 export const validateRegisterForm = (data: RegisterFormData): Record<keyof RegisterFormData, string | null> => {
   const errors: Record<string, string | null> = {
-    email: null,
+    username: null,
     password: null,
     confirmPassword: null,
-    firstName: null,
-    lastName: null,
   };
 
-  // Email validation
-  if (!data.email) {
-    errors.email = 'Email is required';
-  } else if (!VALIDATION_RULES.email.pattern.test(data.email)) {
-    errors.email = 'Please enter a valid email address';
+  // Username validation
+  if (!data.username?.trim()) {
+    errors.username = 'Username is required';
+  } else if (data.username.length < 2) {
+    errors.username = 'Username must be at least 2 characters';
   }
 
   // Password validation
@@ -87,23 +83,6 @@ export const validateRegisterForm = (data: RegisterFormData): Record<keyof Regis
     errors.confirmPassword = 'Please confirm your password';
   } else if (data.password !== data.confirmPassword) {
     errors.confirmPassword = 'Passwords do not match';
-  }
-
-  // Name validation
-  if (!data.firstName?.trim()) {
-    errors.firstName = 'First name is required';
-  } else if (data.firstName.length < VALIDATION_RULES.name.minLength) {
-    errors.firstName = `First name must be at least ${VALIDATION_RULES.name.minLength} characters`;
-  } else if (!VALIDATION_RULES.name.pattern.test(data.firstName)) {
-    errors.firstName = 'First name contains invalid characters';
-  }
-
-  if (!data.lastName?.trim()) {
-    errors.lastName = 'Last name is required';
-  } else if (data.lastName.length < VALIDATION_RULES.name.minLength) {
-    errors.lastName = `Last name must be at least ${VALIDATION_RULES.name.minLength} characters`;
-  } else if (!VALIDATION_RULES.name.pattern.test(data.lastName)) {
-    errors.lastName = 'Last name contains invalid characters';
   }
 
   return errors;
@@ -163,11 +142,9 @@ function formatFieldLabel(fieldName: string): string {
 
 function isFieldRequired(fieldName: string): boolean {
   const requiredFields = [
-    'email',
+    'username',
     'password',
-    'confirmPassword',
-    'firstName',
-    'lastName'
+    'confirmPassword'
   ];
   return requiredFields.includes(fieldName);
 }

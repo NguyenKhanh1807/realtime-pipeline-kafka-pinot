@@ -35,36 +35,25 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     updateSystemPreference,
   } = useThemeStore();
 
-  const systemPreference = useSystemPreference();
-  const themeClass = resolvedMode === 'dark' ? 'dark' : '';
+  // Always use dark theme
+  const themeClass = 'dark';
 
-  // Update system preference when it changes
-  useEffect(() => {
-    updateSystemPreference(systemPreference);
-  }, [systemPreference, updateSystemPreference]);
-
-  // Apply theme to document after hydration
+  // Apply dark theme to document after hydration
   useEffect(() => {
     // Small delay to ensure hydration script has completed
     const timer = setTimeout(() => {
       const root = document.documentElement;
 
-      // Remove existing theme classes to ensure clean state
-      root.classList.remove('light', 'dark');
+      // Always add 'dark' class
+      root.classList.add('dark');
+      root.classList.remove('light');
 
-      // Add 'dark' class only when in dark mode for Tailwind CSS
-      if (resolvedMode === 'dark') {
-        root.classList.add('dark');
-      } else {
-        root.classList.remove('dark');
-      }
-
-      // Update data-theme attribute for potential CSS custom properties
-      root.setAttribute('data-theme', resolvedMode);
+      // Update data-theme attribute
+      root.setAttribute('data-theme', 'dark');
     }, 0);
 
     return () => clearTimeout(timer);
-  }, [resolvedMode]);
+  }, []);
 
   const value: ThemeContextValue = {
     mode,

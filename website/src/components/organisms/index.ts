@@ -1,5 +1,5 @@
 // Organisms - Complex UI sections
-export { UserManagement } from './user-management';
+export * from './user';
 
 // Form organisms
 export * from './forms';

@@ -47,40 +47,40 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps) => {
   if (active && payload && payload.length) {
     const data = payload[0].payload;
     return (
-      <div className="bg-card border border-border rounded-lg p-3 shadow-lg">
-        <Typography variant="p" size="sm" weight="semibold" className="text-foreground mb-2">
+      <div className="bg-[var(--clr-surface-a10)] border-2 border-border rounded-lg p-4 shadow-lg">
+        <Typography variant="p" size="sm" weight="semibold" className="text-foreground mb-3">
           {label}
         </Typography>
-        <div className="space-y-1">
+        <div className="space-y-2">
           <div className="flex items-center justify-between gap-4">
             <Typography variant="span" size="xs" className="text-muted-foreground">
               Total Transactions:
             </Typography>
-            <Typography variant="span" size="xs" weight="medium" className="text-foreground">
-              {data.transactions}
+            <Typography variant="span" size="xs" weight="semibold" className="text-foreground">
+              {data.transactions.toLocaleString()}
             </Typography>
           </div>
           <div className="flex items-center justify-between gap-4">
             <Typography variant="span" size="xs" className="text-muted-foreground">
               Fraudulent:
             </Typography>
-            <Typography variant="span" size="xs" weight="medium" className="text-red-600">
-              {data.frauds}
+            <Typography variant="span" size="xs" weight="semibold" className="text-[#d94a4a]">
+              {data.frauds.toLocaleString()}
             </Typography>
           </div>
           <div className="flex items-center justify-between gap-4">
             <Typography variant="span" size="xs" className="text-muted-foreground">
               Legitimate:
             </Typography>
-            <Typography variant="span" size="xs" weight="medium" className="text-green-600">
-              {data.legitimate}
+            <Typography variant="span" size="xs" weight="semibold" className="text-[#47d5a6]">
+              {data.legitimate.toLocaleString()}
             </Typography>
           </div>
-          <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center justify-between gap-4 pt-2 border-t border-border">
             <Typography variant="span" size="xs" className="text-muted-foreground">
               Fraud Rate:
             </Typography>
-            <Typography variant="span" size="xs" weight="medium" className="text-orange-600">
+            <Typography variant="span" size="xs" weight="semibold" className="text-[#d7ac61]">
               {!isNaN(data.fraudRate) ? data.fraudRate.toFixed(1) : '0.0'}%
             </Typography>
           </div>
@@ -112,22 +112,25 @@ export function FraudTrendsChart({
       <div className={cn('w-full', className)}>
         <ResponsiveContainer width="100%" height={height}>
           <ComposedChart data={processedData}>
-            <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--clr-surface-a20)" opacity={0.5} />
             <XAxis
               dataKey="hourLabel"
-              className="text-muted-foreground"
-              fontSize={12}
+              stroke="var(--clr-surface-a50)"
+              tick={{ fill: 'var(--clr-surface-a50)', fontSize: 11 }}
+              tickLine={{ stroke: 'var(--clr-surface-a20)' }}
             />
             <YAxis
               yAxisId="left"
-              className="text-muted-foreground"
-              fontSize={12}
+              stroke="var(--clr-surface-a50)"
+              tick={{ fill: 'var(--clr-surface-a50)', fontSize: 11 }}
+              tickLine={{ stroke: 'var(--clr-surface-a20)' }}
             />
             <YAxis
               yAxisId="right"
               orientation="right"
-              className="text-muted-foreground"
-              fontSize={12}
+              stroke="var(--clr-surface-a50)"
+              tick={{ fill: 'var(--clr-surface-a50)', fontSize: 11 }}
+              tickLine={{ stroke: 'var(--clr-surface-a20)' }}
               domain={[0, 100]}
             />
             <Tooltip content={<CustomTooltip />} />
@@ -136,23 +139,26 @@ export function FraudTrendsChart({
               yAxisId="left"
               dataKey="transactions"
               name="Total Transactions"
-              fill="hsl(var(--primary))"
-              opacity={0.3}
+              fill="#4077d1"
+              opacity={0.2}
+              radius={[4, 4, 0, 0]}
             />
             <Bar
               yAxisId="left"
               dataKey="frauds"
               name="Fraudulent"
-              fill="hsl(var(--destructive))"
+              fill="#d94a4a"
+              radius={[4, 4, 0, 0]}
             />
             <Line
               yAxisId="right"
               type="monotone"
               dataKey="fraudRate"
               name="Fraud Rate (%)"
-              stroke="hsl(var(--destructive))"
-              strokeWidth={2}
-              dot={{ r: 4 }}
+              stroke="#d7ac61"
+              strokeWidth={2.5}
+              dot={{ r: 5, fill: '#d7ac61', strokeWidth: 2 }}
+              activeDot={{ r: 7 }}
             />
           </ComposedChart>
         </ResponsiveContainer>
@@ -164,30 +170,37 @@ export function FraudTrendsChart({
     <div className={cn('w-full', className)}>
       <ResponsiveContainer width="100%" height={height}>
         <LineChart data={processedData}>
-          <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+          <CartesianGrid strokeDasharray="3 3" stroke="var(--clr-surface-a20)" opacity={0.5} />
           <XAxis
             dataKey="hourLabel"
-            className="text-muted-foreground"
-            fontSize={12}
+            stroke="var(--clr-surface-a50)"
+            tick={{ fill: 'var(--clr-surface-a50)', fontSize: 11 }}
+            tickLine={{ stroke: 'var(--clr-surface-a20)' }}
           />
-          <YAxis className="text-muted-foreground" fontSize={12} />
+          <YAxis
+            stroke="var(--clr-surface-a50)"
+            tick={{ fill: 'var(--clr-surface-a50)', fontSize: 11 }}
+            tickLine={{ stroke: 'var(--clr-surface-a20)' }}
+          />
           <Tooltip content={<CustomTooltip />} />
           <Legend />
           <Line
             type="monotone"
             dataKey="transactions"
             name="Total Transactions"
-            stroke="hsl(var(--primary))"
-            strokeWidth={2}
-            dot={{ r: 4 }}
+            stroke="#4077d1"
+            strokeWidth={2.5}
+            dot={{ r: 5, fill: '#4077d1', strokeWidth: 2 }}
+            activeDot={{ r: 7 }}
           />
           <Line
             type="monotone"
             dataKey="frauds"
             name="Fraudulent Transactions"
-            stroke="hsl(var(--destructive))"
-            strokeWidth={2}
-            dot={{ r: 4 }}
+            stroke="#d94a4a"
+            strokeWidth={2.5}
+            dot={{ r: 5, fill: '#d94a4a', strokeWidth: 2 }}
+            activeDot={{ r: 7 }}
           />
         </LineChart>
       </ResponsiveContainer>

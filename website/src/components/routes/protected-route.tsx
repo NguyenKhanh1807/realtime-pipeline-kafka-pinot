@@ -2,7 +2,8 @@
 
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
-import { useIsAuthenticated, useIsAdmin } from '@/src/contexts';
+import { useIsAuthenticated, useIsAdmin, useIsLoading } from '@/src/contexts';
+import { useAppStore } from '@/src/view-models/stores';
 import { LoadingOverlay } from '@/src/components/atoms';
 
 interface ProtectedRouteProps {
@@ -21,8 +22,14 @@ export function ProtectedRoute({
   const router = useRouter();
   const isAuthenticated = useIsAuthenticated();
   const isAdmin = useIsAdmin();
+  const isLoading = useIsLoading();
 
   useEffect(() => {
+    // Wait for initialization to complete before checking auth
+    if (isLoading) {
+      return;
+    }
+
     if (requireAuth && !isAuthenticated) {
       router.push(redirectTo);
       return;
@@ -34,9 +41,20 @@ export function ProtectedRoute({
     }
 
     if (!requireAuth && isAuthenticated) {
-      router.push('/dashboard');
+      // Redirect based on user role
+      const user = useAppStore.getState().user;
+      if (user?.role === 'user') {
+        router.push('/checkout');
+      } else {
+        router.push('/dashboard');
+      }
     }
-  }, [isAuthenticated, isAdmin, requireAuth, requireAdmin, redirectTo, router]);
+  }, [isAuthenticated, isAdmin, isLoading, requireAuth, requireAdmin, redirectTo, router]);
+
+  // Show loading while initializing or checking authentication
+  if (isLoading) {
+    return <LoadingOverlay text="Loading..." />;
+  }
 
   // Show loading while checking authentication and admin status
   if (requireAuth && !isAuthenticated) {

@@ -4,7 +4,6 @@ import { Typography, Button } from '@/src/components/atoms';
 import { UserTableRow } from './user-table-row';
 import { Users, UserPlus } from 'lucide-react';
 import type { User as UserType } from '@/src/types';
-import { hasPermission } from '@/src/types';
 
 export interface UserTableProps {
   users: UserType[];
@@ -14,7 +13,6 @@ export interface UserTableProps {
   onEdit: (user: UserType) => void;
   onDelete: (userId: string) => void;
   onCreateFirst?: () => void;
-  formatDate: (date: Date | undefined) => string;
   isLoading?: boolean;
   className?: string;
 }
@@ -27,7 +25,6 @@ export function UserTable({
   onEdit,
   onDelete,
   onCreateFirst,
-  formatDate,
   isLoading = false,
   className,
 }: UserTableProps) {
@@ -57,10 +54,10 @@ export function UserTable({
         <Typography variant="p" size="sm" color="muted" className="text-muted-foreground mb-4">
           Try adjusting your search or filters to find users
         </Typography>
-        {onCreateFirst && hasPermission(currentUser, 'users:create') && (
+        {onCreateFirst && currentUser.role === 'admin' && (
           <Button onClick={onCreateFirst} variant="outline" size="sm">
             <UserPlus className="h-4 w-4 mr-2" />
-            Create First User
+            <span className='mb-0.5 text-xs'>Create First User</span>
           </Button>
         )}
       </div>
@@ -82,17 +79,7 @@ export function UserTable({
                 Role
               </Typography>
             </th>
-            <th className="text-left p-4">
-              <Typography variant="span" size="sm" weight="semibold" className="text-muted-foreground uppercase tracking-wider">
-                Status
-              </Typography>
-            </th>
-            <th className="text-left p-4">
-              <Typography variant="span" size="sm" weight="semibold" className="text-muted-foreground uppercase tracking-wider">
-                Last Login
-              </Typography>
-            </th>
-            <th className="text-left p-4">
+            <th className="text-right p-4">
               <Typography variant="span" size="sm" weight="semibold" className="text-muted-foreground uppercase tracking-wider">
                 Actions
               </Typography>
@@ -102,14 +89,13 @@ export function UserTable({
         <tbody className="divide-y divide-border/50">
           {users.map((user) => (
             <UserTableRow
-              key={user.id}
+              key={user.username}
               user={user}
               currentUser={currentUser}
               canEdit={canEdit(user)}
               canDelete={canDelete(user)}
               onEdit={onEdit}
               onDelete={onDelete}
-              formatDate={formatDate}
             />
           ))}
         </tbody>

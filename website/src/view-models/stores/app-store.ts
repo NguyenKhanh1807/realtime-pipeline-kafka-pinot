@@ -1,26 +1,27 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
-import { websiteApiClient } from '@/src/services/website-api';
+import { AuthCommands } from '@/src/view-models/commands/auth-commands';
 
 // Types for the app store
 export interface User {
-  id: string;
-  email: string;
-  name?: {
-    first: string;
-    last: string;
-  };
-  avatar?: string;
+  // Primary identifier
+  username: string;
+  id: string; // Keep for backward compatibility (maps to username)
+  
+  // API fields
+  component?: string;
   role: 'admin' | 'user' | 'moderator';
+  
+  // UI convenience fields
+  email?: string;
+  avatar?: string;
   createdAt?: Date;
 }
 
 export interface RegisterData {
-  email: string;
+  username: string;
   password: string;
   confirmPassword: string;
-  firstName: string;
-  lastName: string;
 }
 
 export interface AppState {
@@ -31,6 +32,7 @@ export interface AppState {
   // UI state
   isLoading: boolean;
   error: string | null;
+  isInitialized: boolean; // Track if app has been initialized
 
   // App state
   sidebarOpen: boolean;
@@ -60,12 +62,14 @@ export interface AppActions {
 
 export type AppStore = AppState & AppActions;
 
-// Initial state
+// Initial state - start with empty state to match server render
+// This prevents hydration mismatches
 const initialState: AppState = {
   user: null,
   isAuthenticated: false,
   isLoading: false,
   error: null,
+  isInitialized: false, // Will be set to true after client-side hydration
   sidebarOpen: false,
   currentPage: '/',
 };
@@ -90,75 +94,15 @@ export const useAppStore = create<AppStore>()(
       setCurrentPage: (page) => set({ currentPage: page }, false, 'setCurrentPage'),
 
       // Async actions (business logic)
+      // Delegate to AuthCommands which uses Model layer
       login: async (credentials) => {
-        const { setLoading, setError, setUser, setAuthenticated } = get();
-
-        try {
-          setLoading(true);
-          setError(null);
-
-          // Call real API
-          const response = await websiteApiClient.login({
-            username: credentials.username,
-            password: credentials.password,
-          });
-
-          if (!response.success || !response.user) {
-            throw new Error(response.message || 'Login failed');
-          }
-
-          // Transform API user to app user format
-          const appUser = websiteApiClient.transformApiUser(response.user);
-
-          setUser(appUser);
-          setAuthenticated(true);
-
-        } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : 'Login failed';
-          setError(errorMessage);
-          throw error;
-        } finally {
-          setLoading(false);
-        }
+        await AuthCommands.login(credentials);
       },
 
       register: async (userData) => {
-        const { setLoading, setError, setUser, setAuthenticated } = get();
-
-        try {
-          setLoading(true);
-          setError(null);
-
-          // TEMPORARILY DISABLED: Skip API call for testing
-          // await new Promise(resolve => setTimeout(resolve, 1500));
-
-          // Mock successful registration - bypass API
-          const mockUser: User = {
-            id: Date.now().toString(),
-            email: userData.email || 'user@test.com',
-            name: {
-              first: userData.firstName || 'User',
-              last: userData.lastName || 'Test',
-            },
-            avatar: undefined,
-            role: 'user',
-            createdAt: new Date(),
-          };
-
-          // Save to localStorage for persistence
-          localStorage.setItem('user', JSON.stringify(mockUser));
-          localStorage.setItem('isAuthenticated', 'true');
-
-          setUser(mockUser);
-          setAuthenticated(true);
-
-        } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : 'Registration failed';
-          setError(errorMessage);
-          throw error;
-        } finally {
-          setLoading(false);
-        }
+        // Delegate to AuthCommands.register for consistency
+        // This method is kept for backward compatibility but AuthCommands.register should be used directly
+        await AuthCommands.register(userData);
       },
 
       logout: () => {
@@ -166,34 +110,56 @@ export const useAppStore = create<AppStore>()(
         setUser(null);
         setAuthenticated(false);
         setError(null);
-        // Clear any persisted data if needed
+        // Clear persisted data
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('user');
+          localStorage.removeItem('isAuthenticated');
+        }
       },
 
       initializeApp: async () => {
-        const { setLoading, setUser, setAuthenticated } = get();
+        const { isInitialized, setUser, setAuthenticated } = get();
+
+        // Already initialized, skip
+        if (isInitialized) {
+          return;
+        }
 
         try {
-          setLoading(true);
-
-          // Check for existing session/token
-          // This would typically check localStorage, cookies, or make an API call
+          // Hydrate state from localStorage (client-side only)
+          if (typeof window !== 'undefined') {
           const savedUser = localStorage.getItem('user');
           const savedAuth = localStorage.getItem('isAuthenticated');
 
           if (savedUser && savedAuth === 'true') {
-            const user = JSON.parse(savedUser);
+              try {
+                const parsedUser = JSON.parse(savedUser);
+                // Ensure user has required fields
+                if (parsedUser && parsedUser.username && parsedUser.id && parsedUser.role) {
             // Convert createdAt string back to Date object if it exists
-            if (user.createdAt) {
-              user.createdAt = new Date(user.createdAt);
+                  if (parsedUser.createdAt) {
+                    parsedUser.createdAt = new Date(parsedUser.createdAt);
             }
-            setUser(user);
+                  setUser(parsedUser);
             setAuthenticated(true);
+                } else {
+                  // Invalid user data, clear it
+                  localStorage.removeItem('user');
+                  localStorage.removeItem('isAuthenticated');
+                }
+              } catch (parseError) {
+                // Invalid JSON, clear it
+                console.error('Failed to parse saved user:', parseError);
+                localStorage.removeItem('user');
+                localStorage.removeItem('isAuthenticated');
+              }
+            }
           }
-
         } catch (error) {
           console.error('Failed to initialize app:', error);
         } finally {
-          setLoading(false);
+          // Mark as initialized after hydration completes
+          set({ isInitialized: true }, false, 'setInitialized');
         }
       },
     }),

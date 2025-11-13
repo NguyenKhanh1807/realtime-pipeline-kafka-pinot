@@ -8,11 +8,14 @@ import React from 'react';
 export interface UserMenuTriggerProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   initials: string;
   displayName: string;
-  status?: string;
+  role?: string;
 }
 
 export const UserMenuTrigger = React.forwardRef<HTMLButtonElement, UserMenuTriggerProps>(
-  ({ initials, displayName, status = 'Online', className, ...props }, ref) => {
+  ({ initials, displayName, role, className, ...props }, ref) => {
+    // Capitalize the role for display
+    const displayRole = role ? role.charAt(0).toUpperCase() + role.slice(1) : 'User';
+    
     return (
       <button
         ref={ref}
@@ -34,7 +37,7 @@ export const UserMenuTrigger = React.forwardRef<HTMLButtonElement, UserMenuTrigg
           {/* User info */}
           <div className="text-left min-w-0 flex-1">
             <p className="text-sm font-medium text-foreground truncate">{displayName}</p>
-            <p className="text-xs text-muted-foreground">{status}</p>
+            <p className="text-xs text-muted-foreground">{displayRole}</p>
           </div>
         </div>
         <ChevronDown className="h-4 w-4 text-muted-foreground group-hover:text-foreground ml-2 shrink-0" />

@@ -3,15 +3,22 @@
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { useIsAuthenticated } from '@/src/contexts/app-context';
+import { useAppStore } from '@/src/view-models/stores';
 
 export default function HomePage() {
   const router = useRouter();
   const isAuthenticated = useIsAuthenticated();
 
-  // Redirect authenticated users to dashboard, others to login
+  // Redirect authenticated users based on role, others to login
   useEffect(() => {
     if (isAuthenticated) {
-      router.push('/dashboard');
+      const user = useAppStore.getState().user;
+      // USER role goes to checkout, ADMIN role goes to dashboard
+      if (user?.role === 'user') {
+        router.push('/checkout');
+      } else {
+        router.push('/dashboard');
+      }
     } else {
       router.push('/login');
     }

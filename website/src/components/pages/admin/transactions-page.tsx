@@ -1,285 +1,41 @@
 'use client';
 
 import { DashboardTemplate } from '@/src/components/templates';
-import { TransactionsTable } from '@/src/components/molecules';
-import { RealtimeTransactionFeed } from '@/src/components/organisms';
-import type { TransactionHistoryRowProps } from '@/src/components/molecules';
-
-// Mock transaction data - replace with actual API call
-const transactions: TransactionHistoryRowProps[] = [
-  {
-    id: 'TXN-001',
-    cardNumber: '****1234',
-    amount: 49.99,
-    merchant: 'Amazon',
-    score: 15,
-    status: 'Approved',
-    timestamp: '2 min ago',
-    location: 'Seattle, WA',
-    customerName: 'John Doe',
-    customerEmail: 'john.doe@email.com',
-    riskLevel: 'low',
-  },
-  {
-    id: 'TXN-002',
-    cardNumber: '****5678',
-    amount: 1299.00,
-    merchant: 'Best Buy',
-    score: 78,
-    status: 'Flagged',
-    timestamp: '5 min ago',
-    location: 'New York, NY',
-    customerName: 'Jane Smith',
-    customerEmail: 'jane.smith@email.com',
-    riskLevel: 'high',
-  },
-  {
-    id: 'TXN-003',
-    cardNumber: '****9012',
-    amount: 12.50,
-    merchant: 'Starbucks',
-    score: 8,
-    status: 'Approved',
-    timestamp: '8 min ago',
-    location: 'San Francisco, CA',
-    customerName: 'Bob Johnson',
-    customerEmail: 'bob.j@email.com',
-    riskLevel: 'low',
-  },
-  {
-    id: 'TXN-004',
-    cardNumber: '****3456',
-    amount: 5000.00,
-    merchant: 'Unknown Vendor',
-    score: 95,
-    status: 'Blocked',
-    timestamp: '12 min ago',
-    location: 'Unknown',
-    customerName: 'Unknown',
-    customerEmail: 'suspicious@email.com',
-    riskLevel: 'critical',
-  },
-  {
-    id: 'TXN-005',
-    cardNumber: '****7890',
-    amount: 89.99,
-    merchant: 'Apple Store',
-    score: 22,
-    status: 'Approved',
-    timestamp: '15 min ago',
-    location: 'Cupertino, CA',
-    customerName: 'Alice Williams',
-    customerEmail: 'alice.w@email.com',
-    riskLevel: 'low',
-  },
-  {
-    id: 'TXN-006',
-    cardNumber: '****2345',
-    amount: 250.00,
-    merchant: 'Target',
-    score: 45,
-    status: 'Approved',
-    timestamp: '18 min ago',
-    location: 'Minneapolis, MN',
-    customerName: 'Charlie Brown',
-    customerEmail: 'charlie.b@email.com',
-    riskLevel: 'medium',
-  },
-  {
-    id: 'TXN-007',
-    cardNumber: '****6789',
-    amount: 1500.00,
-    merchant: 'Electronics Store',
-    score: 82,
-    status: 'Flagged',
-    timestamp: '20 min ago',
-    location: 'Los Angeles, CA',
-    customerName: 'Diana Prince',
-    customerEmail: 'diana.p@email.com',
-    riskLevel: 'high',
-  },
-  {
-    id: 'TXN-008',
-    cardNumber: '****0123',
-    amount: 35.00,
-    merchant: 'Coffee Shop',
-    score: 12,
-    status: 'Approved',
-    timestamp: '25 min ago',
-    location: 'Portland, OR',
-    customerName: 'Edward Norton',
-    customerEmail: 'edward.n@email.com',
-    riskLevel: 'low',
-  },
-  {
-    id: 'TXN-009',
-    cardNumber: '****4567',
-    amount: 299.99,
-    merchant: 'Nike',
-    score: 35,
-    status: 'Approved',
-    timestamp: '30 min ago',
-    location: 'Beaverton, OR',
-    customerName: 'Fiona Apple',
-    customerEmail: 'fiona.a@email.com',
-    riskLevel: 'low',
-  },
-  {
-    id: 'TXN-010',
-    cardNumber: '****8901',
-    amount: 750.00,
-    merchant: 'Home Depot',
-    score: 65,
-    status: 'Approved',
-    timestamp: '35 min ago',
-    location: 'Atlanta, GA',
-    customerName: 'George Lucas',
-    customerEmail: 'george.l@email.com',
-    riskLevel: 'medium',
-  },
-  {
-    id: 'TXN-011',
-    cardNumber: '****2345',
-    amount: 125.50,
-    merchant: 'Walmart',
-    score: 18,
-    status: 'Approved',
-    timestamp: '40 min ago',
-    location: 'Bentonville, AR',
-    customerName: 'Helen Keller',
-    customerEmail: 'helen.k@email.com',
-    riskLevel: 'low',
-  },
-  {
-    id: 'TXN-012',
-    cardNumber: '****6789',
-    amount: 3200.00,
-    merchant: 'Luxury Store',
-    score: 88,
-    status: 'Flagged',
-    timestamp: '45 min ago',
-    location: 'Beverly Hills, CA',
-    customerName: 'Isaac Newton',
-    customerEmail: 'isaac.n@email.com',
-    riskLevel: 'high',
-  },
-  {
-    id: 'TXN-013',
-    cardNumber: '****3456',
-    amount: 45.99,
-    merchant: 'CVS Pharmacy',
-    score: 12,
-    status: 'Approved',
-    timestamp: '50 min ago',
-    location: 'Boston, MA',
-    customerName: 'Julia Roberts',
-    customerEmail: 'julia.r@email.com',
-    riskLevel: 'low',
-  },
-  {
-    id: 'TXN-014',
-    cardNumber: '****7890',
-    amount: 890.00,
-    merchant: 'Best Buy',
-    score: 55,
-    status: 'Approved',
-    timestamp: '55 min ago',
-    location: 'Richfield, MN',
-    customerName: 'Kevin Hart',
-    customerEmail: 'kevin.h@email.com',
-    riskLevel: 'medium',
-  },
-  {
-    id: 'TXN-015',
-    cardNumber: '****1234',
-    amount: 25.00,
-    merchant: 'McDonald\'s',
-    score: 5,
-    status: 'Approved',
-    timestamp: '1 hour ago',
-    location: 'Chicago, IL',
-    customerName: 'Lisa Simpson',
-    customerEmail: 'lisa.s@email.com',
-    riskLevel: 'low',
-  },
-  {
-    id: 'TXN-016',
-    cardNumber: '****5678',
-    amount: 2100.00,
-    merchant: 'Electronics Warehouse',
-    score: 92,
-    status: 'Blocked',
-    timestamp: '1 hour ago',
-    location: 'Unknown',
-    customerName: 'Michael Jordan',
-    customerEmail: 'michael.j@email.com',
-    riskLevel: 'critical',
-  },
-  {
-    id: 'TXN-017',
-    cardNumber: '****9012',
-    amount: 67.50,
-    merchant: 'Whole Foods',
-    score: 20,
-    status: 'Approved',
-    timestamp: '1 hour ago',
-    location: 'Austin, TX',
-    customerName: 'Nancy Drew',
-    customerEmail: 'nancy.d@email.com',
-    riskLevel: 'low',
-  },
-  {
-    id: 'TXN-018',
-    cardNumber: '****4567',
-    amount: 450.00,
-    merchant: 'Costco',
-    score: 42,
-    status: 'Approved',
-    timestamp: '1 hour ago',
-    location: 'Issaquah, WA',
-    customerName: 'Oscar Wilde',
-    customerEmail: 'oscar.w@email.com',
-    riskLevel: 'medium',
-  },
-  {
-    id: 'TXN-019',
-    cardNumber: '****8901',
-    amount: 1800.00,
-    merchant: 'Furniture Store',
-    score: 75,
-    status: 'Flagged',
-    timestamp: '1 hour ago',
-    location: 'Dallas, TX',
-    customerName: 'Patricia Smith',
-    customerEmail: 'patricia.s@email.com',
-    riskLevel: 'high',
-  },
-  {
-    id: 'TXN-020',
-    cardNumber: '****2345',
-    amount: 33.99,
-    merchant: 'Subway',
-    score: 10,
-    status: 'Approved',
-    timestamp: '2 hours ago',
-    location: 'Milford, CT',
-    customerName: 'Quincy Jones',
-    customerEmail: 'quincy.j@email.com',
-    riskLevel: 'low',
-  },
-];
+import { TransactionsTable, RealtimeTransactionFeed } from '@/src/components/organisms';
+import { useRealtimeTransactions } from '@/src/hooks/use-realtime-transactions';
+import { Loading } from '@/src/components/atoms';
 
 export default function TransactionsPage() {
+  const {
+    allTransactions,
+    isPolling,
+  } = useRealtimeTransactions({
+    autoStart: true,
+    pollInterval: 3000, // Poll every 3 seconds
+  });
+
+  if (allTransactions.length === 0 && !isPolling) {
+    return (
+      <DashboardTemplate>
+        <div className="flex items-center justify-center h-64">
+          <Loading />
+        </div>
+      </DashboardTemplate>
+    );
+  }
+
   return (
     <DashboardTemplate>
       <div className="space-y-6">
         {/* Live Transaction Feed */}
-        <RealtimeTransactionFeed />
+        <RealtimeTransactionFeed maxItems={5} />
 
-        {/* Transactions Table */}
-        <TransactionsTable transactions={transactions} />
+        {/* Transactions Table with Real-time Updates */}
+        <TransactionsTable 
+          transactions={allTransactions} 
+          key={allTransactions.length} // Force re-render when transactions update
+        />
       </div>
     </DashboardTemplate>
   );
 }
-

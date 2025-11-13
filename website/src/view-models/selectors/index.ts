@@ -6,7 +6,6 @@ export {
   useUserViewModel,
   useUserDisplayName,
   useUserInitials,
-  useUserPermissions,
   useIsAdmin,
   useIsModerator,
   useCanAccessAdmin,

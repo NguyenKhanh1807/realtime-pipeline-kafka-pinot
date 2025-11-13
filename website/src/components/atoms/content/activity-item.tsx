@@ -37,42 +37,45 @@ export function ActivityItem({
 
   const getIconStyles = () => {
     if (riskLevel === 'critical') {
-      return 'bg-red-100 text-red-600 dark:bg-red-900 dark:text-red-400';
+      return 'bg-[#9c2121]/20 text-[#d94a4a] border-2 border-[#d94a4a]/30';
     }
     if (riskLevel === 'high') {
-      return 'bg-orange-100 text-orange-600 dark:bg-orange-900 dark:text-orange-400';
+      return 'bg-[#a87a2a]/20 text-[#d7ac61] border-2 border-[#d7ac61]/30';
     }
     if (riskLevel === 'medium') {
-      return 'bg-yellow-100 text-yellow-600 dark:bg-yellow-900 dark:text-yellow-400';
+      return 'bg-[#a87a2a]/20 text-[#d7ac61] border-2 border-[#d7ac61]/30';
     }
     if (riskLevel === 'low') {
-      return 'bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-400';
+      return 'bg-[#22946e]/20 text-[#47d5a6] border-2 border-[#47d5a6]/30';
     }
     if (type === 'system') {
-      return 'bg-purple-100 text-purple-600 dark:bg-purple-900 dark:text-purple-400';
+      return 'bg-[#e7cbe2]/20 text-[#e7cbe2] border-2 border-[#e7cbe2]/30';
     }
-    return 'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-400';
+    return 'bg-[#21498a]/20 text-[#4077d1] border-2 border-[#4077d1]/30';
   };
 
   return (
-    <div className={cn('p-4 hover:bg-muted/50 transition-colors', className)}>
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-3">
-          <div className={cn('w-8 h-8 rounded-full flex items-center justify-center', getIconStyles())}>
-            {getIcon()}
-          </div>
-          <div>
-            <Typography variant="p" size="sm" weight="medium" className="text-foreground">
+    <div className={cn('p-5 hover:bg-[var(--clr-surface-a10)] transition-all duration-200', className)}>
+      <div className="flex items-start gap-4">
+        <div className={cn(
+          'w-10 h-10 rounded-lg flex items-center justify-center shrink-0 shadow-sm',
+          getIconStyles()
+        )}>
+          {getIcon()}
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-start justify-between gap-4 mb-1">
+            <Typography variant="p" size="sm" weight="semibold" className="text-foreground">
               {user}
             </Typography>
-            <Typography variant="p" size="sm" color="muted" className="text-muted-foreground">
-              {action}
-            </Typography>
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground shrink-0">
+              <Clock className="h-3.5 w-3.5" />
+              <span className="font-mono">{time}</span>
+            </div>
           </div>
-        </div>
-        <div className="flex items-center text-xs text-muted-foreground">
-          <Clock className="h-3 w-3 mr-1" />
-          {time}
+          <Typography variant="p" size="sm" className="text-muted-foreground leading-relaxed">
+            {action}
+          </Typography>
         </div>
       </div>
     </div>

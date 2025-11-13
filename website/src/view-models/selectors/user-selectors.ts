@@ -18,7 +18,6 @@ export const useUserViewModel = (): UserViewModel | null => {
     role: user.role,
     isOnline: true, // This could come from real-time data
     lastActive: new Date(), // This could come from user data
-    permissions: getPermissionsForRole(user.role),
   };
 };
 
@@ -31,11 +30,6 @@ export const useUserInitials = (): string => {
   const userViewModel = useUserViewModel();
   if (!userViewModel) return 'AU'; // Anonymous User
   return getInitials(userViewModel.displayName);
-};
-
-export const useUserPermissions = (): string[] => {
-  const userViewModel = useUserViewModel();
-  return userViewModel?.permissions || [];
 };
 
 export const useIsAdmin = (): boolean => {
@@ -57,32 +51,3 @@ export const useCanModerateUsers = (): boolean => {
   const userViewModel = useUserViewModel();
   return ['admin', 'moderator'].includes(userViewModel?.role || '');
 };
-
-/**
- * Helper function to get permissions based on user role
- */
-function getPermissionsForRole(role: string): string[] {
-  const basePermissions = ['read:profile'];
-
-  switch (role) {
-    case 'admin':
-      return [
-        ...basePermissions,
-        'write:users',
-        'delete:users',
-        'manage:system',
-        'view:analytics',
-        'manage:billing',
-      ];
-    case 'moderator':
-      return [
-        ...basePermissions,
-        'moderate:users',
-        'view:reports',
-        'manage:content',
-      ];
-    case 'user':
-    default:
-      return basePermissions;
-  }
-}

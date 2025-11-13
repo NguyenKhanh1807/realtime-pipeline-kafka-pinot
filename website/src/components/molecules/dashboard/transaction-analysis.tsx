@@ -1,28 +1,26 @@
 'use client';
 
-import { Typography, AnalysisItem, AnalysisItemProps } from '@/src/components/atoms';
+import { Typography, TransactionAnalysisCard, TransactionAnalysisCardProps } from '@/src/components/atoms';
 
 export interface TransactionAnalysisProps {
-  items: AnalysisItemProps[];
+  items: TransactionAnalysisCardProps[];
   className?: string;
 }
 
 export function TransactionAnalysis({ items, className }: TransactionAnalysisProps) {
   return (
-    <div className={`bg-card border border-border rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-200 ${className || ''}`}>
-      <div className="flex items-center gap-3 mb-6">
-        <div className="flex-1">
-          <Typography variant="h3" size="lg" weight="semibold" className="text-foreground">
-            Transaction Analysis
-          </Typography>
-          <Typography variant="p" size="xs" color="muted" className="text-muted-foreground mt-0.5">
-            Detailed breakdown of transaction types and payment methods
-          </Typography>
-        </div>
+    <div className={className || ''}>
+      <div className="mb-6">
+        <Typography variant="h3" size="lg" weight="semibold" className="text-foreground mb-1">
+          Transaction Analysis
+        </Typography>
+        <Typography variant="p" size="sm" color="muted" className="text-muted-foreground">
+          Detailed breakdown of transaction types and payment methods
+        </Typography>
       </div>
-      <div className="space-y-3">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {items.map((item, index) => (
-          <AnalysisItem key={index} {...item} />
+          <TransactionAnalysisCard key={index} {...item} />
         ))}
       </div>
     </div>

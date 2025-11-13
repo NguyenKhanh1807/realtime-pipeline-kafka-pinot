@@ -37,6 +37,17 @@ export interface UserRepository {
   create(user: User): Promise<User>;
 
   /**
+   * Create a new user with plain password
+   * This is a convenience method for user registration
+   */
+  createUser(data: {
+    username: string;
+    password: string;
+    role?: 'admin' | 'user';
+    component?: string;
+  }): Promise<User>;
+
+  /**
    * Update an existing user
    */
   update(user: User): Promise<User>;

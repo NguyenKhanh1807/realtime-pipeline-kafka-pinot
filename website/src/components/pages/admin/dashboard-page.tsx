@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useMemo } from 'react';
 import { DashboardTemplate } from '@/src/components/templates';
 import { useIsAdmin, useIsAuthenticated } from '@/src/contexts';
 import {
@@ -12,6 +12,7 @@ import {
   Target,
   Users,
   Truck,
+  Building2,
 } from 'lucide-react';
 import {
   FraudMetricsOverview,
@@ -28,101 +29,56 @@ import {
 } from '@/src/components/molecules';
 import {
   Typography,
-  type StatCardProps,
-  type QuickAccessCardProps,
-  type AnalysisItemProps,
+  StatCardProps,
+  QuickAccessCardProps,
+  AnalysisItemProps,
+  TransactionAnalysisCardProps,
+  FraudRiskCardProps,
   type ActivityItemProps,
 } from '@/src/components/atoms';
+import { useDashboardAnalytics } from '@/src/hooks/use-dashboard-analytics';
+import { useRealtimeTransactions } from '@/src/hooks/use-realtime-transactions';
+import { Loading } from '@/src/components/atoms';
+import { DashboardTransformer } from '@/src/view-models';
 
 export default function DashboardPage() {
   const router = useRouter();
   const isAdmin = useIsAdmin();
-  const isAuthenticated = useIsAuthenticated();
-  const [fraudAnalytics, setFraudAnalytics] = useState<{
-    totalTransactions: number;
-    fraudulentTransactions: number;
-    fraudRate: number;
-    topRiskFactors: Array<{ factor: string; count: number }>;
-    hourlyTrends: Array<{ hour: string; transactions: number; frauds: number }>;
-  } | null>(null);
-  const [usingDemoData, setUsingDemoData] = useState(false);
 
-  // Load fraud analytics
-  useEffect(() => {
-    const loadAnalytics = async () => {
-      try {
-        const { pinotClient } = await import('@/src/services/pinot-client');
-        const analytics = await pinotClient.getFraudAnalytics();
-        setFraudAnalytics(analytics);
-      } catch (error) {
-        // Server unavailable is expected in demo/development - use fallback data silently
-        // Only log unexpected errors, not SERVER_UNAVAILABLE which is expected
-        if (process.env.NODE_ENV === 'development' && error instanceof Error && error.message !== 'SERVER_UNAVAILABLE') {
-          console.warn('Unexpected error loading analytics:', error);
-        }
-        setUsingDemoData(true);
-        setFraudAnalytics({
-          totalTransactions: 1247,
-          fraudulentTransactions: 23,
-          fraudRate: 1.84,
-          topRiskFactors: [
-            { factor: 'High amount transaction', count: 8 },
-            { factor: 'Unusual merchant location', count: 6 },
-            { factor: 'New customer pattern', count: 5 },
-          ],
-          hourlyTrends: Array.from({ length: 24 }, (_, i) => ({
-            hour: `${i.toString().padStart(2, '0')}:00`,
-            transactions: Math.floor(Math.random() * 100) + 20,
-            frauds: Math.floor(Math.random() * 5),
-          })),
-        });
-      }
-    };
+  // Use real-time dashboard analytics hook
+  const {
+    analytics,
+    isLoading,
+    error,
+  } = useDashboardAnalytics({
+    autoStart: true,
+    pollInterval: 5000, // Update every 5 seconds
+  });
 
-    if (isAuthenticated) {
-      loadAnalytics();
-    }
-  }, [isAuthenticated]);
+  // Use real-time transactions hook
+  const {
+    allTransactions,
+    isPolling: isTransactionsPolling,
+  } = useRealtimeTransactions({
+    autoStart: true,
+    pollInterval: 5000, // Update every 5 seconds
+  });
 
-  // Fraud-focused stats
-  const stats: StatCardProps[] = [
-    {
-      title: 'Total Transactions',
-      value: fraudAnalytics && !isNaN(fraudAnalytics.totalTransactions)
-        ? fraudAnalytics.totalTransactions.toLocaleString()
-        : '1,247',
-      change: '+15%',
-      changeType: 'positive',
-      icon: CreditCard,
-    },
-    {
-      title: 'Fraudulent Transactions',
-      value: fraudAnalytics && !isNaN(fraudAnalytics.fraudulentTransactions)
-        ? fraudAnalytics.fraudulentTransactions.toString()
-        : '23',
-      change: '-8%',
-      changeType: 'positive',
-      icon: AlertTriangle,
-    },
-    {
-      title: 'Fraud Detection Rate',
-      value: fraudAnalytics && !isNaN(fraudAnalytics.fraudRate)
-        ? `${fraudAnalytics.fraudRate}%`
-        : '1.84%',
-      change: '+5%',
-      changeType: 'positive',
-      icon: Target,
-    },
-    {
-      title: 'Clean Transactions',
-      value: fraudAnalytics && !isNaN(fraudAnalytics.totalTransactions) && !isNaN(fraudAnalytics.fraudulentTransactions)
-        ? (fraudAnalytics.totalTransactions - fraudAnalytics.fraudulentTransactions).toLocaleString()
-        : '1,224',
-      change: '+18%',
-      changeType: 'positive',
-      icon: CheckCircle,
-    },
-  ];
+  // Calculate fraud metrics using ViewModel transformer
+  const fraudMetrics = useMemo(() => {
+    return DashboardTransformer.calculateFraudMetrics(allTransactions);
+  }, [allTransactions]);
+
+  // Prepare geographic data using ViewModel transformer
+  const geographicData = useMemo(() => {
+    if (!analytics) return [];
+    return DashboardTransformer.transformGeographicData(analytics);
+  }, [analytics]);
+
+  // Fraud-focused stats using ViewModel transformer
+  const stats: StatCardProps[] = useMemo(() => {
+    return DashboardTransformer.toStatsCards(allTransactions);
+  }, [allTransactions]);
 
   const quickAccessCards: QuickAccessCardProps[] = [
     {
@@ -148,101 +104,25 @@ export default function DashboardPage() {
     },
   ];
 
-  const transactionAnalysisItems: AnalysisItemProps[] = [
-    {
-      label: 'Credit Card Transactions',
-      value: 851,
-      description: '68% of total volume',
-      icon: CreditCard,
-    },
-    {
-      label: 'Digital Wallet Payments',
-      value: 275,
-      description: '22% of total volume',
-      icon: Target,
-    },
-    {
-      label: 'Bank Transfers',
-      value: 121,
-      description: '10% of total volume',
-      icon: CreditCard,
-    },
-    {
-      label: 'Other',
-      value: 100,
-      description: '5% of total volume',
-      icon: Truck,
-    }
-  ];
+  // Transform transactions into transaction analysis items using ViewModel transformer
+  const transactionAnalysisItems: TransactionAnalysisCardProps[] = useMemo(() => {
+    return DashboardTransformer.toTransactionAnalysisItems(allTransactions);
+  }, [allTransactions]);
 
-  const fraudRiskAnalysisItems: AnalysisItemProps[] = [
-    {
-      label: 'Low Risk',
-      value: '1,112',
-      description: '89.2% of transactions',
-      icon: CheckCircle,
-    },
-    {
-      label: 'Medium Risk',
-      value: '94',
-      description: '7.5% of transactions',
-      icon: AlertTriangle,
-    },
-    {
-      label: 'High Risk',
-      value: '35',
-      description: '2.8% of transactions',
-      icon: AlertTriangle,
-    },
-    {
-      label: 'Critical Risk',
-      value: '6',
-      description: '0.5% of transactions',
-      icon: AlertTriangle,
-    },
-  ];
+  // Transform transactions into fraud risk analysis items using ViewModel transformer
+  const fraudRiskAnalysisItems: FraudRiskCardProps[] = useMemo(() => {
+    return DashboardTransformer.toFraudRiskAnalysisItems(allTransactions);
+  }, [allTransactions]);
 
-  const recentActivities: ActivityItemProps[] = [
-    {
-      id: '1',
-      user: 'TXN-123456789',
-      action: 'flagged as high-risk (95% score)',
-      time: '2 minutes ago',
-      type: 'fraud' as const,
-      riskLevel: 'critical' as const,
-    },
-    {
-      id: '2',
-      user: 'TXN-987654321',
-      action: 'approved - low risk (12% score)',
-      time: '5 minutes ago',
-      type: 'clean' as const,
-      riskLevel: 'low' as const,
-    },
-    {
-      id: '3',
-      user: 'TXN-555666777',
-      action: 'flagged for review (78% score)',
-      time: '8 minutes ago',
-      type: 'fraud' as const,
-      riskLevel: 'high' as const,
-    },
-    {
-      id: '4',
-      user: 'TXN-111222333',
-      action: 'approved - medium risk (45% score)',
-      time: '12 minutes ago',
-      type: 'clean' as const,
-      riskLevel: 'medium' as const,
-    },
-    {
-      id: '5',
-      user: 'System',
-      action: 'fraud model updated',
-      time: '15 minutes ago',
-      type: 'system' as const,
-    },
-  ];
+  // Calculate risk factors data using ViewModel transformer
+  const riskFactorsData = useMemo(() => {
+    return DashboardTransformer.calculateRiskFactors(allTransactions);
+  }, [allTransactions]);
+
+  // Transform transactions into recent activities using ViewModel transformer
+  const recentActivities: ActivityItemProps[] = useMemo(() => {
+    return DashboardTransformer.toRecentActivities(allTransactions, 5);
+  }, [allTransactions]);
 
   return (
     <DashboardTemplate>
@@ -256,66 +136,56 @@ export default function DashboardPage() {
         {/* Stats Grid */}
         <StatsGrid stats={stats} />
 
+        {/* Loading State */}
+        {isLoading && !analytics && (
+          <div className="flex items-center justify-center h-64">
+            <Loading />
+          </div>
+        )}
+
+        {/* Error State */}
+        {error && (
+          <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4">
+            <Typography variant="p" className="text-destructive">
+              Error loading analytics: {error}
+            </Typography>
+          </div>
+        )}
+
         {/* Fraud Analytics Overview */}
-        <div className="bg-card border border-border rounded-lg p-6">
-          <Typography variant="h3" size="lg" weight="semibold" className="text-foreground mb-4">
-            Fraud Detection Metrics Overview
-          </Typography>
-          <Typography variant="p" size="sm" color="muted" className="text-muted-foreground mb-6">
-            Comprehensive view of fraud detection performance and trends
-          </Typography>
-          <FraudMetricsOverview
-            data={fraudAnalytics?.hourlyTrends || Array.from({ length: 24 }, (_, i) => ({
-              hour: `${i.toString().padStart(2, '0')}:00`,
-              transactions: Math.floor(Math.random() * 100) + 20,
-              frauds: Math.floor(Math.random() * 5),
-            }))}
-            totalTransactions={fraudAnalytics?.totalTransactions || 1247}
-            fraudulentTransactions={fraudAnalytics?.fraudulentTransactions || 23}
-            fraudRate={fraudAnalytics?.fraudRate || 1.84}
-          />
-        </div>
+        {(analytics || allTransactions.length > 0) && (
+          <div className="bg-card border border-border rounded-lg p-6">
+            <Typography variant="h3" size="lg" weight="semibold" className="text-foreground mb-4">
+              Fraud Detection Metrics Overview
+            </Typography>
+            <Typography variant="p" size="sm" color="muted" className="text-muted-foreground mb-6">
+              Comprehensive view of fraud detection performance and trends (Real-time from transactions)
+            </Typography>
+            <FraudMetricsOverview
+              data={fraudMetrics.hourlyTrends}
+              totalTransactions={fraudMetrics.totalTransactions}
+              fraudulentTransactions={fraudMetrics.fraudulentTransactions}
+              fraudRate={fraudMetrics.fraudRate}
+            />
+          </div>
+        )}
 
         {/* Detailed Analytics Grid */}
-        <AnalyticsGrid
-          trendsData={fraudAnalytics?.hourlyTrends || Array.from({ length: 24 }, (_, i) => ({
-                hour: `${i.toString().padStart(2, '0')}:00`,
-                transactions: Math.floor(Math.random() * 100) + 20,
-                frauds: Math.floor(Math.random() * 5),
-              }))}
-          riskFactorsData={fraudAnalytics?.topRiskFactors || [
-                { factor: 'High amount transaction', count: 8 },
-                { factor: 'Unusual merchant location', count: 6 },
-                { factor: 'New customer pattern', count: 5 },
-                { factor: 'Velocity check failed', count: 4 },
-              ]}
-            />
+        {allTransactions.length > 0 && (
+          <AnalyticsGrid
+            trendsData={fraudMetrics.hourlyTrends}
+            riskFactorsData={riskFactorsData}
+          />
+        )}
 
         {/* Geographic Fraud Analysis */}
-        <GeographicAnalysis
-          mapData={[
-                { country: 'United States', fraudCount: 45, totalTransactions: 1250, fraudRate: 3.6 },
-                { country: 'United Kingdom', fraudCount: 23, totalTransactions: 680, fraudRate: 3.38 },
-                { country: 'Germany', fraudCount: 18, totalTransactions: 520, fraudRate: 3.46 },
-                { country: 'China', fraudCount: 67, totalTransactions: 1890, fraudRate: 3.55 },
-                { country: 'Japan', fraudCount: 12, totalTransactions: 430, fraudRate: 2.79 },
-                { country: 'India', fraudCount: 34, totalTransactions: 980, fraudRate: 3.47 },
-                { country: 'Canada', fraudCount: 15, totalTransactions: 380, fraudRate: 3.95 },
-                { country: 'Australia', fraudCount: 8, totalTransactions: 290, fraudRate: 2.76 },
-              ]}
-          topCountries={[
-                { country: 'Canada', fraudRate: 3.95, totalTransactions: 380, fraudCount: 15, flag: '🇨🇦', rank: 1 },
-                { country: 'United States', fraudRate: 3.60, totalTransactions: 1250, fraudCount: 45, flag: '🇺🇸', rank: 2 },
-                { country: 'China', fraudRate: 3.55, totalTransactions: 1890, fraudCount: 67, flag: '🇨🇳', rank: 3 },
-                { country: 'India', fraudRate: 3.47, totalTransactions: 980, fraudCount: 34, flag: '🇮🇳', rank: 4 },
-                { country: 'Germany', fraudRate: 3.46, totalTransactions: 520, fraudCount: 18, flag: '🇩🇪', rank: 5 },
-            { country: 'United Kingdom', fraudRate: 3.38, totalTransactions: 680, fraudCount: 23, flag: '🇬🇧', rank: 6 },
-            { country: 'France', fraudRate: 3.32, totalTransactions: 450, fraudCount: 15, flag: '🇫🇷', rank: 7 },
-            { country: 'Brazil', fraudRate: 3.28, totalTransactions: 720, fraudCount: 24, flag: '🇧🇷', rank: 8 },
-            { country: 'Japan', fraudRate: 3.25, totalTransactions: 430, fraudCount: 14, flag: '🇯🇵', rank: 9 },
-            { country: 'Australia', fraudRate: 3.21, totalTransactions: 290, fraudCount: 9, flag: '🇦🇺', rank: 10 },
-          ]}
-        />
+        {analytics && analytics.geographicData.length > 0 && (
+          <GeographicAnalysis
+            mapData={analytics.geographicData}
+            topCountries={geographicData}
+            globalAverageFraudRate={analytics.fraudRate}
+          />
+        )}
 
         {/* Transaction Analytics Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -325,7 +195,6 @@ export default function DashboardPage() {
 
         {/* Recent Activity */}
         <RecentFraudAlerts activities={recentActivities} />
-
       </div>
     </DashboardTemplate>
   );

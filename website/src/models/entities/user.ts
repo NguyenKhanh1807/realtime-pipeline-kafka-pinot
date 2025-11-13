@@ -10,9 +10,8 @@ import type {
   PasswordHash,
   Timestamp,
   EntityStatus,
-  UserRole,
-  Permission
 } from '@/src/models/types';
+import type { UserRole } from '@/src/models/types/auth';
 
 export interface UserProps {
   id: UserId;
@@ -20,7 +19,6 @@ export interface UserProps {
   email: Email;
   passwordHash: PasswordHash;
   role: UserRole;
-  permissions: Permission[];
   status: EntityStatus;
   createdAt: Timestamp;
   updatedAt: Timestamp;
@@ -43,7 +41,6 @@ export class User {
   get username(): Username { return this.props.username; }
   get email(): Email { return this.props.email; }
   get role(): UserRole { return this.props.role; }
-  get permissions(): Permission[] { return [...this.props.permissions]; }
   get status(): EntityStatus { return this.props.status; }
   get createdAt(): Timestamp { return this.props.createdAt; }
   get updatedAt(): Timestamp { return this.props.updatedAt; }
@@ -59,18 +56,6 @@ export class User {
 
   isLocked(): boolean {
     return this.props.lockoutUntil ? this.props.lockoutUntil > new Date() : false;
-  }
-
-  hasPermission(permission: Permission): boolean {
-    return this.props.permissions.includes(permission);
-  }
-
-  hasAnyPermission(permissions: Permission[]): boolean {
-    return permissions.some(permission => this.hasPermission(permission));
-  }
-
-  hasAllPermissions(permissions: Permission[]): boolean {
-    return permissions.every(permission => this.hasPermission(permission));
   }
 
   canLogin(): boolean {
@@ -111,9 +96,8 @@ export class User {
     this.props.updatedAt = new Date();
   }
 
-  changeRole(newRole: UserRole, newPermissions: Permission[]): void {
+  changeRole(newRole: UserRole): void {
     this.props.role = newRole;
-    this.props.permissions = [...newPermissions];
     this.props.updatedAt = new Date();
   }
 
@@ -166,6 +150,55 @@ export class User {
       createdAt: now,
       updatedAt: now,
       loginAttempts: 0,
+    });
+  }
+
+  /**
+   * Create User entity from API user data
+   * Transforms API response to domain entity
+   */
+  static fromApiUser(apiUser: {
+    username: string;
+    password?: string; // This is the hashed password from API (may be missing for security)
+    component?: string;
+    role: string;
+    tables?: string[];
+    permissions?: string[]; // API may return this, but we don't use it (role-based access only)
+    usernameWithComponent?: string;
+  }): User {
+    const now = new Date();
+
+    // Normalize role: API returns uppercase (ADMIN, USER), convert to domain type
+    const normalizedRole = apiUser.role.toLowerCase();
+    const userRole: UserRole = (normalizedRole === 'admin' ? 'admin' : 'user');
+
+    // Use username as email if email not provided (API compatibility)
+    const email: Email = apiUser.username.includes('@') 
+      ? apiUser.username as Email 
+      : `${apiUser.username}@system.local` as Email;
+
+    // Password hash: API may not return password for security reasons
+    // If missing, use a placeholder that will fail validation if used for auth
+    // This allows user entities to be created from API responses that don't include passwords
+    const passwordHash: PasswordHash = apiUser.password 
+      ? (apiUser.password as PasswordHash)
+      : ('$2a$10$PLACEHOLDER_NO_PASSWORD_RETURNED' as PasswordHash);
+
+    return new User({
+      id: apiUser.username, // Use username as ID
+      username: apiUser.username as Username,
+      email: email,
+      passwordHash: passwordHash,
+      role: userRole,
+      status: 'active' as EntityStatus,
+      createdAt: now,
+      updatedAt: now,
+      loginAttempts: 0,
+      metadata: {
+        component: apiUser.component,
+        tables: apiUser.tables || [],
+        usernameWithComponent: apiUser.usernameWithComponent,
+      },
     });
   }
 

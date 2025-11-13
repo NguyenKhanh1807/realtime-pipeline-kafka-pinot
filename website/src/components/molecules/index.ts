@@ -5,4 +5,4 @@ export * from './sidebar';
 export * from './tables';
 export * from './user-management';
 export * from './dashboard';
-export * from './transaction';
+// Transaction molecules moved to organisms

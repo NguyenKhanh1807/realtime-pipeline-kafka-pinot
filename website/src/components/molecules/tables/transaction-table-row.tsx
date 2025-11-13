@@ -1,8 +1,9 @@
 'use client';
 
-import { Typography, StatusBadge, type TransactionStatus } from '@/src/components/atoms';
+import { Typography, StatusBadge } from '@/src/components/atoms';
 import { cn } from '@/src/lib';
 import { Clock, DollarSign, Store, AlertTriangle, CreditCard, MapPin, User, Mail } from 'lucide-react';
+import type { TransactionStatus } from '@/src/components/atoms/badges/status-badge';
 
 export interface TransactionTableRowProps {
   time: string;
@@ -15,7 +16,7 @@ export interface TransactionTableRowProps {
   location?: string;
   customerName?: string;
   customerEmail?: string;
-  riskLevel?: 'low' | 'medium' | 'high' | 'critical';
+  showCustomerInfo?: boolean;
   className?: string;
 }
 
@@ -30,7 +31,7 @@ export function TransactionTableRow({
   location,
   customerName,
   customerEmail,
-  riskLevel,
+  showCustomerInfo = true,
   className,
 }: TransactionTableRowProps) {
   const getScoreColor = (score: number) => {
@@ -50,7 +51,6 @@ export function TransactionTableRow({
         <td className="p-4">
           <div className="flex flex-col gap-1">
             <div className="flex items-center gap-2">
-              <Clock className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
               <Typography variant="span" size="sm" className="text-foreground font-medium mb-0">
                 {time}
               </Typography>
@@ -122,26 +122,28 @@ export function TransactionTableRow({
         <td className="p-4 w-40">
           <StatusBadge status={status} />
         </td>
-        <td className="p-4">
-          <div className="flex flex-col gap-1">
-            {customerName && (
-              <div className="flex items-center gap-1.5">
-                <User className="h-3.5 w-3.5 text-muted-foreground" />
-                <Typography variant="span" size="xs" className="text-foreground">
-                  {customerName}
-                </Typography>
-              </div>
-            )}
-            {customerEmail && (
-              <div className="flex items-center gap-1.5">
-                <Mail className="h-3.5 w-3.5 text-muted-foreground" />
-                <Typography variant="span" size="xs" className="text-muted-foreground truncate max-w-[150px]">
-                  {customerEmail}
-                </Typography>
-              </div>
-            )}
-          </div>
-        </td>
+        {showCustomerInfo && (
+          <td className="p-4">
+            <div className="flex flex-col gap-1">
+              {customerName && (
+                <div className="flex items-center gap-1.5">
+                  <User className="h-3.5 w-3.5 text-muted-foreground" />
+                  <Typography variant="span" size="xs" className="text-foreground">
+                    {customerName}
+                  </Typography>
+                </div>
+              )}
+              {customerEmail && (
+                <div className="flex items-center gap-1.5">
+                  <Mail className="h-3.5 w-3.5 text-muted-foreground" />
+                  <Typography variant="span" size="xs" className="text-muted-foreground truncate max-w-[150px]">
+                    {customerEmail}
+                  </Typography>
+                </div>
+              )}
+            </div>
+          </td>
+        )}
       </tr>
     </>
   );

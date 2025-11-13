@@ -1,7 +1,7 @@
 'use client';
 
 import { cn } from '@/src/lib/utils';
-import { Crown, Shield, Eye, Users, User } from 'lucide-react';
+import { Crown, User } from 'lucide-react';
 import type { UserRole } from '@/src/types';
 
 export interface RoleBadgeProps {
@@ -16,20 +16,10 @@ const roleConfig = {
     bgColor: 'bg-yellow-100 dark:bg-yellow-900/30',
     iconColor: 'text-yellow-600 dark:text-yellow-400',
   },
-  analyst: {
-    icon: Shield,
+  user: {
+    icon: User,
     bgColor: 'bg-blue-100 dark:bg-blue-900/30',
     iconColor: 'text-blue-600 dark:text-blue-400',
-  },
-  viewer: {
-    icon: Eye,
-    bgColor: 'bg-green-100 dark:bg-green-900/30',
-    iconColor: 'text-green-600 dark:text-green-400',
-  },
-  api_user: {
-    icon: Users,
-    bgColor: 'bg-purple-100 dark:bg-purple-900/30',
-    iconColor: 'text-purple-600 dark:text-purple-400',
   },
 };
 
