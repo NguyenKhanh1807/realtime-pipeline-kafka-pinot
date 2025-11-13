@@ -10,8 +10,7 @@ import type {
   TransactionType,
   PaymentMethod,
   GeographicLocation,
-  RiskLevel
-} from '../types';
+} from '@/src/models/types';
 
 export interface TransactionProps {
   id: TransactionId;

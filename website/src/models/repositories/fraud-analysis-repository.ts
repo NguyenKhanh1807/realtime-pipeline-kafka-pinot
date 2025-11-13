@@ -9,9 +9,9 @@ import type {
   RiskLevel,
   PaginatedResult,
   PaginationParams,
-  DateRange
-} from '../types';
-import type { FraudAnalysis } from '../entities/fraud-analysis';
+  DateRange,
+  FraudAnalysis
+} from '@/src/models';
 
 export interface FraudAnalysisRepository {
   /**

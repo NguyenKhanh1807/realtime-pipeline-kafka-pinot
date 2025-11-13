@@ -1,7 +1,7 @@
 'use client';
 
-import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { AuditLogger } from '@/src/services/audit-logger';
+import  { createContext, useContext, useState, ReactNode } from 'react';
+import { log as logger } from '@/src/lib/logger';
 
 interface CorrelationContextType {
   correlationId: string;
@@ -17,11 +17,11 @@ interface CorrelationProviderProps {
 
 export function CorrelationProvider({ children }: CorrelationProviderProps) {
   const [correlationId, setCorrelationIdState] = useState(() =>
-    AuditLogger.generateCorrelationId()
+    logger.generateCorrelationId()
   );
 
   const generateNewCorrelationId = () => {
-    const newId = AuditLogger.generateCorrelationId();
+    const newId = logger.generateCorrelationId();
     setCorrelationIdState(newId);
     return newId;
   };
@@ -56,7 +56,7 @@ export function withCorrelationTracking<T extends any[], R>(
   fn: (correlationId: string, ...args: T) => R
 ) {
   return (...args: T): R => {
-    const correlationId = AuditLogger.generateCorrelationId();
+    const correlationId = logger.generateCorrelationId();
     return fn(correlationId, ...args);
   };
 }
@@ -69,8 +69,6 @@ export function useApiWithCorrelation() {
     correlationId,
     makeApiCall: async function<T>(
       apiCall: () => Promise<T>,
-      operation: string,
-      category: string = 'api'
     ): Promise<T> {
       // Logging can be handled separately by the calling component
       try {
@@ -82,5 +80,3 @@ export function useApiWithCorrelation() {
     },
   };
 }
-
-// auditLogger is imported at the top of the file

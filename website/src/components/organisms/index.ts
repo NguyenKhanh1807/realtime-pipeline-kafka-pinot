@@ -1,7 +1,17 @@
-// Organisms - Complex components composed of molecules and atoms
-export { AuditLogViewer } from './audit-log-viewer';
-export { FraudMap } from './fraud-map';
-export { FraudMetricsOverview } from './fraud-metrics-overview';
-export { FraudTrendsChart } from './fraud-trends-chart';
-export { RiskFactorsChart } from './risk-factors-chart';
+// Organisms - Complex UI sections
 export { UserManagement } from './user-management';
+
+// Form organisms
+export * from './forms';
+
+// Dashboard organisms
+export * from './dashboard';
+
+// Transaction organisms
+export * from './transaction';
+
+// Fraud organisms
+export * from './fraud';
+
+// Common organisms
+export * from './common';

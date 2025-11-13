@@ -1,8 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useEffect } from 'react';
-import { useSystemPreference, useResolvedTheme, useThemeStore } from '@/src/viewmodels/stores';
-import type { ThemeMode, ColorScheme } from '@/src/viewmodels/stores/theme-store';
+import { useSystemPreference, useThemeStore, ThemeMode, ColorScheme } from '@/src/view-models/stores';
 
 interface ThemeContextValue {
   // Current theme state

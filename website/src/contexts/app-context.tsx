@@ -1,8 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useEffect } from 'react';
-import { useAppStore } from '@/src/viewmodels/stores';
-import type { User } from '@/src/viewmodels/stores/app-store';
+import { useAppStore, User } from '@/src/view-models';
 
 interface AppContextValue {
   // User state
@@ -52,9 +51,15 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     initializeApp,
   } = useAppStore();
 
-  // Initialize app on mount
+  // Initialize app on mount (client-side only)
   useEffect(() => {
-    initializeApp();
+    if (typeof window !== 'undefined') {
+      // Use setTimeout to ensure this runs after the component has mounted
+      const timer = setTimeout(() => {
+        initializeApp();
+      }, 0);
+      return () => clearTimeout(timer);
+    }
   }, [initializeApp]);
 
   // Computed values

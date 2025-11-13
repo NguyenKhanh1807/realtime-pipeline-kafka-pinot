@@ -1,24 +1,22 @@
-// Model Layer - Domain Logic and Data Access
-// This follows Domain-Driven Design principles
+/**
+ * Model Layer Barrel Export
+ * Domain Logic and Data Access following Domain-Driven Design principles
+ */
 
 // Core domain types
 export * from './types';
 
 // Domain entities
-export { User } from './entities/user';
-export { Transaction } from './entities/transaction';
-export { FraudAnalysis } from './entities/fraud-analysis';
+export * from './entities';
 
 // Value objects
 export * from './value-objects';
 
 // Repository interfaces
-export type { UserRepository } from './repositories/user-repository';
-export type { TransactionRepository } from './repositories/transaction-repository';
-export type { FraudAnalysisRepository } from './repositories/fraud-analysis-repository';
+export * from './repositories';
 
 // Domain services
-export { FraudDetectionService } from './services/fraud-detection-service';
+export * from './services';
 
 // Domain validators
-export * from './validators/domain-validators';
+export * from './validators';

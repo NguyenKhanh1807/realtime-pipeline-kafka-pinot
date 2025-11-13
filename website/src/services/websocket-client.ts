@@ -3,6 +3,8 @@
  * Handles live transaction feeds, fraud alerts, and real-time analytics
  */
 
+import { log as logger } from '@/src/lib/logger';
+
 export interface TransactionUpdate {
   id: string;
   timestamp: number;
@@ -71,7 +73,8 @@ export class WebSocketClient {
         this.ws = new WebSocket(this.wsUrl);
 
         this.ws.onopen = () => {
-          console.log('WebSocket connected');
+          const correlationId = logger.generateCorrelationId();
+          logger.info('WebSocket connected', { correlationId });
           this.reconnectAttempts = 0;
           this.startHeartbeat();
           this.emit('connection_status', { connected: true });
@@ -83,12 +86,14 @@ export class WebSocketClient {
             const message: WebSocketEvent = JSON.parse(event.data);
             this.handleMessage(message);
           } catch (error) {
-            console.error('Failed to parse WebSocket message:', error);
+            const correlationId = logger.generateCorrelationId();
+            logger.error('Failed to parse WebSocket message', error instanceof Error ? error : new Error(String(error)), { correlationId });
           }
         };
 
         this.ws.onclose = (event) => {
-          console.log('WebSocket disconnected:', event.code, event.reason);
+          const correlationId = logger.generateCorrelationId();
+          logger.info('WebSocket disconnected', { correlationId, metadata: { code: event.code, reason: event.reason } });
           this.stopHeartbeat();
           this.emit('connection_status', { connected: false, error: event.reason });
 
@@ -100,15 +105,15 @@ export class WebSocketClient {
 
         this.ws.onerror = () => {
           // Only log WebSocket errors in development, and only for actual connection issues
-          if (process.env.NODE_ENV === 'development') {
-            console.warn('WebSocket connection failed - no server available at', this.wsUrl);
-          }
+          const correlationId = logger.generateCorrelationId();
+          logger.warn('WebSocket connection failed - no server available', { correlationId, metadata: { wsUrl: this.wsUrl } });
           this.emit('connection_status', { connected: false, error: 'Connection failed' });
           reject(new Error('WebSocket server not available'));
         };
 
       } catch (error) {
-        console.error('Failed to create WebSocket connection:', error);
+        const correlationId = logger.generateCorrelationId();
+        logger.error('Failed to create WebSocket connection', error instanceof Error ? error : new Error(String(error)), { correlationId });
         reject(error);
       }
     });
@@ -230,7 +235,8 @@ export class WebSocketClient {
     this.reconnectAttempts++;
     const delay = this.reconnectDelay * Math.pow(2, this.reconnectAttempts - 1); // Exponential backoff
 
-    console.log(`Attempting WebSocket reconnection ${this.reconnectAttempts}/${this.maxReconnectAttempts} in ${delay}ms`);
+    const correlationId = logger.generateCorrelationId();
+    logger.info('Attempting WebSocket reconnection', { correlationId, metadata: { attempt: this.reconnectAttempts, maxAttempts: this.maxReconnectAttempts, delay } });
 
     setTimeout(() => {
       this.connect().catch(() => {

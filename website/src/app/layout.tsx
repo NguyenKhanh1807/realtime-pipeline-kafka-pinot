@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Literata } from "next/font/google";
 import { AppProviders } from "@/src/contexts";
 import { CorrelationProvider } from "@/src/contexts/correlation-context";
+import { Toaster } from "@/src/components";
 import "./globals.css";
 
 // Configure Literata font as per typography guide
@@ -81,6 +82,7 @@ export default function RootLayout({
         <CorrelationProvider>
           <AppProviders>
             {children}
+            <Toaster />
           </AppProviders>
         </CorrelationProvider>
       </body>

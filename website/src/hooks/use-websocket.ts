@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { WebSocketClient, TransactionUpdate, FraudAlert, AnalyticsUpdate, WebSocketEventType, WebSocketEvent } from '@/src/services/websocket-client';
+import { WebSocketClient, TransactionUpdate, FraudAlert, AnalyticsUpdate, WebSocketEventType, WebSocketEvent } from '@/src/services/';
 
 export interface ConnectionStatus {
   connected: boolean;

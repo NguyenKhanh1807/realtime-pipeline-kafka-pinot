@@ -3,8 +3,7 @@
  * Defines the contract for user data access operations
  */
 
-import type { UserId, Email, Username, PaginatedResult, PaginationParams } from '../types';
-import type { User } from '../entities/user';
+import type { UserId, Email, Username, PaginatedResult, PaginationParams, User } from '@/src/models';
 
 export interface UserRepository {
   /**

@@ -9,9 +9,9 @@ import type {
   PaginatedResult,
   PaginationParams,
   DateRange,
-  Money
-} from '../types';
-import type { Transaction } from '../entities/transaction';
+  Money,
+  Transaction
+} from '@/src/models';
 
 export interface TransactionRepository {
   /**

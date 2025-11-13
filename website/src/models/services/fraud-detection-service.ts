@@ -3,11 +3,7 @@
  * Contains the core business logic for fraud detection
  */
 
-import type { TransactionId, RiskLevel } from '../types';
-import type { Transaction } from '../entities/transaction';
-import type { FraudAnalysis } from '../entities/fraud-analysis';
-import type { TransactionRepository } from '../repositories/transaction-repository';
-import type { FraudAnalysisRepository } from '../repositories/fraud-analysis-repository';
+import { TransactionId, RiskLevel, Transaction, FraudAnalysis, TransactionRepository, FraudAnalysisRepository } from '@/src/models';
 
 export interface FraudDetectionResult {
   transactionId: TransactionId;
@@ -203,7 +199,7 @@ export class FraudDetectionService {
     const merchantData = merchantStats.topMerchants.find(m => m.merchant === transaction.merchant);
 
     // Flag if merchant has very high transaction volume
-    const isSuspicious = merchantData && merchantData.count > 1000; // Arbitrary threshold
+    const isSuspicious = Boolean(merchantData && merchantData.count > 1000); // Arbitrary threshold
 
     return { isSuspicious };
   }

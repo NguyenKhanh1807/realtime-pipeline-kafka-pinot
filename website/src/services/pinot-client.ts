@@ -3,7 +3,7 @@
  * Handles communication with Pinot instance for fraud detection queries
  */
 
-const PINOT_BASE_URL = 'http://93.115.172.151:8099';
+const PINOT_BASE_URL = 'http://93.115.172.151:9000';
 
 export interface PinotQueryRequest {
   sql: string;

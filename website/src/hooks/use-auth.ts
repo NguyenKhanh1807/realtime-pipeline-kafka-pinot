@@ -1,4 +1,4 @@
-import { useAppStore } from '@/src/viewmodels/stores';
+import { useAppStore } from '@/src/view-models';
 import { useCallback } from 'react';
 
 /**

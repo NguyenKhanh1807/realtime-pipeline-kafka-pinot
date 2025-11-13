@@ -12,7 +12,7 @@ import type {
   EntityStatus,
   UserRole,
   Permission
-} from '../types';
+} from '@/src/models/types';
 
 export interface UserProps {
   id: UserId;

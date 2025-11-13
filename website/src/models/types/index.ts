@@ -18,6 +18,10 @@ export type Timestamp = Date;
 // Status types
 export type EntityStatus = 'active' | 'inactive' | 'suspended' | 'deleted';
 
+// User roles and permissions
+export type UserRole = 'admin' | 'analyst' | 'viewer';
+export type Permission = 'read' | 'write' | 'delete' | 'admin';
+
 // Risk levels
 export type RiskLevel = 'low' | 'medium' | 'high' | 'critical';
 

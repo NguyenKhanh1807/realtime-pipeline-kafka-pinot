@@ -1,6 +1,6 @@
 // Main components index - exports from all Atomic Design levels
 
-// Atoms - Basic building blocks
+// Atoms - Basic building blocks (including Shadcn UI primitives)
 export * from './atoms';
 
 // Molecules - Groups of atoms
@@ -10,4 +10,5 @@ export * from './molecules';
 export * from './organisms';
 
 // Layouts - Page-level component arrangements (Atomic Design)
-export * from './layouts';
+export * from './templates';
+export * from './routes';

@@ -1,45 +1,244 @@
 @import "tailwindcss";
-@import "tw-animate-css";
 
-@custom-variant dark (&:is(.dark *));
-
-:root {
+@layer base {
+  :root {
   /* Light Theme - Blue & White Main Theme */
-  --background: 0 0% 100%; /* Pure white background */
-  --foreground: 215 25% 27%; /* Dark blue-gray for text */
-  --card: 0 0% 100%; /* White cards */
-  --card-foreground: 215 25% 27%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 215 25% 27%;
-  --primary: 217 91% 60%; /* Vibrant blue primary */
-  --primary-foreground: 0 0% 100%; /* White text on primary */
-  --secondary: 214 32% 91%; /* Very light blue-gray */
-  --secondary-foreground: 215 25% 27%;
-  --muted: 210 40% 96%; /* Soft blue-white */
-  --muted-foreground: 215 16% 47%;
-  --accent: 217 91% 96%; /* Very light blue accent */
-  --accent-foreground: 217 91% 30%; /* Dark blue on light accent */
-  --destructive: 0 84% 60%; /* Red for destructive actions */
-  --destructive-foreground: 0 0% 100%;
-  --border: 220 13% 91%; /* Subtle blue-gray borders */
-  --input: 220 13% 91%;
-  --ring: 217 91% 60%; /* Blue focus ring */
-  --chart-1: 217 91% 60%; /* Blue */
-  --chart-2: 142 76% 36%; /* Orange */
-  --chart-3: 158 64% 52%; /* Green */
-  --chart-4: 271 81% 56%; /* Purple */
-  --chart-5: 43 96% 56%; /* Yellow */
+  --background: hsl(0 0% 100%); /* Pure white background */
+  --foreground: hsl(215 25% 27%); /* Dark blue-gray for text */
+  --card: hsl(0 0% 100%); /* White cards */
+  --card-foreground: hsl(215 25% 27%);
+  --popover: hsl(0 0% 100%);
+  --popover-foreground: hsl(215 25% 27%);
+  --primary: hsl(217 91% 60%); /* Vibrant blue primary */
+  --primary-foreground: hsl(0 0% 100%); /* White text on primary */
+  --secondary: hsl(214 32% 91%); /* Very light blue-gray */
+  --secondary-foreground: hsl(215 25% 27%);
+  --muted: hsl(210 40% 96%); /* Soft blue-white */
+  --muted-foreground: hsl(215 16% 47%);
+  --accent: hsl(217 91% 96%); /* Very light blue accent */
+  --accent-foreground: hsl(217 91% 30%); /* Dark blue on light accent */
+  --destructive: hsl(0 84% 60%); /* Red for destructive actions */
+  --destructive-foreground: hsl(0 0% 100%);
+  --border: hsl(220 13% 91%); /* Subtle blue-gray borders */
+  --input: hsl(220 13% 91%);
+  --ring: hsl(217 91% 60%); /* Blue focus ring */
+  --chart-1: hsl(217 91% 60%); /* Blue */
+  --chart-2: hsl(142 76% 36%); /* Orange */
+  --chart-3: hsl(158 64% 52%); /* Green */
+  --chart-4: hsl(271 81% 56%); /* Purple */
+  --chart-5: hsl(43 96% 56%); /* Yellow */
   --radius: 0.5rem;
 
   /* Sidebar - White background with blue accents */
-  --sidebar-background: 0 0% 100%; /* White sidebar */
-  --sidebar-foreground: 215 25% 27%;
-  --sidebar-primary: 217 91% 60%;
-  --sidebar-primary-foreground: 0 0% 100%;
-  --sidebar-accent: 217 91% 96%;
-  --sidebar-accent-foreground: 217 91% 30%;
-  --sidebar-border: 220 13% 91%;
-  --sidebar-ring: 217 91% 60%;
+  --sidebar-background: hsl(0 0% 100%); /* White sidebar */
+  --sidebar-foreground: hsl(215 25% 27%);
+  --sidebar-primary: hsl(217 91% 60%);
+  --sidebar-primary-foreground: hsl(0 0% 100%);
+  --sidebar-accent: hsl(217 91% 96%);
+  --sidebar-accent-foreground: hsl(217 91% 30%);
+  --sidebar-border: hsl(220 13% 91%);
+  --sidebar-ring: hsl(217 91% 60%);
+
+  /* Semantic Colors - Light Theme */
+  --success: hsl(142 76% 36%); /* Green for success states */
+  --success-foreground: hsl(0 0% 100%);
+  --warning: hsl(43 96% 56%); /* Yellow/Orange for warnings */
+  --warning-foreground: hsl(215 25% 27%);
+  --error: hsl(0 84% 60%); /* Red for errors */
+  --error-foreground: hsl(0 0% 100%);
+  --info: hsl(217 91% 60%); /* Blue for info */
+  --info-foreground: hsl(0 0% 100%);
+
+  /* Component-specific colors */
+  --blue-50: hsl(217 91% 96%);
+  --blue-100: hsl(217 91% 92%);
+  --blue-200: hsl(217 91% 84%);
+  --blue-300: hsl(217 91% 76%);
+  --blue-400: hsl(217 91% 68%);
+  --blue-500: hsl(217 91% 60%);
+  --blue-600: hsl(217 91% 52%);
+  --blue-700: hsl(217 91% 44%);
+  --blue-800: hsl(217 91% 36%);
+  --blue-900: hsl(217 91% 28%);
+
+  --red-50: hsl(0 84% 96%);
+  --red-100: hsl(0 84% 92%);
+  --red-200: hsl(0 84% 84%);
+  --red-300: hsl(0 84% 76%);
+  --red-400: hsl(0 84% 68%);
+  --red-500: hsl(0 84% 60%);
+  --red-600: hsl(0 84% 52%);
+  --red-700: hsl(0 84% 44%);
+  --red-800: hsl(0 84% 36%);
+  --red-900: hsl(0 84% 28%);
+
+  --green-50: hsl(142 76% 96%);
+  --green-100: hsl(142 76% 92%);
+  --green-200: hsl(142 76% 84%);
+  --green-300: hsl(142 76% 76%);
+  --green-400: hsl(142 76% 68%);
+  --green-500: hsl(142 76% 60%);
+  --green-600: hsl(142 76% 52%);
+  --green-700: hsl(142 76% 44%);
+  --green-800: hsl(142 76% 36%);
+  --green-900: hsl(142 76% 28%);
+
+  --orange-50: hsl(43 96% 96%);
+  --orange-100: hsl(43 96% 92%);
+  --orange-200: hsl(43 96% 84%);
+  --orange-300: hsl(43 96% 76%);
+  --orange-400: hsl(43 96% 68%);
+  --orange-500: hsl(43 96% 60%);
+  --orange-600: hsl(43 96% 52%);
+  --orange-700: hsl(43 96% 44%);
+  --orange-800: hsl(43 96% 36%);
+  --orange-900: hsl(43 96% 28%);
+
+  --yellow-50: hsl(43 96% 96%);
+  --yellow-100: hsl(43 96% 92%);
+  --yellow-200: hsl(43 96% 84%);
+  --yellow-300: hsl(43 96% 76%);
+  --yellow-400: hsl(43 96% 68%);
+  --yellow-500: hsl(43 96% 60%);
+  --yellow-600: hsl(43 96% 52%);
+  --yellow-700: hsl(43 96% 44%);
+  --yellow-800: hsl(43 96% 36%);
+  --yellow-900: hsl(43 96% 28%);
+
+  --purple-50: hsl(271 81% 96%);
+  --purple-100: hsl(271 81% 92%);
+  --purple-200: hsl(271 81% 84%);
+  --purple-300: hsl(271 81% 76%);
+  --purple-400: hsl(271 81% 68%);
+  --purple-500: hsl(271 81% 60%);
+  --purple-600: hsl(271 81% 52%);
+  --purple-700: hsl(271 81% 44%);
+  --purple-800: hsl(271 81% 36%);
+  --purple-900: hsl(271 81% 28%);
+  }
+}
+
+@layer base {
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-literata), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  }
+}
+
+.dark {
+  /* Dark Theme - Blue & White Main Theme */
+  --background: hsl(217 33% 17%); /* Deep blue background */
+  --foreground: hsl(0 0% 100%); /* White text */
+  --card: hsl(217 33% 13%); /* Slightly lighter blue cards */
+  --card-foreground: hsl(0 0% 100%);
+  --popover: hsl(217 33% 13%);
+  --popover-foreground: hsl(0 0% 100%);
+  --primary: hsl(217 91% 60%); /* Same vibrant blue primary */
+  --primary-foreground: hsl(217 33% 17%); /* Dark blue text on primary */
+  --secondary: hsl(217 19% 35%); /* Medium blue-gray */
+  --secondary-foreground: hsl(0 0% 100%);
+  --muted: hsl(217 19% 35%);
+  --muted-foreground: hsl(215 20% 70%);
+  --accent: hsl(217 19% 35%);
+  --accent-foreground: hsl(0 0% 100%);
+  --destructive: hsl(0 75% 60%); /* Brighter red for dark theme */
+  --destructive-foreground: hsl(0 0% 100%);
+  --border: hsl(217 19% 35%);
+  --input: hsl(217 19% 35%);
+  --ring: hsl(217 91% 60%); /* Blue focus ring */
+  --chart-1: hsl(217 91% 60%); /* Blue */
+  --chart-2: hsl(142 76% 56%); /* Orange */
+  --chart-3: hsl(158 64% 62%); /* Green */
+  --chart-4: hsl(271 81% 66%); /* Purple */
+  --chart-5: hsl(43 96% 66%); /* Yellow */
+
+  /* Sidebar - Dark blue with white accents */
+  --sidebar-background: hsl(217 33% 15%); /* Dark blue sidebar */
+  --sidebar-foreground: hsl(0 0% 100%); /* White text */
+  --sidebar-primary: hsl(217 91% 60%); /* Same blue primary */
+  --sidebar-primary-foreground: hsl(217 33% 17%);
+  --sidebar-accent: hsl(217 19% 35%); /* Medium blue accent */
+  --sidebar-accent-foreground: hsl(0 0% 100%);
+  --sidebar-border: hsl(217 19% 35%);
+  --sidebar-ring: hsl(217 91% 60%);
+
+  /* Semantic Colors - Dark Theme */
+  --success: hsl(142 76% 56%); /* Brighter green for dark theme */
+  --success-foreground: hsl(217 33% 17%);
+  --warning: hsl(43 96% 66%); /* Brighter yellow/orange for dark theme */
+  --warning-foreground: hsl(217 33% 17%);
+  --error: hsl(0 75% 60%); /* Brighter red for dark theme */
+  --error-foreground: hsl(0 0% 100%);
+  --info: hsl(217 91% 60%); /* Same blue for info */
+  --info-foreground: hsl(217 33% 17%);
+
+  /* Component-specific colors - Dark Theme */
+  --blue-50: hsl(217 33% 25%);
+  --blue-100: hsl(217 33% 30%);
+  --blue-200: hsl(217 33% 35%);
+  --blue-300: hsl(217 33% 40%);
+  --blue-400: hsl(217 33% 45%);
+  --blue-500: hsl(217 91% 60%);
+  --blue-600: hsl(217 91% 65%);
+  --blue-700: hsl(217 91% 70%);
+  --blue-800: hsl(217 91% 75%);
+  --blue-900: hsl(217 91% 80%);
+
+  --red-50: hsl(0 75% 25%);
+  --red-100: hsl(0 75% 30%);
+  --red-200: hsl(0 75% 35%);
+  --red-300: hsl(0 75% 40%);
+  --red-400: hsl(0 75% 45%);
+  --red-500: hsl(0 75% 60%);
+  --red-600: hsl(0 75% 65%);
+  --red-700: hsl(0 75% 70%);
+  --red-800: hsl(0 75% 75%);
+  --red-900: hsl(0 75% 80%);
+
+  --green-50: hsl(142 76% 25%);
+  --green-100: hsl(142 76% 30%);
+  --green-200: hsl(142 76% 35%);
+  --green-300: hsl(142 76% 40%);
+  --green-400: hsl(142 76% 45%);
+  --green-500: hsl(142 76% 56%);
+  --green-600: hsl(142 76% 61%);
+  --green-700: hsl(142 76% 66%);
+  --green-800: hsl(142 76% 71%);
+  --green-900: hsl(142 76% 76%);
+
+  --orange-50: hsl(43 96% 25%);
+  --orange-100: hsl(43 96% 30%);
+  --orange-200: hsl(43 96% 35%);
+  --orange-300: hsl(43 96% 40%);
+  --orange-400: hsl(43 96% 45%);
+  --orange-500: hsl(43 96% 60%);
+  --orange-600: hsl(43 96% 65%);
+  --orange-700: hsl(43 96% 70%);
+  --orange-800: hsl(43 96% 75%);
+  --orange-900: hsl(43 96% 80%);
+
+  --yellow-50: hsl(43 96% 25%);
+  --yellow-100: hsl(43 96% 30%);
+  --yellow-200: hsl(43 96% 35%);
+  --yellow-300: hsl(43 96% 40%);
+  --yellow-400: hsl(43 96% 45%);
+  --yellow-500: hsl(43 96% 60%);
+  --yellow-600: hsl(43 96% 65%);
+  --yellow-700: hsl(43 96% 70%);
+  --yellow-800: hsl(43 96% 75%);
+  --yellow-900: hsl(43 96% 80%);
+
+  --purple-50: hsl(271 81% 25%);
+  --purple-100: hsl(271 81% 30%);
+  --purple-200: hsl(271 81% 35%);
+  --purple-300: hsl(271 81% 40%);
+  --purple-400: hsl(271 81% 45%);
+  --purple-500: hsl(271 81% 60%);
+  --purple-600: hsl(271 81% 65%);
+  --purple-700: hsl(271 81% 70%);
+  --purple-800: hsl(271 81% 75%);
+  --purple-900: hsl(271 81% 80%);
 }
 
 @theme inline {
@@ -76,66 +275,84 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-error: var(--error);
+  --color-error-foreground: var(--error-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+  --color-blue-50: var(--blue-50);
+  --color-blue-100: var(--blue-100);
+  --color-blue-200: var(--blue-200);
+  --color-blue-300: var(--blue-300);
+  --color-blue-400: var(--blue-400);
+  --color-blue-500: var(--blue-500);
+  --color-blue-600: var(--blue-600);
+  --color-blue-700: var(--blue-700);
+  --color-blue-800: var(--blue-800);
+  --color-blue-900: var(--blue-900);
+  --color-red-50: var(--red-50);
+  --color-red-100: var(--red-100);
+  --color-red-200: var(--red-200);
+  --color-red-300: var(--red-300);
+  --color-red-400: var(--red-400);
+  --color-red-500: var(--red-500);
+  --color-red-600: var(--red-600);
+  --color-red-700: var(--red-700);
+  --color-red-800: var(--red-800);
+  --color-red-900: var(--red-900);
+  --color-green-50: var(--green-50);
+  --color-green-100: var(--green-100);
+  --color-green-200: var(--green-200);
+  --color-green-300: var(--green-300);
+  --color-green-400: var(--green-400);
+  --color-green-500: var(--green-500);
+  --color-green-600: var(--green-600);
+  --color-green-700: var(--green-700);
+  --color-green-800: var(--green-800);
+  --color-green-900: var(--green-900);
+  --color-orange-50: var(--orange-50);
+  --color-orange-100: var(--orange-100);
+  --color-orange-200: var(--orange-200);
+  --color-orange-300: var(--orange-300);
+  --color-orange-400: var(--orange-400);
+  --color-orange-500: var(--orange-500);
+  --color-orange-600: var(--orange-600);
+  --color-orange-700: var(--orange-700);
+  --color-orange-800: var(--orange-800);
+  --color-orange-900: var(--orange-900);
+  --color-yellow-50: var(--yellow-50);
+  --color-yellow-100: var(--yellow-100);
+  --color-yellow-200: var(--yellow-200);
+  --color-yellow-300: var(--yellow-300);
+  --color-yellow-400: var(--yellow-400);
+  --color-yellow-500: var(--yellow-500);
+  --color-yellow-600: var(--yellow-600);
+  --color-yellow-700: var(--yellow-700);
+  --color-yellow-800: var(--yellow-800);
+  --color-yellow-900: var(--yellow-900);
+  --color-purple-50: var(--purple-50);
+  --color-purple-100: var(--purple-100);
+  --color-purple-200: var(--purple-200);
+  --color-purple-300: var(--purple-300);
+  --color-purple-400: var(--purple-400);
+  --color-purple-500: var(--purple-500);
+  --color-purple-600: var(--purple-600);
+  --color-purple-700: var(--purple-700);
+  --color-purple-800: var(--purple-800);
+  --color-purple-900: var(--purple-900);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-literata), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
-}
-
-.dark {
-  /* Dark Theme - Blue & White Main Theme */
-  --background: 217 33% 17%; /* Deep blue background */
-  --foreground: 0 0% 100%; /* White text */
-  --card: 217 33% 13%; /* Slightly lighter blue cards */
-  --card-foreground: 0 0% 100%;
-  --popover: 217 33% 13%;
-  --popover-foreground: 0 0% 100%;
-  --primary: 217 91% 60%; /* Same vibrant blue primary */
-  --primary-foreground: 217 33% 17%; /* Dark blue text on primary */
-  --secondary: 217 19% 35%; /* Medium blue-gray */
-  --secondary-foreground: 0 0% 100%;
-  --muted: 217 19% 35%;
-  --muted-foreground: 215 20% 70%;
-  --accent: 217 19% 35%;
-  --accent-foreground: 0 0% 100%;
-  --destructive: 0 75% 60%; /* Brighter red for dark theme */
-  --destructive-foreground: 0 0% 100%;
-  --border: 217 19% 35%;
-  --input: 217 19% 35%;
-  --ring: 217 91% 60%; /* Blue focus ring */
-  --chart-1: 217 91% 60%; /* Blue */
-  --chart-2: 142 76% 56%; /* Orange */
-  --chart-3: 158 64% 62%; /* Green */
-  --chart-4: 271 81% 66%; /* Purple */
-  --chart-5: 43 96% 66%; /* Yellow */
-
-  /* Sidebar - Dark blue with white accents */
-  --sidebar-background: 217 33% 15%; /* Dark blue sidebar */
-  --sidebar-foreground: 0 0% 100%; /* White text */
-  --sidebar-primary: 217 91% 60%; /* Same blue primary */
-  --sidebar-primary-foreground: 217 33% 17%;
-  --sidebar-accent: 217 19% 35%; /* Medium blue accent */
-  --sidebar-accent-foreground: 0 0% 100%;
-  --sidebar-border: 217 19% 35%;
-  --sidebar-ring: 217 91% 60%;
-}
-
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    border: 1px solid hsl(var(--border));
+    outline: 1px solid hsl(var(--ring) / 0.5);
   }
   body {
     @apply bg-background text-foreground;
@@ -175,4 +392,53 @@ body {
 
 .dark .focus-blue:focus {
   @apply ring-2 ring-blue-400 ring-offset-2 ring-offset-gray-900;
+}
+
+/* Autofill styles to prevent theme breaking */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0px 1000px hsl(var(--background)) inset !important;
+  background-color: hsl(var(--background)) !important;
+  -webkit-text-fill-color: hsl(215 25% 27%) !important;
+  color: hsl(215 25% 27%) !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+.dark input:-webkit-autofill,
+.dark input:-webkit-autofill:hover,
+.dark input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0px 1000px hsl(217 33% 17%) inset !important;
+  background-color: hsl(217 33% 17%) !important;
+  -webkit-text-fill-color: hsl(0 0% 100%) !important;
+  color: hsl(0 0% 100%) !important;
+}
+
+input:-webkit-autofill::first-line {
+  color: hsl(215 25% 27%) !important;
+}
+
+.dark input:-webkit-autofill::first-line {
+  color: hsl(0 0% 100%) !important;
+}
+
+/* Additional autofill fixes for different browsers */
+input:-moz-autofill {
+  background-color: hsl(var(--background)) !important;
+  color: hsl(215 25% 27%) !important;
+  background-image: none !important;
+}
+
+.dark input:-moz-autofill {
+  color: hsl(0 0% 100%) !important;
+}
+
+input:autofill {
+  background-color: hsl(var(--background)) !important;
+  color: hsl(215 25% 27%) !important;
+  background-image: none !important;
+}
+
+.dark input:autofill {
+  color: hsl(0 0% 100%) !important;
 }
