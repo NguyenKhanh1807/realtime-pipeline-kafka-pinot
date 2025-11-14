@@ -1,19 +1,7 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
-import { useMemo } from 'react';
 import { DashboardTemplate } from '@/src/components/templates';
-import { useIsAdmin, useIsAuthenticated } from '@/src/contexts';
-import {
-  Shield,
-  AlertTriangle,
-  CheckCircle,
-  CreditCard,
-  Target,
-  Users,
-  Truck,
-  Building2,
-} from 'lucide-react';
+import { useIsAdmin } from '@/src/contexts';
 import {
   FraudMetricsOverview,
   FraudAlertsPanel,
@@ -29,100 +17,28 @@ import {
 } from '@/src/components/molecules';
 import {
   Typography,
-  StatCardProps,
-  QuickAccessCardProps,
-  AnalysisItemProps,
-  TransactionAnalysisCardProps,
-  FraudRiskCardProps,
-  type ActivityItemProps,
+  Loading,
 } from '@/src/components/atoms';
-import { useDashboardAnalytics } from '@/src/hooks/use-dashboard-analytics';
-import { useRealtimeTransactions } from '@/src/hooks/use-realtime-transactions';
-import { Loading } from '@/src/components/atoms';
-import { DashboardTransformer } from '@/src/view-models';
+import { useDashboardPageViewModel } from '@/src/view-models/hooks/use-dashboard-page-viewmodel';
 
 export default function DashboardPage() {
-  const router = useRouter();
   const isAdmin = useIsAdmin();
 
-  // Use real-time dashboard analytics hook
+  // Use Page ViewModel hook - all logic extracted here
   const {
     analytics,
+    allTransactions,
     isLoading,
     error,
-  } = useDashboardAnalytics({
-    autoStart: true,
-    pollInterval: 5000, // Update every 5 seconds
-  });
-
-  // Use real-time transactions hook
-  const {
-    allTransactions,
-    isPolling: isTransactionsPolling,
-  } = useRealtimeTransactions({
-    autoStart: true,
-    pollInterval: 5000, // Update every 5 seconds
-  });
-
-  // Calculate fraud metrics using ViewModel transformer
-  const fraudMetrics = useMemo(() => {
-    return DashboardTransformer.calculateFraudMetrics(allTransactions);
-  }, [allTransactions]);
-
-  // Prepare geographic data using ViewModel transformer
-  const geographicData = useMemo(() => {
-    if (!analytics) return [];
-    return DashboardTransformer.transformGeographicData(analytics);
-  }, [analytics]);
-
-  // Fraud-focused stats using ViewModel transformer
-  const stats: StatCardProps[] = useMemo(() => {
-    return DashboardTransformer.toStatsCards(allTransactions);
-  }, [allTransactions]);
-
-  const quickAccessCards: QuickAccessCardProps[] = [
-    {
-      title: 'Check Transaction',
-      description: 'Analyze credit card transactions for fraud',
-      icon: Shield,
-      color: 'blue',
-      onClick: () => router.push('/fraud-detection'),
-    },
-    {
-      title: 'All Transactions',
-      description: 'View complete transaction history',
-      icon: CreditCard,
-      color: 'green',
-      onClick: () => router.push('/transactions'),
-    },
-    {
-      title: 'User Management',
-      description: 'Manage users and permissions',
-      icon: Users,
-      color: 'purple',
-      onClick: () => router.push('/user-management'),
-    },
-  ];
-
-  // Transform transactions into transaction analysis items using ViewModel transformer
-  const transactionAnalysisItems: TransactionAnalysisCardProps[] = useMemo(() => {
-    return DashboardTransformer.toTransactionAnalysisItems(allTransactions);
-  }, [allTransactions]);
-
-  // Transform transactions into fraud risk analysis items using ViewModel transformer
-  const fraudRiskAnalysisItems: FraudRiskCardProps[] = useMemo(() => {
-    return DashboardTransformer.toFraudRiskAnalysisItems(allTransactions);
-  }, [allTransactions]);
-
-  // Calculate risk factors data using ViewModel transformer
-  const riskFactorsData = useMemo(() => {
-    return DashboardTransformer.calculateRiskFactors(allTransactions);
-  }, [allTransactions]);
-
-  // Transform transactions into recent activities using ViewModel transformer
-  const recentActivities: ActivityItemProps[] = useMemo(() => {
-    return DashboardTransformer.toRecentActivities(allTransactions, 5);
-  }, [allTransactions]);
+    fraudMetrics,
+    geographicData,
+    stats,
+    quickAccessCards,
+    transactionAnalysisItems,
+    fraudRiskAnalysisItems,
+    riskFactorsData,
+    recentActivities,
+  } = useDashboardPageViewModel();
 
   return (
     <DashboardTemplate>

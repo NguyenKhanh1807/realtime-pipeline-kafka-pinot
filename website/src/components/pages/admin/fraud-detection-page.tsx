@@ -17,6 +17,7 @@ import { useCorrelation } from '@/src/contexts/correlation-context';
 import { log as logger } from '@/src/lib';
 import { useRealtimeTransactions } from '@/src/hooks/use-realtime-transactions';
 import { FraudDetectionCommands, TransactionTransformer } from '@/src/view-models';
+import { isExtendedTransaction, getCreateDt, getFraudLabel } from '@/src/models/types/transaction-extended';
 
 export default function FraudDetectionPage() {
   const { correlationId } = useCorrelation();
@@ -111,12 +112,11 @@ export default function FraudDetectionPage() {
     const now = new Date();
     const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     
-    // Filter transactions from today
+    // Filter transactions from today using type guards
     const transactionsToday = allTransactions.filter((tx) => {
-      const txExtended = tx as any;
-      const createDt = txExtended.createDt;
+      const createDt = getCreateDt(tx);
       
-      if (createDt && typeof createDt === 'number' && createDt > 0) {
+      if (createDt && createDt > 0) {
         const txDate = new Date(createDt);
         return !isNaN(txDate.getTime()) && txDate >= startOfToday;
       }
@@ -127,8 +127,10 @@ export default function FraudDetectionPage() {
     // True Positives: Fraudulent transactions (fraudLabel === 1) that were flagged or blocked
     // False Negatives: Fraudulent transactions that were approved
     const fraudulentTransactions = allTransactions.filter((tx) => {
-      const txExtended = tx as any;
-      const fraudLabel = txExtended.fraudLabel ?? 0;
+      if (!isExtendedTransaction(tx)) {
+        return false;
+      }
+      const fraudLabel = tx.fraudLabel ?? 0;
       return fraudLabel === 1;
     });
     

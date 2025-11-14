@@ -4,6 +4,8 @@ import { sleep } from '@/src/utils/helpers';
 import { log as logger } from '@/src/lib/logger';
 import { userRepository } from '@/src/models/repositories';
 import { User as UserEntity } from '@/src/models/entities/user';
+import { userManagementApiClient } from '@/src/services';
+import bcrypt from 'bcryptjs';
 
 /**
  * Authentication commands - orchestrate complex authentication operations
@@ -11,8 +13,6 @@ import { User as UserEntity } from '@/src/models/entities/user';
  */
 
 export class AuthCommands {
-  private store = useAppStore;
-
   /**
    * Login command - handles the complete login flow
    */
@@ -32,13 +32,39 @@ export class AuthCommands {
       // Step 2: Add artificial delay for UX
       await sleep(500);
 
-      // Step 3: Authenticate via Model layer (repository)
-      const domainUser = await userRepository.authenticate({
-        username: credentials.username.trim(),
-        password: credentials.password,
-      });
+      // Step 3: Authenticate via client-side password verification
+      // Get all users and verify password client-side (since /login API endpoint is not available)
+      const usersResponse = await userManagementApiClient.getUsers();
 
-      // Step 4: Transform domain user to ViewModel User format
+      if (!usersResponse.success || !usersResponse.data) {
+        throw new Error('Failed to authenticate - could not retrieve user data');
+      }
+
+      // Find user by username
+      const apiUser = Object.values(usersResponse.data.users).find(
+        (u) => u.username === credentials.username.trim()
+      );
+
+      if (!apiUser) {
+        throw new Error('Invalid username or password');
+      }
+
+      // Validate password is provided
+      if (!credentials.password || credentials.password.trim() === '') {
+        throw new Error('Password is required');
+      }
+
+      // Verify password against stored bcrypt hash (client-side)
+      const passwordMatch = bcrypt.compareSync(credentials.password, apiUser.password);
+
+      if (!passwordMatch) {
+        throw new Error('Invalid username or password');
+      }
+
+      // Step 4: Transform API user to domain entity, then to ViewModel format
+      const domainUser = UserEntity.fromApiUser(apiUser);
+      domainUser.recordLogin(); // Record successful login
+
       const displayData = domainUser.toDisplay();
       const userMetadata = domainUser.metadata || {};
       
@@ -160,27 +186,34 @@ export class AuthCommands {
     const { logout, setError } = useAppStore.getState();
 
     try {
-      // Step 1: Execute logout
+      // Step 1: Get user info before logout (for logging)
+      const { user } = useAppStore.getState();
+      const userId = user?.username || user?.id;
+
+      // Step 2: Execute logout (clears user state and localStorage)
+      // Store's logout method already clears 'user' and 'isAuthenticated' from localStorage
       logout();
 
-      // Step 2: Clear any cached data
-      localStorage.removeItem('userPreferences');
-      localStorage.removeItem('lastVisitedPage');
-      localStorage.removeItem('user');
-      localStorage.removeItem('isAuthenticated');
+      // Step 3: Clear any additional cached data (not handled by store)
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('userPreferences');
+        localStorage.removeItem('lastVisitedPage');
+      }
 
-      // Step 3: Handle success (could include analytics, cleanup, etc.)
+      // Step 4: Handle success (could include analytics, cleanup, etc.)
       const correlationId = logger.generateCorrelationId();
-      const { user } = useAppStore.getState();
-      logger.info('Logout successful', { correlationId, userId: user?.username || user?.id });
+      logger.info('Logout successful', { correlationId, userId });
 
     } catch (error) {
-      // Step 4: Handle error (log but don't throw - logout should always succeed)
+      // Step 5: Handle error (log but don't throw - logout should always succeed)
       const errorMessage = error instanceof Error ? error.message : 'Logout error';
       setError(errorMessage);
       const correlationId = logger.generateCorrelationId();
       const { user } = useAppStore.getState();
-      logger.error('Logout error', error instanceof Error ? error : new Error(String(error)), { correlationId, userId: user?.username || user?.id });
+      logger.error('Logout error', error instanceof Error ? error : new Error(String(error)), { 
+        correlationId, 
+        userId: user?.username || user?.id 
+      });
     }
   }
 

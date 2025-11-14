@@ -1,11 +1,11 @@
 /**
- * Website API Client
- * Handles communication with the website's backend API for authentication and user management
+ * User Management API Client
+ * Handles communication with the backend API for authentication and user management operations
  */
 
-import bcrypt from 'bcryptjs';
+import { apiConfig } from '@/src/config/api.config';
 
-const WEBSITE_API_BASE_URL = 'http://93.115.172.151:9000';
+const USER_MANAGEMENT_API_BASE_URL = apiConfig.userManagement.baseUrl;
 
 export interface ApiUser {
   username: string;
@@ -15,18 +15,6 @@ export interface ApiUser {
   tables: string[];
   permissions: string[];
   usernameWithComponent: string;
-}
-
-export interface LoginRequest {
-  username: string;
-  password: string;
-}
-
-export interface LoginResponse {
-  success: boolean;
-  user?: ApiUser;
-  token?: string;
-  message?: string;
 }
 
 export interface RegisterRequest {
@@ -49,11 +37,13 @@ export interface ApiResponse<T> {
   error?: string;
 }
 
-export class WebsiteApiClient {
+export class UserManagementApiClient {
   private baseUrl: string;
+  private timeout: number;
 
-  constructor(baseUrl: string = WEBSITE_API_BASE_URL) {
+  constructor(baseUrl: string = USER_MANAGEMENT_API_BASE_URL, timeout: number = apiConfig.userManagement.timeout) {
     this.baseUrl = baseUrl;
+    this.timeout = timeout;
   }
 
   /**
@@ -102,126 +92,6 @@ export class WebsiteApiClient {
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Failed to fetch users',
-      };
-    }
-  }
-
-  /**
-   * Authenticate user
-   * Sends plain password to API - API should hash it and verify against database server-side
-   */
-  async login(credentials: LoginRequest): Promise<LoginResponse> {
-    try {
-      // Call API login endpoint - API handles password hashing and verification server-side
-      const response = await fetch(`${this.baseUrl}/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          username: credentials.username,
-          password: credentials.password, // Plain password - API will hash and verify
-        }),
-      });
-
-      if (!response.ok) {
-        // If API endpoint doesn't exist, fall back to client-side verification
-        // This is a temporary fallback until proper API endpoint is available
-        return this.fallbackLogin(credentials);
-      }
-
-      const data = await response.json();
-
-      if (data.success && data.user) {
-        return {
-          success: true,
-          user: data.user,
-          token: data.token,
-          message: data.message || 'Login successful',
-        };
-      }
-
-      return {
-        success: false,
-        message: data.message || 'Invalid username or password',
-      };
-
-    } catch (error) {
-      // If API endpoint fails, fall back to client-side verification
-      // This is a temporary fallback until proper API endpoint is available
-      console.warn('API login endpoint failed, using fallback:', error);
-      return this.fallbackLogin(credentials);
-    }
-  }
-
-  /**
-   * Fallback login method - does client-side password verification
-   * This should be removed once proper server-side login endpoint is available
-   */
-  private async fallbackLogin(credentials: LoginRequest): Promise<LoginResponse> {
-    try {
-      // Get all users to validate credentials (fallback method)
-      const usersResponse = await this.getUsers();
-
-      if (!usersResponse.success || !usersResponse.data) {
-        return {
-          success: false,
-          message: 'Failed to authenticate - could not retrieve user data',
-        };
-      }
-
-      // Find user by username
-      const user = Object.values(usersResponse.data.users).find(
-        (u: ApiUser) => u.username === credentials.username
-      );
-
-      if (!user) {
-        return {
-          success: false,
-          message: 'Invalid username or password',
-        };
-      }
-
-      // Validate password is provided
-      if (!credentials.password || credentials.password.trim() === '') {
-        return {
-          success: false,
-          message: 'Password is required',
-        };
-      }
-
-      // Verify password against stored bcrypt hash (client-side fallback)
-      // NOTE: This should be done server-side in production
-      try {
-        const passwordMatch = bcrypt.compareSync(credentials.password, user.password);
-
-        if (!passwordMatch) {
-          return {
-            success: false,
-            message: 'Invalid username or password',
-          };
-        }
-      } catch (error) {
-        console.error('Password verification failed:', error);
-        return {
-          success: false,
-          message: 'Authentication error - please try again',
-        };
-      }
-
-      // Password verified successfully
-      return {
-        success: true,
-        user,
-        token: `mock-token-${Date.now()}`,
-        message: 'Login successful',
-      };
-
-    } catch (error) {
-      console.error('Login failed:', error);
-      return {
-        success: false,
-        message: error instanceof Error ? error.message : 'Login failed',
       };
     }
   }
@@ -277,6 +147,8 @@ export class WebsiteApiClient {
 
   /**
    * Get a single user by username
+   * Returns success: false for 404/400 (user not found) without throwing
+   * This allows graceful existence checks
    */
   async getUser(username: string): Promise<ApiResponse<{ user: ApiUser }>> {
     try {
@@ -287,6 +159,14 @@ export class WebsiteApiClient {
           'Accept': 'application/json',
         },
       });
+
+      // Handle 404/400 as "user not found" - return gracefully without throwing
+      if (response.status === 404 || response.status === 400) {
+        return {
+          success: false,
+          error: 'User not found',
+        };
+      }
 
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -329,6 +209,7 @@ export class WebsiteApiClient {
           username: userData.username,
           password: userData.password,
           component: userData.component || 'CONTROLLER',
+          componentType: userData.component || 'CONTROLLER', // API expects componentType enum
           role: userData.role || 'USER',
           tables: userData.tables || [],
           permissions: userData.permissions || [],
@@ -336,8 +217,24 @@ export class WebsiteApiClient {
       });
 
       if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`HTTP ${response.status}: ${response.statusText} - ${errorText}`);
+        let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+        try {
+          const errorText = await response.text();
+          if (errorText) {
+            // Try to parse as JSON first
+            try {
+              const errorJson = JSON.parse(errorText);
+              errorMessage = errorJson.error || errorJson.message || errorJson.details || errorMessage;
+            } catch {
+              // If not JSON, use the text as-is
+              errorMessage = `${errorMessage} - ${errorText}`;
+            }
+          }
+        } catch (parseError) {
+          // If we can't read the error text, use the status
+          console.error('Failed to parse error response:', parseError);
+        }
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();
@@ -347,11 +244,35 @@ export class WebsiteApiClient {
       };
     } catch (error) {
       console.error('Failed to create user:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to create user';
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Failed to create user',
+        error: errorMessage,
       };
     }
+  }
+
+  /**
+   * Create a new admin user with hardcoded temporary password
+   * Admin accounts are created with password: TempPassword123!
+   * This password should be changed by the admin after first login
+   */
+  async createAdminUser(userData: {
+    username: string;
+    component?: string;
+    tables?: string[];
+    permissions?: string[];
+  }): Promise<ApiResponse<{ user: ApiUser }>> {
+    const ADMIN_TEMP_PASSWORD = 'TempPassword123!';
+    
+    return this.createUser({
+      username: userData.username,
+      password: ADMIN_TEMP_PASSWORD,
+      component: userData.component || 'CONTROLLER',
+      role: 'ADMIN',
+      tables: userData.tables || [],
+      permissions: userData.permissions || [],
+    });
   }
 
   /**
@@ -419,6 +340,7 @@ export class WebsiteApiClient {
    * Delete a user
    * Requires username and component (hardcoded to CONTROLLER)
    * Format: DELETE /users/{username}?component=CONTROLLER
+   * Handles 404/400 gracefully (user not found) - returns success: false instead of throwing
    */
   async deleteUser(username: string): Promise<ApiResponse<null>> {
     try {
@@ -428,6 +350,14 @@ export class WebsiteApiClient {
           'Accept': 'application/json',
         },
       });
+
+      // Handle 404/400 as "user not found" - return gracefully without throwing
+      if (response.status === 404 || response.status === 400) {
+        return {
+          success: false,
+          error: 'User not found',
+        };
+      }
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -499,4 +429,5 @@ export class WebsiteApiClient {
 }
 
 // Export singleton instance
-export const websiteApiClient = new WebsiteApiClient();
+export const userManagementApiClient = new UserManagementApiClient();
+

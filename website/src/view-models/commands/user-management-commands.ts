@@ -17,7 +17,7 @@ export interface UserFilters {
 
 export interface CreateUserData {
   username: string;
-  password: string;
+  password?: string; // Optional - admin users get hardcoded password
   role?: 'admin' | 'user';
   component?: string;
 }
@@ -90,23 +90,34 @@ export class UserManagementCommands {
         throw new ValidationError('username', 'Username is required');
       }
 
-      if (!userData.password || userData.password.length < 8) {
-        throw new ValidationError('password', 'Password must be at least 8 characters');
+      // For admin users, password is hardcoded - skip password validation
+      // Check role case-insensitively to handle 'admin', 'ADMIN', 'Admin', etc.
+      const isAdmin = userData.role?.toLowerCase() === 'admin';
+      
+      // Only validate password for non-admin users
+      if (!isAdmin) {
+        if (!userData.password || userData.password.length < 8) {
+          throw new ValidationError('password', 'Password must be at least 8 characters');
+        }
       }
 
-      // Check if user already exists
-      const exists = await userRepository.existsByUsername(userData.username.trim());
-      if (exists) {
-        throw new ConflictError('User', `Username "${userData.username}" already exists`);
-      }
+      // Skip existence check - let the API handle it via POST
+      // The API will return an error if the user already exists
+      // This avoids GET requests that return 400 errors
 
       // Create user through repository
-      const domainUser = await userRepository.createUser({
-        username: userData.username.trim(),
-        password: userData.password,
-        role: userData.role || 'user',
-        component: userData.component || 'CONTROLLER',
-      });
+      // Use separate method for admin users (password is hardcoded)
+      const domainUser = isAdmin
+        ? await userRepository.createAdminUser({
+            username: userData.username.trim(),
+            component: userData.component || 'CONTROLLER',
+          })
+        : await userRepository.createUser({
+            username: userData.username.trim(),
+            password: userData.password!,
+            role: userData.role || 'user',
+            component: userData.component || 'CONTROLLER',
+          });
 
       // Transform to ViewModel format
       const viewModelUser: UserType = {
@@ -130,17 +141,27 @@ export class UserManagementCommands {
 
     } catch (error) {
       const correlationId = logger.generateCorrelationId();
-      logger.error('Failed to create user', error instanceof Error ? error : new Error(String(error)), {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      
+      logger.error('Failed to create user', error instanceof Error ? error : new Error(errorMessage), {
         correlationId,
         operation: 'createUser',
-        metadata: { username: userData.username },
+        metadata: { 
+          username: userData.username,
+          role: userData.role,
+          errorMessage,
+        },
       });
+      
+      // Re-throw the error to let the UI handle it
       throw error;
     }
   }
 
   /**
    * Update user password
+   * userId should be the username (since user.id === user.username in this system)
+   * Skips existence check - let the API handle validation via PUT
    */
   static async updateUserPassword(userId: string, updateData: UpdateUserData): Promise<void> {
     try {
@@ -157,27 +178,34 @@ export class UserManagementCommands {
         throw new ValidationError('password', 'New password must be at least 8 characters');
       }
 
-      // Get user to verify old password
-      const user = await userRepository.findById(userId);
-      if (!user) {
-        throw new NotFoundError('User', userId);
-      }
-
-      // Verify old password using authentication service
+      // Skip user lookup - let the API handle validation via PUT
+      // Hash new password and call API directly
+      // The API will verify the old password and handle user existence validation
       const { AuthenticationService } = await import('@/src/models/services/authentication-service');
-      const authService = new AuthenticationService();
+      const { userManagementApiClient } = await import('@/src/services');
       
-      const isValidPassword = await authService.verifyPassword(updateData.oldPassword, user.passwordHash);
-      if (!isValidPassword) {
-        throw new ValidationError('oldPassword', 'Current password is incorrect');
+      const newPasswordHash = AuthenticationService.hashPassword(updateData.newPassword);
+      
+      // Call update API directly via PUT - API handles old password verification and user existence
+      const response = await userManagementApiClient.updateUser(userId, {
+        password: newPasswordHash,
+        passwordChanged: true,
+      });
+
+      if (!response.success) {
+        // If API returns error about old password, convert to ValidationError
+        if (response.error?.toLowerCase().includes('password') || 
+            response.error?.toLowerCase().includes('incorrect') ||
+            response.error?.toLowerCase().includes('invalid')) {
+          throw new ValidationError('oldPassword', response.error || 'Current password is incorrect');
+        }
+        // If API returns error about user not found, convert to NotFoundError
+        if (response.error?.toLowerCase().includes('not found') || 
+            response.error?.toLowerCase().includes('does not exist')) {
+          throw new NotFoundError('User', userId);
+        }
+        throw new Error(response.error || 'Failed to update user password');
       }
-
-      // Hash new password and update
-      const newPasswordHash = await authService.hashPassword(updateData.newPassword);
-      user.changePassword(newPasswordHash);
-
-      // Update through repository
-      await userRepository.update(user);
 
       const correlationId = logger.generateCorrelationId();
       logger.info('User password updated successfully', {
@@ -199,16 +227,12 @@ export class UserManagementCommands {
 
   /**
    * Delete a user
+   * Attempts deletion directly - API handles validation and returns appropriate errors
    */
   static async deleteUser(username: string): Promise<void> {
     try {
-      // Check if user exists
-      const user = await userRepository.findByUsername(username);
-      if (!user) {
-        throw new NotFoundError('User', username);
-      }
-
-      // Delete through repository
+      // Attempt to delete - API will return appropriate error if user doesn't exist
+      // Repository will convert "not found" errors to NotFoundError
       await userRepository.delete(username);
 
       const correlationId = logger.generateCorrelationId();
@@ -220,6 +244,18 @@ export class UserManagementCommands {
 
     } catch (error) {
       const correlationId = logger.generateCorrelationId();
+      
+      // Re-throw NotFoundError as-is (user-friendly)
+      if (error instanceof NotFoundError) {
+        logger.warn('User not found for deletion', {
+          correlationId,
+          operation: 'deleteUser',
+          metadata: { username },
+        });
+        throw error;
+      }
+      
+      // Log and re-throw other errors
       logger.error('Failed to delete user', error instanceof Error ? error : new Error(String(error)), {
         correlationId,
         operation: 'deleteUser',

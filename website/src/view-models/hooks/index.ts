@@ -12,3 +12,6 @@ export type {
   RiskFilter,
 } from './use-transactions-table-viewmodel';
 
+export { useDashboardPageViewModel } from './use-dashboard-page-viewmodel';
+export type { DashboardPageViewModel } from './use-dashboard-page-viewmodel';
+

@@ -3,7 +3,9 @@
  * Handles communication with Pinot instance for fraud detection queries
  */
 
-const PINOT_BASE_URL = 'http://93.115.172.151:9000';
+import { apiConfig } from '@/src/config/api.config';
+
+const PINOT_BASE_URL = apiConfig.pinot.baseUrl;
 
 export interface PinotQueryRequest {
   sql: string;
@@ -49,9 +51,11 @@ export interface FraudDetectionResult {
 
 export class PinotClient {
   private baseUrl: string;
+  private timeout: number;
 
-  constructor(baseUrl: string = PINOT_BASE_URL) {
+  constructor(baseUrl: string = PINOT_BASE_URL, timeout: number = apiConfig.pinot.timeout) {
     this.baseUrl = baseUrl;
+    this.timeout = timeout;
   }
 
   /**

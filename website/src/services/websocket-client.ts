@@ -4,6 +4,7 @@
  */
 
 import { log as logger } from '@/src/lib/logger';
+import { apiConfig } from '@/src/config/api.config';
 
 export interface TransactionUpdate {
   id: string;
@@ -50,18 +51,16 @@ export interface WebSocketEvent {
 export class WebSocketClient {
   private ws: WebSocket | null = null;
   private reconnectAttempts = 0;
-  private maxReconnectAttempts = 5;
-  private reconnectDelay = 1000;
+  private maxReconnectAttempts: number;
+  private reconnectDelay: number;
   private heartbeatInterval: NodeJS.Timeout | null = null;
   private listeners: Map<WebSocketEventType, ((event: WebSocketEvent) => void)[]> = new Map();
-
-  // WebSocket URL - in production, this would be configurable
-  private wsUrl = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:8080/ws';
+  private wsUrl: string;
 
   constructor(wsUrl?: string) {
-    if (wsUrl) {
-      this.wsUrl = wsUrl;
-    }
+    this.wsUrl = wsUrl || apiConfig.websocket.url;
+    this.maxReconnectAttempts = apiConfig.websocket.maxReconnectAttempts;
+    this.reconnectDelay = apiConfig.websocket.reconnectInterval;
   }
 
   /**

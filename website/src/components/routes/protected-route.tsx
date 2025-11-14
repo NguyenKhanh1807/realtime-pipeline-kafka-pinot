@@ -23,10 +23,12 @@ export function ProtectedRoute({
   const isAuthenticated = useIsAuthenticated();
   const isAdmin = useIsAdmin();
   const isLoading = useIsLoading();
+  const isInitialized = useAppStore((state) => state.isInitialized);
 
   useEffect(() => {
     // Wait for initialization to complete before checking auth
-    if (isLoading) {
+    // This prevents redirecting before localStorage is restored
+    if (!isInitialized || isLoading) {
       return;
     }
 
@@ -49,10 +51,10 @@ export function ProtectedRoute({
         router.push('/dashboard');
       }
     }
-  }, [isAuthenticated, isAdmin, isLoading, requireAuth, requireAdmin, redirectTo, router]);
+  }, [isAuthenticated, isAdmin, isLoading, isInitialized, requireAuth, requireAdmin, redirectTo, router]);
 
   // Show loading while initializing or checking authentication
-  if (isLoading) {
+  if (!isInitialized || isLoading) {
     return <LoadingOverlay text="Loading..." />;
   }
 

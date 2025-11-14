@@ -21,7 +21,7 @@ import { UserRepositoryImpl } from './implementations/user-repository-impl';
 import { TransactionRepositoryImpl } from './implementations/transaction-repository-impl';
 import { FraudAnalysisRepositoryImpl } from './implementations/fraud-analysis-repository-impl';
 import { WebSocketRepositoryImpl } from './implementations/websocket-repository-impl';
-import { websiteApiClient, pinotClient } from '@/src/services';
+import { userManagementApiClient, pinotClient } from '@/src/services';
 import { UserRepository } from './user-repository';
 import { TransactionRepository } from './transaction-repository';
 import { FraudAnalysisRepository } from './fraud-analysis-repository';
@@ -32,7 +32,7 @@ import type { WebSocketRepository } from './websocket-repository';
  * This provides a single point of configuration
  */
 export const createUserRepository = (): UserRepository => {
-  return new UserRepositoryImpl(websiteApiClient);
+  return new UserRepositoryImpl(userManagementApiClient);
 };
 
 /**

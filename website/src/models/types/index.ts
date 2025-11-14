@@ -79,6 +79,9 @@ export interface PaginatedResult<T> {
 // Export transaction types
 export * from './transaction';
 
+// Export extended transaction types and type guards
+export * from './transaction-extended';
+
 // Re-export auth types (UserRole) from auth.ts
 export type { UserRole, RoleDefinition } from './auth';
 export { ROLE_DEFINITIONS } from './auth';

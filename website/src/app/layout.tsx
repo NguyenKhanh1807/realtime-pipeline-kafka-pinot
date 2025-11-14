@@ -3,6 +3,7 @@ import { Literata } from "next/font/google";
 import { AppProviders } from "@/src/contexts";
 import { CorrelationProvider } from "@/src/contexts/correlation-context";
 import { Toaster } from "@/src/components";
+import { ErrorBoundary } from "@/src/components";
 import "./globals.css";
 
 // Configure Literata font as per typography guide
@@ -42,12 +43,14 @@ export default function RootLayout({
       <body
         className={`${literata.variable} font-literata antialiased min-h-screen bg-background`}
       >
-        <CorrelationProvider>
-          <AppProviders>
-            {children}
-            <Toaster />
-          </AppProviders>
-        </CorrelationProvider>
+        <ErrorBoundary>
+          <CorrelationProvider>
+            <AppProviders>
+              {children}
+              <Toaster />
+            </AppProviders>
+          </CorrelationProvider>
+        </ErrorBoundary>
       </body>
     </html>
   );

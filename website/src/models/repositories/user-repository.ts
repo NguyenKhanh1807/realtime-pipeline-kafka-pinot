@@ -48,6 +48,16 @@ export interface UserRepository {
   }): Promise<User>;
 
   /**
+   * Create a new admin user with hardcoded temporary password
+   * Admin accounts are created with password: TempPassword123!
+   * This password should be changed by the admin after first login
+   */
+  createAdminUser(data: {
+    username: string;
+    component?: string;
+  }): Promise<User>;
+
+  /**
    * Update an existing user
    */
   update(user: User): Promise<User>;

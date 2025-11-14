@@ -109,10 +109,17 @@ export function UserManagement({
       }
 
       // Use ViewModel command to create user
+      // For admin users, password is hardcoded in the API call (TempPassword123!)
+      // For regular users, password should be provided
+      const userRole = (userData.role || 'user').toLowerCase() as 'admin' | 'user';
+      const isAdmin = userRole === 'admin';
+      
       await createUser({
         username: username.trim(),
-        password: 'TempPassword123!', // Default password - should be changed by user
-        role: userData.role || 'user',
+        // Password is only required for non-admin users
+        // Admin users get hardcoded password: TempPassword123!
+        password: isAdmin ? undefined : 'TempPassword123!',
+        role: userRole,
         component: 'CONTROLLER',
       });
 
@@ -149,8 +156,12 @@ export function UserManagement({
       const newPassword = (updates as any).newPassword;
       const confirmPassword = (updates as any).confirmPassword;
 
+      // Use username instead of userId since user.id === user.username in this system
+      // This ensures we're using the correct identifier for the API
+      const username = currentUserData.username || userId;
+
       // Use ViewModel command to update password
-      await updateUserPassword(userId, {
+      await updateUserPassword(username, {
         oldPassword,
         newPassword,
         confirmPassword,
@@ -245,10 +256,20 @@ export function UserManagement({
         roleFilter={roleFilter}
         onSearchChange={setSearchTerm}
         onRoleFilterChange={setRoleFilter}
-        onClearFilters={() => {
+        onClearFilters={async () => {
           setSearchTerm('');
           setRoleFilter('all');
-          // Refetch users when clearing filters (will be triggered by useEffect)
+          // Clear filters in store
+          setFilters({
+            search: undefined,
+            role: undefined,
+          });
+          // Explicitly refetch users with cleared filters
+          try {
+            await loadUsers({});
+          } catch (error) {
+            console.error('Error loading users after clearing filters:', error);
+          }
         }}
       />
 

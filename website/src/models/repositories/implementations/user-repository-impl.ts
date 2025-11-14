@@ -1,6 +1,6 @@
 /**
  * User Repository Implementation
- * Concrete implementation that wraps WebsiteApiClient
+ * Concrete implementation that wraps UserManagementApiClient
  * Transforms API responses to domain entities
  */
 
@@ -14,50 +14,30 @@ import type {
   PaginationParams 
 } from '@/src/models';
 import { User as UserEntity } from '@/src/models/entities/user';
-import { WebsiteApiClient, type ApiUser } from '@/src/services/website-api';
+import { UserManagementApiClient, type ApiUser } from '@/src/services/user-management-api-client';
 import { AuthenticationService } from '@/src/models/services/authentication-service';
 
 export class UserRepositoryImpl implements UserRepository {
-  constructor(private apiClient: WebsiteApiClient) {}
-
-  /**
-   * Authenticate user with credentials
-   * Uses API login endpoint which handles password verification server-side
-   * The API receives plain password, hashes it, and compares with database
-   */
-  async authenticate(credentials: { username: string; password: string }): Promise<User> {
-    // Use API login endpoint - API handles password hashing and verification server-side
-    // We send plain password, API hashes it and checks against database
-    const loginResponse = await this.apiClient.login({
-      username: credentials.username,
-      password: credentials.password, // Plain password - API will hash and verify
-    });
-
-    if (!loginResponse.success || !loginResponse.user) {
-      throw new Error(loginResponse.message || 'Invalid username or password');
-    }
-
-    // Transform API user to domain entity
-    // API has already verified the password server-side, so we can trust the response
-    const domainUser = UserEntity.fromApiUser(loginResponse.user);
-
-    // Record successful login in domain entity (for domain logic tracking)
-    domainUser.recordLogin();
-
-    return domainUser;
-  }
-
+  constructor(private apiClient: UserManagementApiClient) {}
   /**
    * Find user by ID
+   * Returns null if user doesn't exist (handles 404/400 gracefully)
    */
   async findById(id: UserId): Promise<User | null> {
-    const response = await this.apiClient.getUser(id);
-    
-    if (!response.success || !response.data?.user) {
+    try {
+      const response = await this.apiClient.getUser(id);
+
+      // User not found (404/400) or API error - return null gracefully
+      if (!response.success || !response.data?.user) {
+        return null;
+      }
+
+      return UserEntity.fromApiUser(response.data.user);
+    } catch (error) {
+      // Catch any unexpected errors and return null
+      console.warn(`User not found or error fetching user ${id}:`, error);
       return null;
     }
-
-    return UserEntity.fromApiUser(response.data.user);
   }
 
   /**
@@ -225,12 +205,154 @@ export class UserRepositoryImpl implements UserRepository {
 
     const response = await this.apiClient.createUser(apiUserData);
 
-    if (!response.success || !response.data?.user) {
-      throw new Error(response.error || 'Failed to create user');
+    if (!response.success) {
+      // Check if error is due to user already existing
+      const errorMessage = response.error || 'Failed to create user';
+      
+      // Check for conflict errors (user already exists)
+      const lowerErrorMessage = errorMessage.toLowerCase();
+      if (lowerErrorMessage.includes('already exists') || 
+          lowerErrorMessage.includes('duplicate') ||
+          lowerErrorMessage.includes('conflict') ||
+          lowerErrorMessage.includes('409')) {
+        const { ConflictError } = await import('@/src/models/errors/domain-errors');
+        throw new ConflictError('User', `Username "${data.username}" already exists`);
+      }
+      
+      // Check for validation errors (400 Bad Request)
+      if (lowerErrorMessage.includes('400') || 
+          lowerErrorMessage.includes('bad request') ||
+          lowerErrorMessage.includes('validation') ||
+          lowerErrorMessage.includes('invalid')) {
+        const { ValidationError } = await import('@/src/models/errors/domain-errors');
+        // Try to extract field name from error message
+        const fieldMatch = errorMessage.match(/(username|password|component|role)/i);
+        const field = fieldMatch ? fieldMatch[1].toLowerCase() : 'user';
+        throw new ValidationError(field, errorMessage);
+      }
+      
+      // For other errors, throw generic error with the API message
+      throw new Error(errorMessage);
+    }
+
+    // Handle different API response formats:
+    // 1. API returns { user: ApiUser } - wrapped format
+    // 2. API returns ApiUser directly - direct format
+    // 3. API returns success but no user data - fetch user after creation
+    let apiUser: any;
+    if (response.data?.user) {
+      // Wrapped format: { user: { username: "...", ... } }
+      apiUser = response.data.user;
+    } else if (response.data && typeof response.data === 'object' && 'username' in response.data) {
+      // Direct format: { username: "...", password: "...", ... }
+      apiUser = response.data;
+    } else {
+      // API returned success but no user data - construct user from input data
+      // This handles cases where the API doesn't return the user object in the response
+      // Since the API returned success, we know the user was created, so we can construct
+      // the user object from the data we sent
+      console.log('API returned success but no user data, constructing user from input data...', {
+        responseData: response.data,
+        username: data.username,
+      });
+      
+      // Construct user object from input data
+      // The API has created the user successfully, so we can trust the input data
+      apiUser = {
+        username: data.username,
+        password: '', // Password not returned for security (already hashed on server)
+        component: data.component || 'CONTROLLER',
+        role: (data.role || 'user').toUpperCase(),
+        tables: [],
+        permissions: [],
+        usernameWithComponent: `${data.username}_${data.component || 'CONTROLLER'}`,
+      };
     }
 
     // API returns user with hashed password, transform to domain entity
-    return UserEntity.fromApiUser(response.data.user);
+    return UserEntity.fromApiUser(apiUser);
+  }
+
+  /**
+   * Create a new admin user with hardcoded temporary password
+   * Admin accounts are created with password: TempPassword123!
+   * This password should be changed by the admin after first login
+   */
+  async createAdminUser(data: {
+    username: string;
+    component?: string;
+  }): Promise<User> {
+    const response = await this.apiClient.createAdminUser({
+      username: data.username,
+      component: data.component || 'CONTROLLER',
+    });
+
+    if (!response.success) {
+      // Check if error is due to user already existing
+      const errorMessage = response.error || 'Failed to create admin user';
+      
+      // Check for conflict errors (user already exists)
+      const lowerErrorMessage = errorMessage.toLowerCase();
+      if (lowerErrorMessage.includes('already exists') || 
+          lowerErrorMessage.includes('duplicate') ||
+          lowerErrorMessage.includes('conflict') ||
+          lowerErrorMessage.includes('409')) {
+        const { ConflictError } = await import('@/src/models/errors/domain-errors');
+        throw new ConflictError('User', `Username "${data.username}" already exists`);
+      }
+      
+      // Check for validation errors (400 Bad Request)
+      if (lowerErrorMessage.includes('400') || 
+          lowerErrorMessage.includes('bad request') ||
+          lowerErrorMessage.includes('validation') ||
+          lowerErrorMessage.includes('invalid')) {
+        const { ValidationError } = await import('@/src/models/errors/domain-errors');
+        // Try to extract field name from error message
+        const fieldMatch = errorMessage.match(/(username|password|component|role)/i);
+        const field = fieldMatch ? fieldMatch[1].toLowerCase() : 'user';
+        throw new ValidationError(field, errorMessage);
+      }
+      
+      // For other errors, throw generic error with the API message
+      throw new Error(errorMessage);
+    }
+
+    // Handle different API response formats:
+    // 1. API returns { user: ApiUser } - wrapped format
+    // 2. API returns ApiUser directly - direct format
+    // 3. API returns success but no user data - fetch user after creation
+    let apiUser: any;
+    if (response.data?.user) {
+      // Wrapped format: { user: { username: "...", ... } }
+      apiUser = response.data.user;
+    } else if (response.data && typeof response.data === 'object' && 'username' in response.data) {
+      // Direct format: { username: "...", password: "...", ... }
+      apiUser = response.data;
+    } else {
+      // API returned success but no user data - construct user from input data
+      // This handles cases where the API doesn't return the user object in the response
+      // Since the API returned success, we know the admin user was created, so we can construct
+      // the user object from the data we sent
+      console.log('API returned success but no user data, constructing admin user from input data...', {
+        responseData: response.data,
+        username: data.username,
+      });
+      
+      // Construct admin user object from input data
+      // The API has created the user successfully, so we can trust the input data
+      apiUser = {
+        username: data.username,
+        password: '', // Password not returned for security (already hashed on server)
+        component: data.component || 'CONTROLLER',
+        role: 'ADMIN',
+        tables: [],
+        permissions: [],
+        usernameWithComponent: `${data.username}_${data.component || 'CONTROLLER'}`,
+      };
+    }
+
+    // API returns user with hashed password, transform to domain entity
+    return UserEntity.fromApiUser(apiUser);
   }
 
   /**
@@ -268,11 +390,17 @@ export class UserRepositoryImpl implements UserRepository {
 
   /**
    * Delete a user
+   * Handles 404/400 gracefully - throws NotFoundError if user doesn't exist
    */
   async delete(id: UserId): Promise<void> {
     const response = await this.apiClient.deleteUser(id);
 
     if (!response.success) {
+      // If user not found, throw NotFoundError for proper error handling
+      if (response.error?.toLowerCase().includes('not found')) {
+        const { NotFoundError } = await import('@/src/models/errors/domain-errors');
+        throw new NotFoundError('User', id);
+      }
       throw new Error(response.error || 'Failed to delete user');
     }
   }
