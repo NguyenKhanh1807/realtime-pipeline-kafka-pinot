@@ -125,7 +125,7 @@ export default function UserCheckoutPage() {
               className="flex items-center space-x-2"
             >
               <LogOut className="h-4 w-4" />
-              <span>Logout</span>
+              <span className="text-sm pb-1">Logout</span>
             </Button>
           </div>
         </div>
@@ -133,7 +133,7 @@ export default function UserCheckoutPage() {
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8 md:py-12">
-        <div className="max-w-2xl mx-auto">
+        <div className="max-w-5xl mx-auto">
           {/* Progress Steps */}
           <div className="mb-8">
             <div className="flex items-center justify-center space-x-4">
@@ -169,7 +169,7 @@ export default function UserCheckoutPage() {
           {/* Checkout Card */}
           <div className="bg-card border border-border rounded-2xl shadow-xl overflow-hidden">
             {/* Card Header */}
-            <div className="bg-gradient-to-r from-primary/10 to-primary/5 border-b border-border p-6">
+            <div className="bg-gradient-to-r from-primary/10 to-primary/5 border-b border-border p-6 md:p-8">
               <div className="flex items-center justify-between">
                 <div>
                   <Typography variant="h1" size="2xl" weight="bold" className="text-foreground mb-1">
@@ -189,7 +189,7 @@ export default function UserCheckoutPage() {
             </div>
 
             {/* Card Body */}
-            <div className="p-6 md:p-8">
+            <div className="p-6 md:p-8 lg:p-10">
               {/* Security Badges */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
                 <div className="flex items-center space-x-3 p-4 bg-muted/50 rounded-lg border border-border">
@@ -242,14 +242,16 @@ export default function UserCheckoutPage() {
                     Payment Information
                   </Typography>
                   <Typography variant="p" size="sm" color="muted" className="text-muted-foreground">
-                    All information is encrypted and secure
+                    All information is encrypted and secure. Please enter your complete card details.
                   </Typography>
                 </div>
 
-                <UserTransactionForm
-                  onSubmit={handleTransactionSubmit}
-                  isLoading={isCheckingFraud}
-                />
+                <div className="max-w-3xl">
+                  <UserTransactionForm
+                    onSubmit={handleTransactionSubmit}
+                    isLoading={isCheckingFraud}
+                  />
+                </div>
               </div>
             </div>
 

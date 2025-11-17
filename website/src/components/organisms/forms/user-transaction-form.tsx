@@ -1,12 +1,15 @@
 'use client';
 
 import { useState } from 'react';
-import { Button, Input, Typography } from '@/src/components/atoms';
+import { Button, Typography } from '@/src/components/atoms';
+import { InputField } from '@/src/components/molecules';
 import { cn } from '@/src/lib';
-import { CreditCard, DollarSign } from 'lucide-react';
+import { CreditCard, DollarSign, Calendar, Lock } from 'lucide-react';
 
 export interface UserTransactionData {
   cardNumber: string;
+  expireDate: string; // Format: MM/YY
+  cvc: string; // 3-4 digits
   amount: string;
 }
 
@@ -19,6 +22,8 @@ interface UserTransactionFormProps {
 export function UserTransactionForm({ onSubmit, isLoading = false, className }: UserTransactionFormProps) {
   const [formData, setFormData] = useState<UserTransactionData>({
     cardNumber: '',
+    expireDate: '',
+    cvc: '',
     amount: '',
   });
 
@@ -36,6 +41,22 @@ export function UserTransactionForm({ onSubmit, isLoading = false, className }: 
     if (field === 'cardNumber') {
       const formatted = value.replace(/\s/g, '').replace(/(\d{4})(?=\d)/g, '$1 ').slice(0, 19);
       setFormData(prev => ({ ...prev, cardNumber: formatted }));
+    }
+
+    // Format expire date (MM/YY)
+    if (field === 'expireDate') {
+      const cleaned = value.replace(/\D/g, '').slice(0, 4);
+      let formatted = cleaned;
+      if (cleaned.length >= 2) {
+        formatted = `${cleaned.slice(0, 2)}/${cleaned.slice(2)}`;
+      }
+      setFormData(prev => ({ ...prev, expireDate: formatted }));
+    }
+
+    // Format CVC (3-4 digits only)
+    if (field === 'cvc') {
+      const cleaned = value.replace(/\D/g, '').slice(0, 4);
+      setFormData(prev => ({ ...prev, cvc: cleaned }));
     }
 
     // Format amount
@@ -60,6 +81,33 @@ export function UserTransactionForm({ onSubmit, isLoading = false, className }: 
       newErrors.cardNumber = 'Card number must be 13-19 digits';
     }
 
+    // Expire date validation (MM/YY format)
+    if (!formData.expireDate) {
+      newErrors.expireDate = 'Expiration date is required';
+    } else {
+      const [month, year] = formData.expireDate.split('/');
+      if (!month || !year || month.length !== 2 || year.length !== 2) {
+        newErrors.expireDate = 'Invalid format (MM/YY)';
+      } else {
+        const monthNum = parseInt(month, 10);
+        const yearNum = parseInt(year, 10);
+        if (monthNum < 1 || monthNum > 12) {
+          newErrors.expireDate = 'Month must be between 01-12';
+        }
+        const currentYear = new Date().getFullYear() % 100;
+        if (yearNum < currentYear) {
+          newErrors.expireDate = 'Card has expired';
+        }
+      }
+    }
+
+    // CVC validation
+    if (!formData.cvc) {
+      newErrors.cvc = 'CVC is required';
+    } else if (formData.cvc.length < 3 || formData.cvc.length > 4) {
+      newErrors.cvc = 'CVC must be 3-4 digits';
+    }
+
     // Amount validation
     if (!formData.amount) {
       newErrors.amount = 'Amount is required';
@@ -82,13 +130,15 @@ export function UserTransactionForm({ onSubmit, isLoading = false, className }: 
   const handleReset = () => {
     setFormData({
       cardNumber: '',
+      expireDate: '',
+      cvc: '',
       amount: '',
     });
     setErrors({});
   };
 
   return (
-    <div className={cn('w-full max-w-2xl mx-auto', className)}>
+    <div className={cn('w-full', className)}>
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Card Details Section */}
         <div className="space-y-4">
@@ -98,56 +148,69 @@ export function UserTransactionForm({ onSubmit, isLoading = false, className }: 
 
           <div className="grid grid-cols-1 gap-4">
             {/* Card Number */}
-            <div className="space-y-2">
-              <Typography variant="span" size="sm" weight="medium" className="text-foreground">
-                Card Number
-              </Typography>
-              <div className="relative">
-                <CreditCard className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  type="text"
-                  placeholder="1234 5678 9012 3456"
-                  value={formData.cardNumber}
-                  onChange={(e) => handleInputChange('cardNumber', e.target.value)}
-                  className={cn(
-                    'pl-10 h-11 font-mono',
-                    errors.cardNumber && 'border-destructive focus:border-destructive'
-                  )}
-                  disabled={isLoading}
-                />
-              </div>
-              {errors.cardNumber && (
-                <Typography variant="p" size="sm" color="destructive" className="text-destructive">
-                  {errors.cardNumber}
-                </Typography>
-              )}
+            <InputField
+              label="Card Number"
+              type="text"
+              placeholder="1234 5678 9012 3456"
+              value={formData.cardNumber}
+              onChange={(e) => handleInputChange('cardNumber', e.target.value)}
+              error={errors.cardNumber}
+              disabled={isLoading}
+              icon={<CreditCard className="h-4 w-4" />}
+              inputClassName="h-11 font-mono"
+              className="space-y-2"
+              required
+            />
+
+            {/* Expire Date and CVC */}
+            <div className="grid grid-cols-2 gap-4">
+              {/* Expire Date */}
+              <InputField
+                label="Expiration Date"
+                type="text"
+                placeholder="MM/YY"
+                value={formData.expireDate}
+                onChange={(e) => handleInputChange('expireDate', e.target.value)}
+                error={errors.expireDate}
+                disabled={isLoading}
+                icon={<Calendar className="h-4 w-4" />}
+                inputClassName="h-11 font-mono"
+                className="space-y-2"
+                maxLength={5}
+                required
+              />
+
+              {/* CVC */}
+              <InputField
+                label="CVC"
+                type="text"
+                placeholder="123"
+                value={formData.cvc}
+                onChange={(e) => handleInputChange('cvc', e.target.value)}
+                error={errors.cvc}
+                disabled={isLoading}
+                icon={<Lock className="h-4 w-4" />}
+                inputClassName="h-11 font-mono"
+                className="space-y-2"
+                maxLength={4}
+                required
+              />
             </div>
 
             {/* Amount */}
-            <div className="space-y-2">
-              <Typography variant="span" size="sm" weight="medium" className="text-foreground">
-                Amount ($)
-              </Typography>
-              <div className="relative">
-                <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  type="text"
-                  placeholder="0.00"
-                  value={formData.amount}
-                  onChange={(e) => handleInputChange('amount', e.target.value)}
-                  className={cn(
-                    'pl-10 h-11 font-mono',
-                    errors.amount && 'border-destructive focus:border-destructive'
-                  )}
-                  disabled={isLoading}
-                />
-              </div>
-              {errors.amount && (
-                <Typography variant="p" size="sm" color="destructive" className="text-destructive">
-                  {errors.amount}
-                </Typography>
-              )}
-            </div>
+            <InputField
+              label="Transaction Amount ($)"
+              type="text"
+              placeholder="0.00"
+              value={formData.amount}
+              onChange={(e) => handleInputChange('amount', e.target.value)}
+              error={errors.amount}
+              disabled={isLoading}
+              icon={<DollarSign className="h-4 w-4" />}
+              inputClassName="h-11 font-mono"
+              className="space-y-2"
+              required
+            />
           </div>
         </div>
 

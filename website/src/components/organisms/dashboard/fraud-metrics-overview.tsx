@@ -24,6 +24,7 @@ interface FraudMetricsOverviewProps {
   fraudulentTransactions: number;
   fraudRate: number;
   className?: string;
+  isRefreshing?: boolean;
 }
 
 export function FraudMetricsOverview({
@@ -32,6 +33,7 @@ export function FraudMetricsOverview({
   fraudulentTransactions,
   fraudRate,
   className,
+  isRefreshing = false,
 }: FraudMetricsOverviewProps) {
   // Calculate trend (comparing last 12 hours to previous 12 hours)
   const midPoint = Math.floor(data.length / 2);
@@ -164,11 +166,16 @@ export function FraudMetricsOverview({
       <div className="lg:col-span-2 flex h-full">
         <div className="bg-[var(--clr-surface-a10)] border-2 border-border rounded-lg p-6 flex flex-col w-full justify-center">
           <div className="mb-4">
-            <Typography variant="h3" size="lg" weight="semibold" className="text-foreground mb-1">
-              Transaction Volume (24h)
-            </Typography>
+            <div className="flex items-center gap-2 mb-1">
+              <Typography variant="h3" size="lg" weight="semibold" className="text-foreground">
+                Transaction Volume (12h)
+              </Typography>
+              {isRefreshing && (
+                <div className="h-2 w-2 rounded-full bg-[#47d5a6] animate-pulse" title="Refreshing..." />
+              )}
+            </div>
             <Typography variant="p" size="sm" color="muted" className="text-muted-foreground">
-              Hourly transaction volume and fraud detection trends
+              Hourly transaction volume and fraud detection trends over the last 12 hours • Auto-refreshing every 3s
             </Typography>
           </div>
           <div className="flex-1 flex flex-col items-center justify-center">

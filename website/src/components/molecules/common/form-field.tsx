@@ -84,6 +84,7 @@ export interface InputFieldProps extends Omit<FormFieldProps, 'children'> {
   disabled?: boolean;
   icon?: React.ReactNode;
   inputClassName?: string;
+  maxLength?: number;
 }
 
 export function InputField({
@@ -99,7 +100,8 @@ export function InputField({
   icon,
   inputClassName,
   description,
-  id
+  id,
+  maxLength
 }: InputFieldProps) {
 
   return (
@@ -113,7 +115,7 @@ export function InputField({
     >
       <div className="relative">
         {icon && (
-          <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">
+          <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground z-10">
             {icon}
           </div>
         )}
@@ -123,6 +125,7 @@ export function InputField({
           value={value}
           onChange={onChange}
           disabled={disabled}
+          maxLength={maxLength}
           className={cn(
             icon && 'pl-10',
             error && 'border-destructive focus:border-destructive',

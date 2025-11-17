@@ -44,12 +44,12 @@ export default function RootLayout({
         className={`${literata.variable} font-literata antialiased min-h-screen bg-background`}
       >
         <ErrorBoundary>
-          <CorrelationProvider>
-            <AppProviders>
-              {children}
-              <Toaster />
-            </AppProviders>
-          </CorrelationProvider>
+        <CorrelationProvider>
+          <AppProviders>
+            {children}
+            <Toaster />
+          </AppProviders>
+        </CorrelationProvider>
         </ErrorBoundary>
       </body>
     </html>

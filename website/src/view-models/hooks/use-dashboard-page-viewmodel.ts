@@ -54,7 +54,7 @@ export function useDashboardPageViewModel(): DashboardPageViewModel {
     error: analyticsError,
   } = useDashboardAnalytics({
     autoStart: true,
-    pollInterval: 5000, // Update every 5 seconds
+    pollInterval: 3000, // Update every 3 seconds for real-time feel
   });
 
   // Use real-time transactions hook
@@ -63,7 +63,7 @@ export function useDashboardPageViewModel(): DashboardPageViewModel {
     isPolling: isTransactionsPolling,
   } = useRealtimeTransactions({
     autoStart: true,
-    pollInterval: 5000, // Update every 5 seconds
+    pollInterval: 3000, // Update every 3 seconds for real-time feel
   });
 
   // Calculate fraud metrics using ViewModel transformer

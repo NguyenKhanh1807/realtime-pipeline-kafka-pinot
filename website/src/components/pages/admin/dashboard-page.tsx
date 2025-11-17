@@ -82,6 +82,7 @@ export default function DashboardPage() {
               totalTransactions={fraudMetrics.totalTransactions}
               fraudulentTransactions={fraudMetrics.fraudulentTransactions}
               fraudRate={fraudMetrics.fraudRate}
+              isRefreshing={isLoading}
             />
           </div>
         )}
@@ -91,6 +92,7 @@ export default function DashboardPage() {
           <AnalyticsGrid
             trendsData={fraudMetrics.hourlyTrends}
             riskFactorsData={riskFactorsData}
+            isRefreshing={isLoading}
           />
         )}
 

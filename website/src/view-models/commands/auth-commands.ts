@@ -196,8 +196,8 @@ export class AuthCommands {
 
       // Step 3: Clear any additional cached data (not handled by store)
       if (typeof window !== 'undefined') {
-        localStorage.removeItem('userPreferences');
-        localStorage.removeItem('lastVisitedPage');
+      localStorage.removeItem('userPreferences');
+      localStorage.removeItem('lastVisitedPage');
       }
 
       // Step 4: Handle success (could include analytics, cleanup, etc.)

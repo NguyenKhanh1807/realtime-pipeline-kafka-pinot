@@ -39,7 +39,7 @@ export function useDashboardAnalytics(
 ): UseDashboardAnalyticsReturn {
   const {
     autoStart = true,
-    pollInterval = 5000, // Poll every 5 seconds for analytics
+    pollInterval = 3000, // Poll every 3 seconds for real-time analytics
   } = options;
 
   // Use ViewModel store instead of direct service access
