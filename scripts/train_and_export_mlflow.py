@@ -179,7 +179,7 @@ def train_once(data_path: Optional[str],
     Xte = df_align(test_raw .drop(columns=[c for c in drop_cols if c in test_raw.columns],  errors="ignore"))
 
     # encode
-    maybe_cats = ["receiving_country","country_code","id_type","stay_qualify","payment_method"]
+    maybe_cats = ["receiving_country","country_code","id_type","stay_qualify","payment_method", "payment_method_filled"]
     cat_cols = [c for c in maybe_cats if c in Xtr.columns]
     Xtr_enc, encoders = encode_categoricals(Xtr, cat_cols, encoders=None)
     Xte_enc, _ = encode_categoricals(Xte, cat_cols, encoders=encoders)
