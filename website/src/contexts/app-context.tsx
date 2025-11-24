@@ -1,8 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useEffect } from 'react';
-import { useAppStore } from '@/src/viewmodels/stores';
-import type { User } from '@/src/viewmodels/stores/app-store';
+import { useAppStore, User } from '@/src/view-models';
 
 interface AppContextValue {
   // User state
@@ -18,7 +17,7 @@ interface AppContextValue {
   currentPage: string;
 
   // Actions
-  login: (credentials: { email: string; password: string }) => Promise<void>;
+  login: (credentials: { username: string; password: string }) => Promise<void>;
   logout: () => void;
   setSidebarOpen: (open: boolean) => void;
   setCurrentPage: (page: string) => void;
@@ -44,6 +43,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     error,
     sidebarOpen,
     currentPage,
+    isInitialized,
     login,
     logout,
     setSidebarOpen,
@@ -52,17 +52,26 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     initializeApp,
   } = useAppStore();
 
-  // Initialize app on mount
+  // Track if we're on the client to prevent hydration mismatches
+  const [isClient, setIsClient] = React.useState(false);
+
+  // Mark as client-side after mount
   useEffect(() => {
-    initializeApp();
-  }, [initializeApp]);
+    setIsClient(true);
+  }, []);
+
+  // Complete initialization on mount (client-side only)
+  // State is already initialized synchronously, this just marks it as complete
+  useEffect(() => {
+    if (isClient && !isInitialized) {
+      initializeApp();
+    }
+  }, [isClient, initializeApp, isInitialized]);
 
   // Computed values
   const isAdmin = user?.role === 'admin';
   const isModerator = user?.role === 'moderator' || user?.role === 'admin';
-  const userDisplayName = user?.name
-    ? `${user.name.first} ${user.name.last}`.trim()
-    : user?.email || 'Guest';
+  const userDisplayName = user?.username || user?.email || 'Guest';
 
   // Persist user data when it changes
   useEffect(() => {
@@ -93,6 +102,22 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     isModerator,
     userDisplayName,
   };
+
+  // Don't render children until initialization is complete (client-side only)
+  // This prevents flash of unauthenticated content
+  // Only show loading screen on client after mount to prevent hydration mismatch
+  if (isClient && !isInitialized) {
+    return (
+      <AppContext.Provider value={value}>
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+            <p className="text-muted-foreground">Loading...</p>
+          </div>
+        </div>
+      </AppContext.Provider>
+    );
+  }
 
   return (
     <AppContext.Provider value={value}>
