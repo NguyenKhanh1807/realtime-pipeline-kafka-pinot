@@ -156,7 +156,7 @@ def train_once(data_path: Optional[str],
         prep_df[col] = prep_df[col].fillna('Unknown')#Nếu giá trị thiếu thì điền 'Unknown'
 
     # Cắt ngoại lệ bằng IQR cho các cột amount. Giới hạn giá trị trong khoảng [lower, upper]
-    amount_cols = [c for c in prep_df.columns if 'amount' in c] 
+    amount_cols = [c for c in prep_df.columns if 'deposit_amount' in c] 
     clipping_bounds = {}
     for col in amount_cols:
         series = pd.to_numeric(prep_df[col], errors='coerce')
