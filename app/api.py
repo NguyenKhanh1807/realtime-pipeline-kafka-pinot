@@ -74,34 +74,34 @@ def _hydrate():
 _hydrate()
 
 
-async def run_retrain_job_scheduled():
-    """Chạy retrain_rolling_mlflow.py trong một tiến trình con (subprocess)."""
-    script_path = str(PROJECT_ROOT / "scripts/retrain_rolling_mlflow.py")
-    LOGGER.info(f"SCHEDULER: Starting {script_path}")
-    try:
-        proc = await asyncio.create_subprocess_exec(PYTHON_BIN, script_path)
-        await proc.wait()
-        LOGGER.info(f"SCHEDULER: Finished {script_path} with code {proc.returncode}")
-        if proc.returncode == 0:
-            LOGGER.info("SCHEDULER: Reloading model and artifacts after retrain...")
-            _hydrate()
-    except Exception as e:
-        LOGGER.error(f"SCHEDULER: Failed to run {script_path}: {e}", exc_info=True)
+# async def run_retrain_job_scheduled():
+#     """Chạy retrain_rolling_mlflow.py trong một tiến trình con (subprocess)."""
+#     script_path = str(PROJECT_ROOT / "scripts/retrain_rolling_mlflow.py")
+#     LOGGER.info(f"SCHEDULER: Starting {script_path}")
+#     try:
+#         proc = await asyncio.create_subprocess_exec(PYTHON_BIN, script_path)
+#         await proc.wait()
+#         LOGGER.info(f"SCHEDULER: Finished {script_path} with code {proc.returncode}")
+#         if proc.returncode == 0:
+#             LOGGER.info("SCHEDULER: Reloading model and artifacts after retrain...")
+#             _hydrate()
+#     except Exception as e:
+#         LOGGER.error(f"SCHEDULER: Failed to run {script_path}: {e}", exc_info=True)
 
-# Startup/Shutdown 
-@app.on_event("startup")
-async def startup_event():
-    """Khi API khởi động, hãy khởi động Scheduler."""
-    LOGGER.info("Scheduler starting...")
-    # Thêm các tác vụ vào lịch trình
-    scheduler.add_job(run_retrain_job_scheduled, 'interval', minutes=5, id="retrain_job")
-    scheduler.start()
+# # Startup/Shutdown 
+# @app.on_event("startup")
+# async def startup_event():
+#     """Khi API khởi động, hãy khởi động Scheduler."""
+#     LOGGER.info("Scheduler starting...")
+#     # Thêm các tác vụ vào lịch trình
+#     scheduler.add_job(run_retrain_job_scheduled, 'interval', minutes=5, id="retrain_job")
+#     scheduler.start()
 
-@app.on_event("shutdown")
-async def shutdown_event():
-    """Khi API tắt, hãy tắt Scheduler."""
-    logging.info("Scheduler shutting down...")
-    scheduler.shutdown()
+# @app.on_event("shutdown")
+# async def shutdown_event():
+#     """Khi API tắt, hãy tắt Scheduler."""
+#     logging.info("Scheduler shutting down...")
+#     scheduler.shutdown()
 
 
 class Tx(BaseModel):
@@ -244,7 +244,7 @@ def score(tx: Tx):
         feat_cols=_feat_cols,
         encoders=_encoders,
         medians=_medians,
-        maybe_cats=["receiving_country","country_code","id_type","stay_qualify","payment_method"],
+        maybe_cats=["receiving_country","country_code","id_type","stay_qualify","payment_method", "payment_method_filled"],
         clipping_bounds=_clipping_bounds 
     )
 
@@ -294,7 +294,7 @@ def score_batch(payload: TxBatch):
         feat_cols=_feat_cols,
         encoders=_encoders,
         medians=_medians,
-        maybe_cats=["receiving_country","country_code","id_type","stay_qualify","payment_method"],
+        maybe_cats=["receiving_country","country_code","id_type","stay_qualify","payment_method", "payment_method_filled"],
         clipping_bounds=_clipping_bounds
     )
 
@@ -349,7 +349,7 @@ async def score_upload(file: UploadFile = File(...), include_allow: bool = True,
         feat_cols=_feat_cols,
         encoders=_encoders,
         medians=_medians,
-        maybe_cats=["receiving_country","country_code","id_type","stay_qualify","payment_method"],
+        maybe_cats=["receiving_country","country_code","id_type","stay_qualify","payment_method", "payment_method_filled"],
         clipping_bounds=_clipping_bounds
     )
 
