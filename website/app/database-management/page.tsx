@@ -242,18 +242,18 @@ export default function DatabaseManagementPage() {
 
   const checkPostgresHealth = async () => {
     try {
-      const response = await fetch('/api/database/users');
+      const response = await fetch('/api/transaction-users/count');
       const data = await response.json();
       
-      // Check if we got users data successfully
-      const isHealthy = response.ok && !data.error;
+      // Check if we got count data successfully
+      const isHealthy = response.ok && !data.error && typeof data.count === 'number';
       
       setComponents(prev => [
         ...prev.filter(c => c.name !== 'PostgreSQL'),
         {
           name: 'PostgreSQL',
           status: isHealthy ? 'healthy' : 'error',
-          message: isHealthy ? `Database connected (${data.count || 0} users)` : 'Database connection failed',
+          message: isHealthy ? `Database connected (${data.count} users)` : 'Database connection failed',
           icon: HardDrive
         }
       ]);
@@ -424,10 +424,11 @@ export default function DatabaseManagementPage() {
 
   const fetchPostgresUsers = async () => {
     try {
-      const response = await fetch('/api/database/users');
+      const response = await fetch('/api/transaction-users');
       if (response.ok) {
         const data = await response.json();
-        setUsers(data.users || []);
+        // API returns array directly, not wrapped in object
+        setUsers(Array.isArray(data) ? data : []);
       }
     } catch (error) {
       console.error('Error fetching PostgreSQL users:', error);

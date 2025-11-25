@@ -107,6 +107,13 @@ preflight_checks() {
     docker volume prune -f > /dev/null 2>&1
     print_success "Docker cleanup completed"
     
+    # Clean up old MLflow artifacts
+    print_info "Cleaning up old MLflow artifacts..."
+    rm -rf mlruns/models/* 2>/dev/null || true
+    rm -rf mlartifacts/* 2>/dev/null || true
+    rm -f mlflow.db 2>/dev/null || true
+    print_success "MLflow artifacts cleaned"
+    
     # Create required directories
     print_info "Creating required directories..."
     mkdir -p "$LOGS_DIR" data segments mlruns mlartifacts models artifacts
