@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/Users/nguyenthanh/Master/DataEngineering/final/realtime-pipeline-kafka-pinot-final/crawl_data/rt_processor.py", line 5, in <module>
+    from kafka import KafkaConsumer, KafkaProducer
+ModuleNotFoundError: No module named 'kafka'
