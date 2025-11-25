@@ -203,7 +203,7 @@ MIT License
 
 ## 👥 Contributors
 
-**Maintainer**: NguyenKhanh1807
+**Maintainer**: Group 9
 
 ---
 
