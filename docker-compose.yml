@@ -55,7 +55,7 @@ services:
         --port 5000
       "
     environment:
-      - MLFLOW_TRACKING_URI=http://10.107.101.128:5000
+      - MLFLOW_TRACKING_URI=http://localhost:5000
     networks:
       - fraud-detection
     restart: unless-stopped
