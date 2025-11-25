@@ -38,7 +38,7 @@ async def train_model(request: TrainRequest):
                 pinot_res = requests.post(
                     'http://pinot-broker:8099/query/sql',
                     headers={'Content-Type': 'application/json'},
-                    json={'sql': 'SELECT COUNT(*) as total, SUM(label) as fraud_count FROM transactions'},
+                    json={'sql': 'SELECT COUNT(*) as total FROM transactions'},
                     timeout=30
                 )
                 
@@ -46,20 +46,13 @@ async def train_model(request: TrainRequest):
                     result = pinot_res.json()
                     rows = result.get('resultTable', {}).get('rows', [])
                     if rows:
-                        total, fraud_count = rows[0]
+                        total = rows[0][0]
                         
                         if total < 500:
                             return TrainResponse(
                                 success=False,
                                 message=f"Insufficient data: {total} transactions (minimum 500 required)",
-                                details=f"Total: {total}, Fraud: {fraud_count}"
-                            )
-                        
-                        if fraud_count == 0:
-                            return TrainResponse(
-                                success=False,
-                                message="No fraud cases found. Model needs labeled fraud examples.",
-                                details=f"Total: {total}, Fraud: {fraud_count}"
+                                details=f"Total transactions: {total}"
                             )
             except Exception as e:
                 logger.warning(f"Could not check Pinot data: {e}")
