@@ -87,7 +87,6 @@ preflight_checks() {
     # Check required commands
     print_info "Checking required software..."
     check_command docker
-    check_command docker-compose
     check_command python3
     check_command curl
     print_success "All required software is installed"
@@ -142,14 +141,14 @@ start_docker_services() {
     print_header "Starting Docker Services"
     
     print_info "Starting all Docker containers..."
-    docker-compose up -d
+    docker compose up -d
     
     print_info "Waiting for services to initialize (60 seconds)..."
     sleep 60
     
     # Check container status
     print_info "Checking container status..."
-    docker-compose ps
+    docker compose ps
     
     # Wait for critical services
     wait_for_service "Kafka" "http://localhost:29092" 20

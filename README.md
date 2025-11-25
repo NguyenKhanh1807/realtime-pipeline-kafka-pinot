@@ -4,6 +4,7 @@ A comprehensive **real-time fraud detection system** built with Apache Pinot, Ka
 
 ## ⚡ Quick Start
 
+**Note: Using Docker v2**
 **One-command startup:**
 ```bash
 ./startup.sh
