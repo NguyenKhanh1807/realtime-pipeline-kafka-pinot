@@ -1,0 +1,17 @@
+feature,importance
+deposit_amount,0.46114165
+transaction_amount_24hour,0.3207873
+is_cross_border,0.117625564
+transaction_count_24hour,0.026844729
+amount_per_tx_24h,0.01674001
+amount_per_tx_1week,0.007757084
+transaction_amount_1month,0.007180046
+amount_ratio_month_week,0.0067678043
+amount_ratio_week_day,0.0065903384
+amount_per_tx_1month,0.006361894
+transaction_count_1month,0.0060994336
+transaction_amount_1week,0.005692794
+transaction_count_1week,0.0054962793
+stay_qualify_YES,0.0049151066
+tx_accel_week,0.0
+tx_accel_month,0.0

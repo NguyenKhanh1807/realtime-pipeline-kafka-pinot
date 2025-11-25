@@ -1,0 +1,1126 @@
+/Users/nguyenthanh/Library/Python/3.9/lib/python/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+======================================================================
+AUTO-BAN MONITOR STARTED
+======================================================================
+
+Ban Rules:
+  1. User with ANY transaction labeled 'banned' (label=2) → AUTO-BAN
+  2. User with 10+ warning transactions (label=1) in one day → AUTO-BAN
+
+Check Interval: Every 60 seconds
+Pinot API: http://localhost:3000/api/pinot/query
+Database: fraud_detection @ localhost
+======================================================================
+
+======================================================================
+Auto-Ban Check - 2025-11-26 03:05:12
+======================================================================
+
+[Rule 1] Checking users with banned transactions (label=2)...
+Error querying Pinot: HTTPConnectionPool(host='localhost', port=3000): Max retries exceeded with url: /api/pinot/query (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x109f56070>: Failed to establish a new connection: [Errno 61] Connection refused'))
+No users with banned-level transactions found
+
+[Rule 2] Checking users with 10+ warning transactions today...
+Error querying Pinot: HTTPConnectionPool(host='localhost', port=3000): Max retries exceeded with url: /api/pinot/query (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x109f56af0>: Failed to establish a new connection: [Errno 61] Connection refused'))
+No users with 10+ warning transactions today
+
+======================================================================
+Check completed at 03:05:12
+Next check in 60 seconds...
+======================================================================
+
+======================================================================
+Auto-Ban Check - 2025-11-26 03:06:12
+======================================================================
+
+[Rule 1] Checking users with banned transactions (label=2)...
+No users with banned-level transactions found
+
+[Rule 2] Checking users with 10+ warning transactions today...
+No users with 10+ warning transactions today
+
+======================================================================
+Check completed at 03:06:12
+Next check in 60 seconds...
+======================================================================
+
+======================================================================
+Auto-Ban Check - 2025-11-26 03:07:12
+======================================================================
+
+[Rule 1] Checking users with banned transactions (label=2)...
+No users with banned-level transactions found
+
+[Rule 2] Checking users with 10+ warning transactions today...
+No users with 10+ warning transactions today
+
+======================================================================
+Check completed at 03:07:12
+Next check in 60 seconds...
+======================================================================
+
+======================================================================
+Auto-Ban Check - 2025-11-26 03:08:12
+======================================================================
+
+[Rule 1] Checking users with banned transactions (label=2)...
+No users with banned-level transactions found
+
+[Rule 2] Checking users with 10+ warning transactions today...
+No users with 10+ warning transactions today
+
+======================================================================
+Check completed at 03:08:12
+Next check in 60 seconds...
+======================================================================
+
+======================================================================
+Auto-Ban Check - 2025-11-26 03:09:12
+======================================================================
+
+[Rule 1] Checking users with banned transactions (label=2)...
+No users with banned-level transactions found
+
+[Rule 2] Checking users with 10+ warning transactions today...
+No users with 10+ warning transactions today
+
+======================================================================
+Check completed at 03:09:13
+Next check in 60 seconds...
+======================================================================
+
+======================================================================
+Auto-Ban Check - 2025-11-26 03:10:13
+======================================================================
+
+[Rule 1] Checking users with banned transactions (label=2)...
+No users with banned-level transactions found
+
+[Rule 2] Checking users with 10+ warning transactions today...
+No users with 10+ warning transactions today
+
+======================================================================
+Check completed at 03:10:13
+Next check in 60 seconds...
+======================================================================
+
+======================================================================
+Auto-Ban Check - 2025-11-26 03:11:13
+======================================================================
+
+[Rule 1] Checking users with banned transactions (label=2)...
+No users with banned-level transactions found
+
+[Rule 2] Checking users with 10+ warning transactions today...
+No users with 10+ warning transactions today
+
+======================================================================
+Check completed at 03:11:13
+Next check in 60 seconds...
+======================================================================
+
+======================================================================
+Auto-Ban Check - 2025-11-26 03:12:13
+======================================================================
+
+[Rule 1] Checking users with banned transactions (label=2)...
+No users with banned-level transactions found
+
+[Rule 2] Checking users with 10+ warning transactions today...
+No users with 10+ warning transactions today
+
+======================================================================
+Check completed at 03:12:13
+Next check in 60 seconds...
+======================================================================
+
+======================================================================
+Auto-Ban Check - 2025-11-26 03:13:13
+======================================================================
+
+[Rule 1] Checking users with banned transactions (label=2)...
+No users with banned-level transactions found
+
+[Rule 2] Checking users with 10+ warning transactions today...
+No users with 10+ warning transactions today
+
+======================================================================
+Check completed at 03:13:13
+Next check in 60 seconds...
+======================================================================
+
+======================================================================
+Auto-Ban Check - 2025-11-26 03:14:13
+======================================================================
+
+[Rule 1] Checking users with banned transactions (label=2)...
+No users with banned-level transactions found
+
+[Rule 2] Checking users with 10+ warning transactions today...
+No users with 10+ warning transactions today
+
+======================================================================
+Check completed at 03:14:13
+Next check in 60 seconds...
+======================================================================
+
+======================================================================
+Auto-Ban Check - 2025-11-26 03:15:13
+======================================================================
+
+[Rule 1] Checking users with banned transactions (label=2)...
+No users with banned-level transactions found
+
+[Rule 2] Checking users with 10+ warning transactions today...
+No users with 10+ warning transactions today
+
+======================================================================
+Check completed at 03:15:13
+Next check in 60 seconds...
+======================================================================
+
+======================================================================
+Auto-Ban Check - 2025-11-26 03:16:13
+======================================================================
+
+[Rule 1] Checking users with banned transactions (label=2)...
+No users with banned-level transactions found
+
+[Rule 2] Checking users with 10+ warning transactions today...
+No users with 10+ warning transactions today
+
+======================================================================
+Check completed at 03:16:13
+Next check in 60 seconds...
+======================================================================
+
+======================================================================
+Auto-Ban Check - 2025-11-26 03:17:13
+======================================================================
+
+[Rule 1] Checking users with banned transactions (label=2)...
+No users with banned-level transactions found
+
+[Rule 2] Checking users with 10+ warning transactions today...
+No users with 10+ warning transactions today
+
+======================================================================
+Check completed at 03:17:13
+Next check in 60 seconds...
+======================================================================
+
+======================================================================
+Auto-Ban Check - 2025-11-26 03:18:13
+======================================================================
+
+[Rule 1] Checking users with banned transactions (label=2)...
+No users with banned-level transactions found
+
+[Rule 2] Checking users with 10+ warning transactions today...
+No users with 10+ warning transactions today
+
+======================================================================
+Check completed at 03:18:13
+Next check in 60 seconds...
+======================================================================
+
+======================================================================
+Auto-Ban Check - 2025-11-26 03:19:13
+======================================================================
+
+[Rule 1] Checking users with banned transactions (label=2)...
+No users with banned-level transactions found
+
+[Rule 2] Checking users with 10+ warning transactions today...
+No users with 10+ warning transactions today
+
+======================================================================
+Check completed at 03:19:13
+Next check in 60 seconds...
+======================================================================
+
+======================================================================
+Auto-Ban Check - 2025-11-26 03:20:13
+======================================================================
+
+[Rule 1] Checking users with banned transactions (label=2)...
+No users with banned-level transactions found
+
+[Rule 2] Checking users with 10+ warning transactions today...
+No users with 10+ warning transactions today
+
+======================================================================
+Check completed at 03:20:13
+Next check in 60 seconds...
+======================================================================
+
+======================================================================
+Auto-Ban Check - 2025-11-26 03:21:13
+======================================================================
+
+[Rule 1] Checking users with banned transactions (label=2)...
+No users with banned-level transactions found
+
+[Rule 2] Checking users with 10+ warning transactions today...
+No users with 10+ warning transactions today
+
+======================================================================
+Check completed at 03:21:13
+Next check in 60 seconds...
+======================================================================
+
+======================================================================
+Auto-Ban Check - 2025-11-26 03:22:13
+======================================================================
+
+[Rule 1] Checking users with banned transactions (label=2)...
+No users with banned-level transactions found
+
+[Rule 2] Checking users with 10+ warning transactions today...
+No users with 10+ warning transactions today
+
+======================================================================
+Check completed at 03:22:13
+Next check in 60 seconds...
+======================================================================
+
+======================================================================
+Auto-Ban Check - 2025-11-26 03:23:13
+======================================================================
+
+[Rule 1] Checking users with banned transactions (label=2)...
+No users with banned-level transactions found
+
+[Rule 2] Checking users with 10+ warning transactions today...
+No users with 10+ warning transactions today
+
+======================================================================
+Check completed at 03:23:13
+Next check in 60 seconds...
+======================================================================
+
+======================================================================
+Auto-Ban Check - 2025-11-26 03:24:13
+======================================================================
+
+[Rule 1] Checking users with banned transactions (label=2)...
+No users with banned-level transactions found
+
+[Rule 2] Checking users with 10+ warning transactions today...
+No users with 10+ warning transactions today
+
+======================================================================
+Check completed at 03:24:13
+Next check in 60 seconds...
+======================================================================
+
+======================================================================
+Auto-Ban Check - 2025-11-26 03:25:13
+======================================================================
+
+[Rule 1] Checking users with banned transactions (label=2)...
+No users with banned-level transactions found
+
+[Rule 2] Checking users with 10+ warning transactions today...
+No users with 10+ warning transactions today
+
+======================================================================
+Check completed at 03:25:13
+Next check in 60 seconds...
+======================================================================
+
+======================================================================
+Auto-Ban Check - 2025-11-26 03:26:13
+======================================================================
+
+[Rule 1] Checking users with banned transactions (label=2)...
+No users with banned-level transactions found
+
+[Rule 2] Checking users with 10+ warning transactions today...
+No users with 10+ warning transactions today
+
+======================================================================
+Check completed at 03:26:13
+Next check in 60 seconds...
+======================================================================
+
+======================================================================
+Auto-Ban Check - 2025-11-26 03:27:13
+======================================================================
+
+[Rule 1] Checking users with banned transactions (label=2)...
+No users with banned-level transactions found
+
+[Rule 2] Checking users with 10+ warning transactions today...
+No users with 10+ warning transactions today
+
+======================================================================
+Check completed at 03:27:13
+Next check in 60 seconds...
+======================================================================
+
+======================================================================
+Auto-Ban Check - 2025-11-26 03:28:13
+======================================================================
+
+[Rule 1] Checking users with banned transactions (label=2)...
+No users with banned-level transactions found
+
+[Rule 2] Checking users with 10+ warning transactions today...
+No users with 10+ warning transactions today
+
+======================================================================
+Check completed at 03:28:13
+Next check in 60 seconds...
+======================================================================
+
+======================================================================
+Auto-Ban Check - 2025-11-26 03:29:13
+======================================================================
+
+[Rule 1] Checking users with banned transactions (label=2)...
+No users with banned-level transactions found
+
+[Rule 2] Checking users with 10+ warning transactions today...
+No users with 10+ warning transactions today
+
+======================================================================
+Check completed at 03:29:13
+Next check in 60 seconds...
+======================================================================
+
+======================================================================
+Auto-Ban Check - 2025-11-26 03:30:13
+======================================================================
+
+[Rule 1] Checking users with banned transactions (label=2)...
+No users with banned-level transactions found
+
+[Rule 2] Checking users with 10+ warning transactions today...
+No users with 10+ warning transactions today
+
+======================================================================
+Check completed at 03:30:14
+Next check in 60 seconds...
+======================================================================
+
+======================================================================
+Auto-Ban Check - 2025-11-26 03:31:14
+======================================================================
+
+[Rule 1] Checking users with banned transactions (label=2)...
+No users with banned-level transactions found
+
+[Rule 2] Checking users with 10+ warning transactions today...
+No users with 10+ warning transactions today
+
+======================================================================
+Check completed at 03:31:14
+Next check in 60 seconds...
+======================================================================
+
+======================================================================
+Auto-Ban Check - 2025-11-26 03:32:14
+======================================================================
+
+[Rule 1] Checking users with banned transactions (label=2)...
+No users with banned-level transactions found
+
+[Rule 2] Checking users with 10+ warning transactions today...
+No users with 10+ warning transactions today
+
+======================================================================
+Check completed at 03:32:14
+Next check in 60 seconds...
+======================================================================
+
+======================================================================
+Auto-Ban Check - 2025-11-26 03:33:14
+======================================================================
+
+[Rule 1] Checking users with banned transactions (label=2)...
+No users with banned-level transactions found
+
+[Rule 2] Checking users with 10+ warning transactions today...
+No users with 10+ warning transactions today
+
+======================================================================
+Check completed at 03:33:14
+Next check in 60 seconds...
+======================================================================
+
+======================================================================
+Auto-Ban Check - 2025-11-26 03:34:14
+======================================================================
+
+[Rule 1] Checking users with banned transactions (label=2)...
+No users with banned-level transactions found
+
+[Rule 2] Checking users with 10+ warning transactions today...
+No users with 10+ warning transactions today
+
+======================================================================
+Check completed at 03:34:14
+Next check in 60 seconds...
+======================================================================
+
+======================================================================
+Auto-Ban Check - 2025-11-26 03:35:14
+======================================================================
+
+[Rule 1] Checking users with banned transactions (label=2)...
+No users with banned-level transactions found
+
+[Rule 2] Checking users with 10+ warning transactions today...
+No users with 10+ warning transactions today
+
+======================================================================
+Check completed at 03:35:14
+Next check in 60 seconds...
+======================================================================
+
+======================================================================
+Auto-Ban Check - 2025-11-26 03:36:14
+======================================================================
+
+[Rule 1] Checking users with banned transactions (label=2)...
+No users with banned-level transactions found
+
+[Rule 2] Checking users with 10+ warning transactions today...
+No users with 10+ warning transactions today
+
+======================================================================
+Check completed at 03:36:14
+Next check in 60 seconds...
+======================================================================
+
+======================================================================
+Auto-Ban Check - 2025-11-26 03:37:14
+======================================================================
+
+[Rule 1] Checking users with banned transactions (label=2)...
+No users with banned-level transactions found
+
+[Rule 2] Checking users with 10+ warning transactions today...
+No users with 10+ warning transactions today
+
+======================================================================
+Check completed at 03:37:14
+Next check in 60 seconds...
+======================================================================
+
+======================================================================
+Auto-Ban Check - 2025-11-26 03:38:14
+======================================================================
+
+[Rule 1] Checking users with banned transactions (label=2)...
+No users with banned-level transactions found
+
+[Rule 2] Checking users with 10+ warning transactions today...
+No users with 10+ warning transactions today
+
+======================================================================
+Check completed at 03:38:14
+Next check in 60 seconds...
+======================================================================
+
+======================================================================
+Auto-Ban Check - 2025-11-26 03:39:14
+======================================================================
+
+[Rule 1] Checking users with banned transactions (label=2)...
+No users with banned-level transactions found
+
+[Rule 2] Checking users with 10+ warning transactions today...
+No users with 10+ warning transactions today
+
+======================================================================
+Check completed at 03:39:14
+Next check in 60 seconds...
+======================================================================
+
+======================================================================
+Auto-Ban Check - 2025-11-26 03:40:14
+======================================================================
+
+[Rule 1] Checking users with banned transactions (label=2)...
+No users with banned-level transactions found
+
+[Rule 2] Checking users with 10+ warning transactions today...
+No users with 10+ warning transactions today
+
+======================================================================
+Check completed at 03:40:14
+Next check in 60 seconds...
+======================================================================
+
+======================================================================
+Auto-Ban Check - 2025-11-26 03:41:14
+======================================================================
+
+[Rule 1] Checking users with banned transactions (label=2)...
+No users with banned-level transactions found
+
+[Rule 2] Checking users with 10+ warning transactions today...
+No users with 10+ warning transactions today
+
+======================================================================
+Check completed at 03:41:14
+Next check in 60 seconds...
+======================================================================
+
+======================================================================
+Auto-Ban Check - 2025-11-26 03:42:14
+======================================================================
+
+[Rule 1] Checking users with banned transactions (label=2)...
+No users with banned-level transactions found
+
+[Rule 2] Checking users with 10+ warning transactions today...
+No users with 10+ warning transactions today
+
+======================================================================
+Check completed at 03:42:14
+Next check in 60 seconds...
+======================================================================
+
+======================================================================
+Auto-Ban Check - 2025-11-26 03:43:14
+======================================================================
+
+[Rule 1] Checking users with banned transactions (label=2)...
+No users with banned-level transactions found
+
+[Rule 2] Checking users with 10+ warning transactions today...
+No users with 10+ warning transactions today
+
+======================================================================
+Check completed at 03:43:14
+Next check in 60 seconds...
+======================================================================
+
+======================================================================
+Auto-Ban Check - 2025-11-26 03:44:14
+======================================================================
+
+[Rule 1] Checking users with banned transactions (label=2)...
+No users with banned-level transactions found
+
+[Rule 2] Checking users with 10+ warning transactions today...
+No users with 10+ warning transactions today
+
+======================================================================
+Check completed at 03:44:14
+Next check in 60 seconds...
+======================================================================
+
+======================================================================
+Auto-Ban Check - 2025-11-26 03:45:14
+======================================================================
+
+[Rule 1] Checking users with banned transactions (label=2)...
+No users with banned-level transactions found
+
+[Rule 2] Checking users with 10+ warning transactions today...
+No users with 10+ warning transactions today
+
+======================================================================
+Check completed at 03:45:14
+Next check in 60 seconds...
+======================================================================
+
+======================================================================
+Auto-Ban Check - 2025-11-26 03:46:14
+======================================================================
+
+[Rule 1] Checking users with banned transactions (label=2)...
+No users with banned-level transactions found
+
+[Rule 2] Checking users with 10+ warning transactions today...
+No users with 10+ warning transactions today
+
+======================================================================
+Check completed at 03:46:14
+Next check in 60 seconds...
+======================================================================
+
+======================================================================
+Auto-Ban Check - 2025-11-26 03:47:14
+======================================================================
+
+[Rule 1] Checking users with banned transactions (label=2)...
+No users with banned-level transactions found
+
+[Rule 2] Checking users with 10+ warning transactions today...
+No users with 10+ warning transactions today
+
+======================================================================
+Check completed at 03:47:14
+Next check in 60 seconds...
+======================================================================
+
+======================================================================
+Auto-Ban Check - 2025-11-26 03:48:14
+======================================================================
+
+[Rule 1] Checking users with banned transactions (label=2)...
+No users with banned-level transactions found
+
+[Rule 2] Checking users with 10+ warning transactions today...
+No users with 10+ warning transactions today
+
+======================================================================
+Check completed at 03:48:14
+Next check in 60 seconds...
+======================================================================
+
+======================================================================
+Auto-Ban Check - 2025-11-26 03:49:14
+======================================================================
+
+[Rule 1] Checking users with banned transactions (label=2)...
+No users with banned-level transactions found
+
+[Rule 2] Checking users with 10+ warning transactions today...
+No users with 10+ warning transactions today
+
+======================================================================
+Check completed at 03:49:14
+Next check in 60 seconds...
+======================================================================
+
+======================================================================
+Auto-Ban Check - 2025-11-26 03:50:14
+======================================================================
+
+[Rule 1] Checking users with banned transactions (label=2)...
+No users with banned-level transactions found
+
+[Rule 2] Checking users with 10+ warning transactions today...
+No users with 10+ warning transactions today
+
+======================================================================
+Check completed at 03:50:15
+Next check in 60 seconds...
+======================================================================
+
+======================================================================
+Auto-Ban Check - 2025-11-26 03:51:15
+======================================================================
+
+[Rule 1] Checking users with banned transactions (label=2)...
+No users with banned-level transactions found
+
+[Rule 2] Checking users with 10+ warning transactions today...
+No users with 10+ warning transactions today
+
+======================================================================
+Check completed at 03:51:15
+Next check in 60 seconds...
+======================================================================
+
+======================================================================
+Auto-Ban Check - 2025-11-26 03:52:15
+======================================================================
+
+[Rule 1] Checking users with banned transactions (label=2)...
+No users with banned-level transactions found
+
+[Rule 2] Checking users with 10+ warning transactions today...
+No users with 10+ warning transactions today
+
+======================================================================
+Check completed at 03:52:15
+Next check in 60 seconds...
+======================================================================
+
+======================================================================
+Auto-Ban Check - 2025-11-26 03:53:15
+======================================================================
+
+[Rule 1] Checking users with banned transactions (label=2)...
+No users with banned-level transactions found
+
+[Rule 2] Checking users with 10+ warning transactions today...
+No users with 10+ warning transactions today
+
+======================================================================
+Check completed at 03:53:15
+Next check in 60 seconds...
+======================================================================
+
+======================================================================
+Auto-Ban Check - 2025-11-26 03:54:15
+======================================================================
+
+[Rule 1] Checking users with banned transactions (label=2)...
+No users with banned-level transactions found
+
+[Rule 2] Checking users with 10+ warning transactions today...
+No users with 10+ warning transactions today
+
+======================================================================
+Check completed at 03:54:15
+Next check in 60 seconds...
+======================================================================
+
+======================================================================
+Auto-Ban Check - 2025-11-26 03:55:15
+======================================================================
+
+[Rule 1] Checking users with banned transactions (label=2)...
+No users with banned-level transactions found
+
+[Rule 2] Checking users with 10+ warning transactions today...
+No users with 10+ warning transactions today
+
+======================================================================
+Check completed at 03:55:15
+Next check in 60 seconds...
+======================================================================
+
+======================================================================
+Auto-Ban Check - 2025-11-26 03:56:15
+======================================================================
+
+[Rule 1] Checking users with banned transactions (label=2)...
+No users with banned-level transactions found
+
+[Rule 2] Checking users with 10+ warning transactions today...
+No users with 10+ warning transactions today
+
+======================================================================
+Check completed at 03:56:15
+Next check in 60 seconds...
+======================================================================
+
+======================================================================
+Auto-Ban Check - 2025-11-26 03:57:15
+======================================================================
+
+[Rule 1] Checking users with banned transactions (label=2)...
+No users with banned-level transactions found
+
+[Rule 2] Checking users with 10+ warning transactions today...
+No users with 10+ warning transactions today
+
+======================================================================
+Check completed at 03:57:15
+Next check in 60 seconds...
+======================================================================
+
+======================================================================
+Auto-Ban Check - 2025-11-26 03:58:15
+======================================================================
+
+[Rule 1] Checking users with banned transactions (label=2)...
+No users with banned-level transactions found
+
+[Rule 2] Checking users with 10+ warning transactions today...
+No users with 10+ warning transactions today
+
+======================================================================
+Check completed at 03:58:15
+Next check in 60 seconds...
+======================================================================
+
+======================================================================
+Auto-Ban Check - 2025-11-26 03:59:15
+======================================================================
+
+[Rule 1] Checking users with banned transactions (label=2)...
+No users with banned-level transactions found
+
+[Rule 2] Checking users with 10+ warning transactions today...
+No users with 10+ warning transactions today
+
+======================================================================
+Check completed at 03:59:15
+Next check in 60 seconds...
+======================================================================
+
+======================================================================
+Auto-Ban Check - 2025-11-26 04:00:15
+======================================================================
+
+[Rule 1] Checking users with banned transactions (label=2)...
+No users with banned-level transactions found
+
+[Rule 2] Checking users with 10+ warning transactions today...
+No users with 10+ warning transactions today
+
+======================================================================
+Check completed at 04:00:15
+Next check in 60 seconds...
+======================================================================
+
+======================================================================
+Auto-Ban Check - 2025-11-26 04:01:15
+======================================================================
+
+[Rule 1] Checking users with banned transactions (label=2)...
+No users with banned-level transactions found
+
+[Rule 2] Checking users with 10+ warning transactions today...
+No users with 10+ warning transactions today
+
+======================================================================
+Check completed at 04:01:15
+Next check in 60 seconds...
+======================================================================
+
+======================================================================
+Auto-Ban Check - 2025-11-26 04:02:15
+======================================================================
+
+[Rule 1] Checking users with banned transactions (label=2)...
+No users with banned-level transactions found
+
+[Rule 2] Checking users with 10+ warning transactions today...
+No users with 10+ warning transactions today
+
+======================================================================
+Check completed at 04:02:15
+Next check in 60 seconds...
+======================================================================
+
+======================================================================
+Auto-Ban Check - 2025-11-26 04:03:15
+======================================================================
+
+[Rule 1] Checking users with banned transactions (label=2)...
+No users with banned-level transactions found
+
+[Rule 2] Checking users with 10+ warning transactions today...
+No users with 10+ warning transactions today
+
+======================================================================
+Check completed at 04:03:15
+Next check in 60 seconds...
+======================================================================
+
+======================================================================
+Auto-Ban Check - 2025-11-26 04:04:15
+======================================================================
+
+[Rule 1] Checking users with banned transactions (label=2)...
+No users with banned-level transactions found
+
+[Rule 2] Checking users with 10+ warning transactions today...
+No users with 10+ warning transactions today
+
+======================================================================
+Check completed at 04:04:15
+Next check in 60 seconds...
+======================================================================
+
+======================================================================
+Auto-Ban Check - 2025-11-26 04:05:15
+======================================================================
+
+[Rule 1] Checking users with banned transactions (label=2)...
+No users with banned-level transactions found
+
+[Rule 2] Checking users with 10+ warning transactions today...
+No users with 10+ warning transactions today
+
+======================================================================
+Check completed at 04:05:15
+Next check in 60 seconds...
+======================================================================
+
+======================================================================
+Auto-Ban Check - 2025-11-26 04:06:15
+======================================================================
+
+[Rule 1] Checking users with banned transactions (label=2)...
+No users with banned-level transactions found
+
+[Rule 2] Checking users with 10+ warning transactions today...
+No users with 10+ warning transactions today
+
+======================================================================
+Check completed at 04:06:15
+Next check in 60 seconds...
+======================================================================
+
+======================================================================
+Auto-Ban Check - 2025-11-26 04:07:15
+======================================================================
+
+[Rule 1] Checking users with banned transactions (label=2)...
+No users with banned-level transactions found
+
+[Rule 2] Checking users with 10+ warning transactions today...
+No users with 10+ warning transactions today
+
+======================================================================
+Check completed at 04:07:15
+Next check in 60 seconds...
+======================================================================
+
+======================================================================
+Auto-Ban Check - 2025-11-26 04:08:15
+======================================================================
+
+[Rule 1] Checking users with banned transactions (label=2)...
+No users with banned-level transactions found
+
+[Rule 2] Checking users with 10+ warning transactions today...
+No users with 10+ warning transactions today
+
+======================================================================
+Check completed at 04:08:15
+Next check in 60 seconds...
+======================================================================
+
+======================================================================
+Auto-Ban Check - 2025-11-26 04:09:15
+======================================================================
+
+[Rule 1] Checking users with banned transactions (label=2)...
+No users with banned-level transactions found
+
+[Rule 2] Checking users with 10+ warning transactions today...
+No users with 10+ warning transactions today
+
+======================================================================
+Check completed at 04:09:15
+Next check in 60 seconds...
+======================================================================
+
+======================================================================
+Auto-Ban Check - 2025-11-26 04:10:15
+======================================================================
+
+[Rule 1] Checking users with banned transactions (label=2)...
+No users with banned-level transactions found
+
+[Rule 2] Checking users with 10+ warning transactions today...
+No users with 10+ warning transactions today
+
+======================================================================
+Check completed at 04:10:15
+Next check in 60 seconds...
+======================================================================
+
+======================================================================
+Auto-Ban Check - 2025-11-26 04:11:15
+======================================================================
+
+[Rule 1] Checking users with banned transactions (label=2)...
+No users with banned-level transactions found
+
+[Rule 2] Checking users with 10+ warning transactions today...
+No users with 10+ warning transactions today
+
+======================================================================
+Check completed at 04:11:15
+Next check in 60 seconds...
+======================================================================
+
+======================================================================
+Auto-Ban Check - 2025-11-26 04:12:16
+======================================================================
+
+[Rule 1] Checking users with banned transactions (label=2)...
+No users with banned-level transactions found
+
+[Rule 2] Checking users with 10+ warning transactions today...
+No users with 10+ warning transactions today
+
+======================================================================
+Check completed at 04:12:16
+Next check in 60 seconds...
+======================================================================
+
+======================================================================
+Auto-Ban Check - 2025-11-26 04:13:16
+======================================================================
+
+[Rule 1] Checking users with banned transactions (label=2)...
+No users with banned-level transactions found
+
+[Rule 2] Checking users with 10+ warning transactions today...
+No users with 10+ warning transactions today
+
+======================================================================
+Check completed at 04:13:16
+Next check in 60 seconds...
+======================================================================
+
+======================================================================
+Auto-Ban Check - 2025-11-26 04:14:16
+======================================================================
+
+[Rule 1] Checking users with banned transactions (label=2)...
+No users with banned-level transactions found
+
+[Rule 2] Checking users with 10+ warning transactions today...
+No users with 10+ warning transactions today
+
+======================================================================
+Check completed at 04:14:16
+Next check in 60 seconds...
+======================================================================
+
+======================================================================
+Auto-Ban Check - 2025-11-26 04:15:16
+======================================================================
+
+[Rule 1] Checking users with banned transactions (label=2)...
+No users with banned-level transactions found
+
+[Rule 2] Checking users with 10+ warning transactions today...
+No users with 10+ warning transactions today
+
+======================================================================
+Check completed at 04:15:16
+Next check in 60 seconds...
+======================================================================
+
+======================================================================
+Auto-Ban Check - 2025-11-26 04:16:16
+======================================================================
+
+[Rule 1] Checking users with banned transactions (label=2)...
+No users with banned-level transactions found
+
+[Rule 2] Checking users with 10+ warning transactions today...
+No users with 10+ warning transactions today
+
+======================================================================
+Check completed at 04:16:16
+Next check in 60 seconds...
+======================================================================
+
+======================================================================
+Auto-Ban Check - 2025-11-26 04:17:16
+======================================================================
+
+[Rule 1] Checking users with banned transactions (label=2)...
+No users with banned-level transactions found
+
+[Rule 2] Checking users with 10+ warning transactions today...
+No users with 10+ warning transactions today
+
+======================================================================
+Check completed at 04:17:16
+Next check in 60 seconds...
+======================================================================
+
+======================================================================
+Auto-Ban Check - 2025-11-26 04:18:16
+======================================================================
+
+[Rule 1] Checking users with banned transactions (label=2)...
+No users with banned-level transactions found
+
+[Rule 2] Checking users with 10+ warning transactions today...
+No users with 10+ warning transactions today
+
+======================================================================
+Check completed at 04:18:16
+Next check in 60 seconds...
+======================================================================

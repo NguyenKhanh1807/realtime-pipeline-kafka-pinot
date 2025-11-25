@@ -95,7 +95,7 @@ def trigger_model_retrain():
         
         # Run the training script
         result = subprocess.run(
-            ["python3", "/home/nam/study/realtime-pipeline-kafka-pinot/scripts/train_fraud_model.py"],
+            ["python3", "/Users/nguyenthanh/Master/DataEngineering/final/realtime-pipeline-kafka-pinot-final/scripts/train_fraud_model.py"],
             capture_output=True,
             text=True,
             timeout=600  # 10 minute timeout

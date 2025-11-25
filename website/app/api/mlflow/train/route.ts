@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { exec } from 'child_process';
+import { execFile } from 'child_process';
 import { promisify } from 'util';
 
-const execAsync = promisify(exec);
+const execFileAsync = promisify(execFile);
 
 export async function POST(request: NextRequest) {
   try {
@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
     const { force = false } = body;
 
     // Path to training script
-    const scriptPath = '/home/nam/study/realtime-pipeline-kafka-pinot/scripts/train_fraud_model.py';
+    const scriptPath = '/Users/nguyenthanh/Master/DataEngineering/final/realtime-pipeline-kafka-pinot-final/scripts/train_fraud_model.py';
 
     // Check if sufficient data exists
     if (!force) {
@@ -51,9 +51,10 @@ export async function POST(request: NextRequest) {
 
     // Trigger training in background
     console.log('Starting model training...');
-    const { stdout, stderr } = await execAsync(`python3 ${scriptPath}`, {
+    const { stdout, stderr } = await execFileAsync('python3', [scriptPath], {
       timeout: 600000, // 10 minutes
-      cwd: '/home/nam/study/realtime-pipeline-kafka-pinot'
+      cwd: '/Users/nguyenthanh/Master/DataEngineering/final/realtime-pipeline-kafka-pinot-final',
+      shell: '/bin/bash'
     });
 
     console.log('Training output:', stdout);

@@ -20,12 +20,17 @@ mlflow==3.1.4
 # Authentication & Security
 passlib[bcrypt]==1.7.4
 PyJWT==2.9.0
-bcrypt==4.1.2
+bcrypt==5.0.0
 
 # Utilities
 pyyaml==6.0.2
 python-dotenv==1.0.1
 apscheduler==3.10.4
+psutil
+streamlit
+prometheus_client
+faker
+kafka-python==2.0.2
 
 # Installation:
 # pip install -r requirements.txt
