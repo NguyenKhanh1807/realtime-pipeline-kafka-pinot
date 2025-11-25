@@ -401,17 +401,10 @@ start_data_pipeline() {
     
     sleep 3
     
-    print_info "Starting real-time processor..."
+    print_info "Starting real-time processor (with integrated ML fraud detector)..."
     nohup python3 rt_processor.py > "$LOGS_DIR/processor.log" 2>&1 &
     echo $! > "$PIDS_DIR/processor.pid"
     print_success "Processor started (PID: $(cat $PIDS_DIR/processor.pid))"
-    
-    sleep 3
-    
-    print_info "Starting ML fraud detector..."
-    nohup python3 ml_fraud_detector.py > "$LOGS_DIR/ml_detector.log" 2>&1 &
-    echo $! > "$PIDS_DIR/ml_detector.pid"
-    print_success "ML detector started (PID: $(cat $PIDS_DIR/ml_detector.pid))"
     
     cd ..
     
@@ -494,8 +487,7 @@ display_info() {
     echo -e "\n${BLUE}Log Files:${NC}"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo -e "  Producer:          ${LOGS_DIR}/producer.log"
-    echo -e "  Processor:         ${LOGS_DIR}/processor.log"
-    echo -e "  ML Detector:       ${LOGS_DIR}/ml_detector.log"
+    echo -e "  Processor:         ${LOGS_DIR}/processor.log (includes ML detection)"
     echo -e "  Auto-Ban Monitor:  ${LOGS_DIR}/auto_ban_monitor.log"
     echo -e "  FastAPI:           ${LOGS_DIR}/api.log"
     echo -e "  Streamlit:         ${LOGS_DIR}/streamlit.log"
