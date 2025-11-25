@@ -111,6 +111,18 @@ preflight_checks() {
     print_info "Creating required directories..."
     mkdir -p "$LOGS_DIR" data segments mlruns mlartifacts models artifacts
     print_success "Directories created"
+    
+    # Kill processes using critical ports
+    print_info "Freeing up required ports..."
+    PORTS=(8000 8501 9000 9090 9093 3000 3001 5000 5432 9092 2181 8099)
+    for PORT in "${PORTS[@]}"; do
+        PID=$(lsof -ti:$PORT 2>/dev/null || true)
+        if [ -n "$PID" ]; then
+            print_info "Killing process on port $PORT (PID: $PID)..."
+            kill -9 $PID 2>/dev/null || true
+        fi
+    done
+    print_success "All ports freed"
 }
 
 ################################################################################

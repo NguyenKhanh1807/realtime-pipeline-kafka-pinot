@@ -209,7 +209,7 @@ export default function DataGenerationPage() {
                 <div>
                   <p className="font-semibold text-orange-900 dark:text-orange-100">Backend Not Connected</p>
                   <p className="text-sm text-orange-700 dark:text-orange-300">
-                    Unable to connect to the backend API at <code className="px-1 py-0.5 bg-orange-200 dark:bg-orange-900 rounded text-xs">http://localhost:8080</code>. 
+                    Unable to connect to the backend API at <code className="px-1 py-0.5 bg-orange-200 dark:bg-orange-900 rounded text-xs">http://localhost:8000</code>. 
                     Please ensure the backend server is running.
                   </p>
                 </div>
@@ -669,11 +669,11 @@ export default function DataGenerationPage() {
                 <div>
                   <p className="font-semibold text-sm mb-1">Backend API</p>
                   <p className="text-sm text-muted-foreground mb-2">
-                    Backend server at <code className="px-1.5 py-0.5 bg-gray-200 dark:bg-gray-700 rounded text-xs">http://localhost:8080</code>
+                    Backend server at <code className="px-1.5 py-0.5 bg-gray-200 dark:bg-gray-700 rounded text-xs">http://localhost:8000</code>
                   </p>
                   <code className="block px-3 py-2 bg-gray-900 dark:bg-gray-950 text-gray-100 rounded text-xs overflow-x-auto">
                     # Start backend server<br/>
-                    uvicorn app.main:app --host 0.0.0.0 --port 8080 --reload
+                    uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
                   </code>
                 </div>
               </div>
