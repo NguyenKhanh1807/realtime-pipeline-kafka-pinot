@@ -13,7 +13,15 @@ from app.config import settings
 from app.database import Base, get_db, get_engine
 from app.models_auth import AuthToken, AuthUser
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# Fix bcrypt compatibility issue by using pbkdf2_sha256 as fallback
+try:
+    pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+    # Test if bcrypt works
+    pwd_context.hash("test")
+except (ValueError, AttributeError):
+    # Fallback to pbkdf2_sha256 if bcrypt fails
+    pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
+
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 oauth2_scheme_optional = OAuth2PasswordBearer(tokenUrl="/auth/login", auto_error=False)
 _schema_initialized = False
