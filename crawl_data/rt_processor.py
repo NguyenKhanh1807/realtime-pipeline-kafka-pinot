@@ -14,7 +14,7 @@ except ImportError as e:
     logging.warning(f"ML fraud detector not available: {e}. Using rule-based only.")
 
 # ==== Env / Config ====
-BOOTSTRAP       = os.getenv("BOOTSTRAP_SERVERS", "kafka-rt:19092")
+BOOTSTRAP       = os.getenv("BOOTSTRAP_SERVERS", "localhost:9092")
 TOPIC_RAW       = os.getenv("TOPIC_RAW", "transactions_raw")
 TOPIC_CLEAN     = os.getenv("TOPIC_CLEAN", "transactions_rt")
 GROUP_ID        = os.getenv("GROUP_ID", "rt-processor-v1")
