@@ -321,6 +321,12 @@ setup_monitoring() {
     sleep 5
     print_success "Pinot exporter started in Docker"
     
+    # Start auto user ban monitor in Docker
+    print_info "Starting automatic user ban monitor in Docker..."
+    docker compose up -d auto-ban-monitor
+    sleep 3
+    print_success "Auto ban monitor started in Docker"
+    
     # Verify Prometheus is collecting metrics
     sleep 5
     if curl -s "http://localhost:9093/metrics" | grep -q "pinot_"; then

@@ -50,8 +50,8 @@ export default function DashboardPage() {
 
   const [userStats, setUserStats] = useState<{
     totalUsers: number;
-    bannedUsers: number;
-    warningUsers: number;
+    bannedUsers: number;      // High-risk transactions count
+    warningUsers: number;     // Medium-risk transactions count
   }>({ totalUsers: 0, bannedUsers: 0, warningUsers: 0 });
 
   interface HourlyDistribution {
@@ -170,16 +170,16 @@ export default function DashboardPage() {
           const dbStats = await dbStatsRes.json();
           const pinotResult = await pinotRes.json();
           
-          let bannedCount = 0;
-          let warningCount = 0;
+          let bannedCount = 0;  // High-risk transactions (fraud_score > 90)
+          let warningCount = 0; // Medium-risk transactions (fraud_score 60-90)
           
-          // Parse Pinot results: label 0=normal, 1=warning, 2=banned
+          // Parse Pinot results: label 0=normal, 1=medium-risk, 2=high-risk
           if (pinotResult?.resultTable?.rows) {
             pinotResult.resultTable.rows.forEach((row: any[]) => {
               const label = row[0];
               const count = row[1] || 0;
-              if (label === 2) bannedCount = count;
-              if (label === 1) warningCount = count;
+              if (label === 2) bannedCount = count;  // High-risk
+              if (label === 1) warningCount = count; // Medium-risk
             });
           }
           
@@ -479,20 +479,23 @@ export default function DashboardPage() {
     {
       title: 'Total Users',
       value: userStats.totalUsers > 0 ? userStats.totalUsers.toLocaleString() : '—',
+      description: 'Registered users in system',
       icon: CheckCircle,
       color: 'text-blue-600',
       bgColor: 'bg-blue-50 dark:bg-blue-200',
     },
     {
-      title: 'Banned Users',
+      title: 'High Risk Transactions',
       value: userStats.bannedUsers.toLocaleString(),
+      description: 'Fraud score > 90',
       icon: XCircle,
       color: 'text-red-600',
       bgColor: 'bg-red-50 dark:bg-red-200',
     },
     {
-      title: 'Warning Users',
+      title: 'Medium Risk Transactions',
       value: userStats.warningUsers.toLocaleString(),
+      description: 'Fraud score 60-90',
       icon: AlertTriangle,
       color: 'text-orange-600',
       bgColor: 'bg-orange-50 dark:bg-orange-200',
@@ -627,6 +630,11 @@ export default function DashboardPage() {
                 <Typography variant="h3" size="2xl" weight="bold">
                   {stat.value}
                 </Typography>
+                {stat.description && (
+                  <Typography variant="p" size="xs" color="muted" className="mt-1">
+                    {stat.description}
+                  </Typography>
+                )}
               </div>
             );
           })}

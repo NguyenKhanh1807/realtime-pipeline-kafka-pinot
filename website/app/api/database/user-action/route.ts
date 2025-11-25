@@ -56,17 +56,20 @@ export async function POST(request: NextRequest) {
       
       // Also create entry in user_bans table if it exists
       try {
+        // First deactivate any existing active bans
         await client.query(`
-          INSERT INTO user_bans (user_seq, ban_reason, banned_at, is_active)
-          VALUES ($1, $2, NOW(), true)
-          ON CONFLICT (user_seq) 
-          DO UPDATE SET 
-            ban_reason = $2,
-            banned_at = NOW(),
-            is_active = true
+          UPDATE user_bans 
+          SET is_active = false, unbanned_at = NOW()
+          WHERE user_seq = $1 AND is_active = true
+        `, [userSeq]);
+        
+        // Then insert new ban
+        await client.query(`
+          INSERT INTO user_bans (user_seq, ban_level, reason, banned_by, banned_at, is_active)
+          VALUES ($1, 'banned', $2, 'admin', NOW(), true)
         `, [userSeq, banReason]);
       } catch (err) {
-        console.log('user_bans table may not exist:', err);
+        console.log('Error updating user_bans table:', err);
       }
     } else if (action === 'unban') {
       newStatus = 'normal';
@@ -84,6 +87,24 @@ export async function POST(request: NextRequest) {
     } else if (action === 'warn') {
       newStatus = 'warning';
       banReason = 'Flagged for suspicious activity';
+      
+      // Also create entry in user_bans table as warning if it exists
+      try {
+        // First deactivate any existing active bans/warnings
+        await client.query(`
+          UPDATE user_bans 
+          SET is_active = false, unbanned_at = NOW()
+          WHERE user_seq = $1 AND is_active = true
+        `, [userSeq]);
+        
+        // Then insert new warning
+        await client.query(`
+          INSERT INTO user_bans (user_seq, ban_level, reason, banned_by, banned_at, is_active)
+          VALUES ($1, 'warning', $2, 'admin', NOW(), true)
+        `, [userSeq, banReason]);
+      } catch (err) {
+        console.log('Error updating user_bans table:', err);
+      }
     }
 
     // Update user status in transaction_users table

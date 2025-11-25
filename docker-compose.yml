@@ -140,6 +140,34 @@ services:
       - fraud-detection
     restart: unless-stopped
 
+  auto-ban-monitor:
+    image: python:3.11-slim
+    container_name: auto-ban-monitor
+    volumes:
+      - ./app/auto_user_ban_monitor.py:/app/auto_user_ban_monitor.py
+      - ./logs:/app/logs
+    working_dir: /app
+    command:
+      - bash
+      - -c
+      - |
+        pip install -q requests sqlalchemy psycopg2-binary
+        python -u auto_user_ban_monitor.py
+    environment:
+      - PINOT_BROKER_URL=http://pinot-broker:8099
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=fraud_detection
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - CHECK_INTERVAL=30
+    depends_on:
+      - postgres
+      - pinot-broker
+    networks:
+      - fraud-detection
+    restart: unless-stopped
+
   streamlit:
     image: python:3.11-slim
     container_name: streamlit-app

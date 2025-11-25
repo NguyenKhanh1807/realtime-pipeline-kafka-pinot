@@ -158,7 +158,7 @@ if not is_running:
             "score_min": score_range[0],
             "score_max": score_range[1],
             "topic_raw": "transactions_raw",
-            "bootstrap_servers": "localhost:9092"
+            "bootstrap_servers": "kafka:19092"  # Use Docker internal network
         }
         
         with st.spinner("Starting producer..."):
