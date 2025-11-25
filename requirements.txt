@@ -36,4 +36,4 @@ psutil==6.1.0
 
 # Installation:
 # pip install -r requirements.txt
-sqlalchemy==2.0.23
+# sqlalchemy==2.0.23
