@@ -258,7 +258,7 @@ export default function DashboardPage() {
           })
         });
         const avgAmountData = await avgAmountResponse.json();
-        const avgAmount = avgAmountData.resultTable?.rows?.[0]?.[0] || 0;
+        const avgAmount = parseFloat(avgAmountData.resultTable?.rows?.[0]?.[0]) || 0;
 
         // Get transaction count in last 30 seconds for rate calculation
         const txCountResponse = await fetch('/api/pinot/query', {
@@ -733,7 +733,7 @@ export default function DashboardPage() {
                   <Activity className="h-4 w-4 text-purple-500" />
                 </div>
                 <Typography variant="h2" size="3xl" weight="bold">
-                  ${liveDashboardData?.avgAmount.toFixed(0) || '0'}
+                  ${(Number(liveDashboardData?.avgAmount) || 0).toFixed(0)}
                 </Typography>
                 <Typography variant="span" size="xs" color="muted">
                   per transaction

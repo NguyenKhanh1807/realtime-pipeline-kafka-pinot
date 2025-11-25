@@ -9,7 +9,7 @@ export const APP_CONFIG = {
 
 // API configuration
 export const API_CONFIG = {
-  baseUrl: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api',
+  baseUrl: process.env.NEXT_PUBLIC_API_URL || 'http://10.107.101.128:3001/api',
   timeout: 10000, // 10 seconds
   retries: 3,
 } as const;

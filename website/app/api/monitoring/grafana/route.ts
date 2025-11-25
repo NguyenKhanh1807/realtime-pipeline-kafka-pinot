@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 
 export async function GET() {
   try {
-    const response = await fetch('http://localhost:3001/api/health', {
+    const response = await fetch('http://10.107.101.128:3001/api/health', {
       cache: 'no-store'
     });
     
