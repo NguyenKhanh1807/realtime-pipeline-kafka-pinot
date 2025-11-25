@@ -98,6 +98,15 @@ preflight_checks() {
     fi
     print_success "Docker daemon is running"
     
+    # Clean up old containers and volumes
+    print_info "Cleaning up old Docker resources..."
+    docker compose down -v 2>/dev/null || true
+    
+    # Prune unused volumes
+    print_info "Pruning unused Docker volumes..."
+    docker volume prune -f > /dev/null 2>&1
+    print_success "Docker cleanup completed"
+    
     # Create required directories
     print_info "Creating required directories..."
     mkdir -p "$LOGS_DIR" data segments mlruns mlartifacts models artifacts
@@ -159,12 +168,14 @@ start_docker_services() {
         print_warning "Kafka may still be starting, continuing anyway..."
     fi
     
-    # Note: Pinot runs separately, not in docker-compose
-    print_info "Checking Pinot Controller..."
-    if timeout 3 curl -s http://localhost:9000/health > /dev/null 2>&1; then
+    # Wait for Pinot services to be ready (now managed by docker-compose)
+    print_info "Waiting for Pinot Controller to be ready..."
+    sleep 10  # Give Pinot time to initialize
+    
+    if timeout 10 curl -s http://localhost:9000/health > /dev/null 2>&1; then
         print_success "Pinot Controller is healthy!"
     else
-        print_warning "Pinot Controller not responding (may need manual restart)"
+        print_warning "Pinot Controller not responding yet (may need more time)"
     fi
     
     wait_for_service "Prometheus" "http://localhost:9090/-/healthy" 10
@@ -175,6 +186,38 @@ start_docker_services() {
     print_info "You can check status at http://localhost:5000 once fully started"
     
     print_success "All Docker services are running"
+}
+
+################################################################################
+# Kafka Topic Setup
+################################################################################
+
+setup_kafka_topics() {
+    print_header "Setting up Kafka Topics"
+    
+    print_info "Creating Kafka topics..."
+    
+    # Create transactions_raw topic (for producer)
+    docker exec kafka kafka-topics --create \
+        --bootstrap-server localhost:9092 \
+        --topic transactions_raw \
+        --partitions 1 \
+        --replication-factor 1 \
+        --if-not-exists > /dev/null 2>&1
+    print_success "Created topic: transactions_raw"
+    
+    # Create transactions_rt topic (for Pinot consumption)
+    docker exec kafka kafka-topics --create \
+        --bootstrap-server localhost:9092 \
+        --topic transactions_rt \
+        --partitions 1 \
+        --replication-factor 1 \
+        --if-not-exists > /dev/null 2>&1
+    print_success "Created topic: transactions_rt"
+    
+    # List topics
+    TOPIC_COUNT=$(docker exec kafka kafka-topics --list --bootstrap-server localhost:9092 2>/dev/null | grep -v "^_" | wc -l)
+    print_success "Kafka configured with $TOPIC_COUNT topic(s)"
 }
 
 ################################################################################
@@ -306,6 +349,43 @@ start_backend() {
     print_success "FastAPI backend started (PID: $(cat $PIDS_DIR/api.pid))"
 }
 
+start_streamlit() {
+    print_header "Starting Streamlit Dashboard"
+    
+    # Install Streamlit dependencies if not already installed
+    if ! python3 -c "import streamlit" 2>/dev/null; then
+        print_info "Installing Streamlit dependencies..."
+        pip3 install -q -r streamlit_requirements.txt
+        print_success "Streamlit dependencies installed"
+    else
+        print_success "Streamlit dependencies already installed"
+    fi
+    
+    # Kill any existing Streamlit processes
+    pkill -f "streamlit run streamlit_app.py" 2>/dev/null || true
+    sleep 1
+    
+    print_info "Starting Streamlit app..."
+    nohup streamlit run streamlit_app.py \
+        --server.port 8501 \
+        --server.address 0.0.0.0 \
+        --server.headless true \
+        --browser.gatherUsageStats false \
+        > "$LOGS_DIR/streamlit.log" 2>&1 &
+    echo $! > "$PIDS_DIR/streamlit.pid"
+    
+    sleep 5
+    
+    # Verify process is still running
+    if ps -p $(cat "$PIDS_DIR/streamlit.pid") > /dev/null 2>&1; then
+        wait_for_service "Streamlit" "http://localhost:8501" 15
+        print_success "Streamlit started (PID: $(cat $PIDS_DIR/streamlit.pid))"
+    else
+        print_error "Streamlit failed to start, check logs/streamlit.log"
+        return 1
+    fi
+}
+
 ################################################################################
 # Data Pipeline
 ################################################################################
@@ -402,6 +482,7 @@ display_info() {
     echo -e "\n${BLUE}Access Points:${NC}"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo -e "  ${GREEN}Frontend (Next.js):${NC}     http://localhost:3000"
+    echo -e "  ${GREEN}Streamlit Dashboard:${NC}    http://localhost:8501"
     echo -e "  ${GREEN}API Documentation:${NC}      http://localhost:8000/docs"
     echo -e "  ${GREEN}Pinot Controller:${NC}       http://localhost:9000"
     echo -e "  ${GREEN}Pinot Query Console:${NC}    http://localhost:8099"
@@ -417,6 +498,7 @@ display_info() {
     echo -e "  ML Detector:       ${LOGS_DIR}/ml_detector.log"
     echo -e "  Auto-Ban Monitor:  ${LOGS_DIR}/auto_ban_monitor.log"
     echo -e "  FastAPI:           ${LOGS_DIR}/api.log"
+    echo -e "  Streamlit:         ${LOGS_DIR}/streamlit.log"
     echo -e "  Pinot Exporter:    ${LOGS_DIR}/pinot_exporter.log"
     echo ""
     
@@ -459,11 +541,13 @@ main() {
     preflight_checks
     install_python_requirements
     start_docker_services
+    setup_kafka_topics
     initialize_database
     setup_pinot
     setup_monitoring
     train_initial_model
     start_backend
+    start_streamlit
     start_data_pipeline
     verify_system
     display_info

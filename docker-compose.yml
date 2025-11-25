@@ -10,6 +10,9 @@ services:
     networks:
       - fraud-detection
     restart: unless-stopped
+    volumes:
+      - zookeeper-data:/var/lib/zookeeper/data
+      - zookeeper-logs:/var/lib/zookeeper/log
 
   kafka:
     image: confluentinc/cp-kafka:7.5.0
@@ -108,6 +111,71 @@ services:
       - fraud-detection
     restart: unless-stopped
 
+  pinot-controller:
+    image: apachepinot/pinot:latest
+    container_name: pinot-controller
+    command: StartController -zkAddress zookeeper:2181
+    environment:
+      JAVA_OPTS: "-Xms512M -Xmx1G"
+    ports:
+      - "9000:9000"
+    networks:
+      - fraud-detection
+    depends_on:
+      - zookeeper
+    restart: unless-stopped
+    volumes:
+      - pinot-controller-data:/opt/pinot/data
+      - pinot-controller-config:/opt/pinot/configs
+
+  pinot-broker:
+    image: apachepinot/pinot:latest
+    container_name: pinot-broker
+    command: StartBroker -zkAddress zookeeper:2181
+    environment:
+      JAVA_OPTS: "-Xms512M -Xmx1G"
+    ports:
+      - "8099:8099"
+    networks:
+      - fraud-detection
+    depends_on:
+      - pinot-controller
+    restart: unless-stopped
+    volumes:
+      - pinot-broker-data:/opt/pinot/data
+      - pinot-broker-config:/opt/pinot/configs
+
+  pinot-server:
+    image: apachepinot/pinot:latest
+    container_name: pinot-server
+    command: StartServer -zkAddress zookeeper:2181
+    environment:
+      JAVA_OPTS: "-Xms512M -Xmx1G"
+    networks:
+      - fraud-detection
+    depends_on:
+      - pinot-broker
+    restart: unless-stopped
+    volumes:
+      - pinot-server-data:/opt/pinot/data
+      - pinot-server-config:/opt/pinot/configs
+      - ./segments:/segments
+
+  postgres:
+    image: postgres:15
+    container_name: postgres-fraud
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: fraud_detection
+    ports:
+      - "5432:5432"
+    networks:
+      - fraud-detection
+    restart: unless-stopped
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
 networks:
   fraud-detection:
     driver: bridge
@@ -115,3 +183,12 @@ networks:
 volumes:
   prometheus-data:
   grafana-data:
+  pinot-controller-data:
+  pinot-controller-config:
+  pinot-broker-data:
+  pinot-broker-config:
+  pinot-server-data:
+  pinot-server-config:
+  postgres-data:
+  zookeeper-data:
+  zookeeper-logs:
