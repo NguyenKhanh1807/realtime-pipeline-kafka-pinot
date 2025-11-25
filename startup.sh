@@ -134,12 +134,8 @@ install_python_requirements() {
         exit 1
     fi
     
-    # Optional: Install Streamlit dependencies if needed
-    if [ -f "streamlit_requirements.txt" ]; then
-        print_info "Streamlit dependencies available (optional)"
-        print_info "Run: pip3 install -r streamlit_requirements.txt"
-        print_info "Then start with: ./start_streamlit.sh"
-    fi
+    # Note: Streamlit runs in Docker container
+    print_info "Streamlit will run in Docker container (streamlit-app)"
 }
 
 ################################################################################
@@ -247,6 +243,11 @@ initialize_database() {
         print_success "User bans table created"
     fi
     
+    if [ -f "migrations/004_add_user_status_columns.sql" ]; then
+        docker exec -i postgres-fraud psql -U postgres -d fraud_detection < migrations/004_add_user_status_columns.sql
+        print_success "User status columns added"
+    fi
+    
     print_info "Creating initial users..."
     python3 scripts/create_transaction_users.py
     print_success "Transaction users created"
@@ -352,36 +353,25 @@ start_backend() {
 start_streamlit() {
     print_header "Starting Streamlit Dashboard"
     
-    # Install Streamlit dependencies if not already installed
-    if ! python3 -c "import streamlit" 2>/dev/null; then
-        print_info "Installing Streamlit dependencies..."
-        pip3 install -q -r streamlit_requirements.txt
-        print_success "Streamlit dependencies installed"
-    else
-        print_success "Streamlit dependencies already installed"
+    # Check if Streamlit container is already running
+    if docker ps --format '{{.Names}}' | grep -q "^streamlit-app$"; then
+        print_success "Streamlit container already running"
+        wait_for_service "Streamlit" "http://localhost:8501" 10
+        return 0
     fi
     
-    # Kill any existing Streamlit processes
-    pkill -f "streamlit run streamlit_app.py" 2>/dev/null || true
-    sleep 1
+    # Start Streamlit container
+    print_info "Starting Streamlit container..."
+    docker compose up -d streamlit
     
-    print_info "Starting Streamlit app..."
-    nohup streamlit run streamlit_app.py \
-        --server.port 8501 \
-        --server.address 0.0.0.0 \
-        --server.headless true \
-        --browser.gatherUsageStats false \
-        > "$LOGS_DIR/streamlit.log" 2>&1 &
-    echo $! > "$PIDS_DIR/streamlit.pid"
+    # Wait for service to be ready
+    wait_for_service "Streamlit" "http://localhost:8501" 30
     
-    sleep 5
-    
-    # Verify process is still running
-    if ps -p $(cat "$PIDS_DIR/streamlit.pid") > /dev/null 2>&1; then
-        wait_for_service "Streamlit" "http://localhost:8501" 15
-        print_success "Streamlit started (PID: $(cat $PIDS_DIR/streamlit.pid))"
+    if docker ps --format '{{.Names}}' | grep -q "^streamlit-app$"; then
+        print_success "Streamlit container started successfully"
     else
-        print_error "Streamlit failed to start, check logs/streamlit.log"
+        print_error "Streamlit container failed to start"
+        docker logs streamlit-app --tail 20
         return 1
     fi
 }
@@ -490,7 +480,7 @@ display_info() {
     echo -e "  Processor:         ${LOGS_DIR}/processor.log (includes ML detection)"
     echo -e "  Auto-Ban Monitor:  ${LOGS_DIR}/auto_ban_monitor.log"
     echo -e "  FastAPI:           ${LOGS_DIR}/api.log"
-    echo -e "  Streamlit:         ${LOGS_DIR}/streamlit.log"
+    echo -e "  Streamlit:         docker logs streamlit-app"
     echo -e "  Pinot Exporter:    ${LOGS_DIR}/pinot_exporter.log"
     echo ""
     

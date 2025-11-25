@@ -3,9 +3,10 @@ import requests
 import time
 import pandas as pd
 from datetime import datetime
+import os
 
-# Backend API URL
-BACKEND_URL = "http://localhost:8000"
+# Backend API URL - use environment variable or default to localhost
+BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:8000")
 
 # Page config
 st.set_page_config(

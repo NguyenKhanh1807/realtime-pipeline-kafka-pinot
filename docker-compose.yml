@@ -44,21 +44,62 @@ services:
     volumes:
       - ./mlruns:/mlflow/mlruns
       - ./mlartifacts:/mlflow/mlartifacts
+      - .:/mlflow/data
     working_dir: /mlflow
-    command: >
-      bash -c "
-      pip install -q mlflow==2.10.0 psycopg2-binary &&
-      exec mlflow server 
-        --backend-store-uri sqlite:///mlflow/mlflow.db
-        --default-artifact-root /mlflow/mlartifacts
-        --host 0.0.0.0
-        --port 5000
-      "
+    command:
+      - bash
+      - -c
+      - |
+        pip install -q mlflow==2.10.0 psycopg2-binary &&
+        python3 << 'PYTHON_SCRIPT'
+        import fileinput
+        import sys
+        mlflow_file = "/usr/local/lib/python3.11/site-packages/mlflow/server/__init__.py"
+        for line in fileinput.input(mlflow_file, inplace=True):
+            if 'bind_address = f"127.0.0.1:{port}"' in line:
+                print('    bind_address = f"{host}:{port}"')
+            else:
+                print(line, end='')
+        PYTHON_SCRIPT
+        exec mlflow server \
+          --backend-store-uri sqlite:////mlflow/data/mlflow.db \
+          --default-artifact-root /mlflow/mlartifacts \
+          --host 0.0.0.0 \
+          --port 5000
     environment:
       - MLFLOW_TRACKING_URI=http://10.107.101.128:5000
+      - BACKEND_STORE_URI=sqlite:////mlflow/data/mlflow.db
+      - DEFAULT_ARTIFACT_ROOT=/mlflow/mlartifacts
+      - MLFLOW_HOST=0.0.0.0
     networks:
       - fraud-detection
     restart: unless-stopped
+
+  streamlit:
+    image: python:3.11-slim
+    container_name: streamlit-app
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./streamlit_app.py:/app/streamlit_app.py
+      - ./streamlit_requirements.txt:/app/streamlit_requirements.txt
+    working_dir: /app
+    command:
+      - bash
+      - -c
+      - |
+        pip install -q -r streamlit_requirements.txt &&
+        exec streamlit run streamlit_app.py \
+          --server.port=8501 \
+          --server.address=0.0.0.0 \
+          --server.headless=true
+    environment:
+      - BACKEND_URL=http://host.docker.internal:8000
+    networks:
+      - fraud-detection
+    restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   prometheus:
     image: prom/prometheus:latest
