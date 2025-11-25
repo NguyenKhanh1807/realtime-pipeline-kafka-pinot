@@ -1,71 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { exec } from 'child_process';
-import { promisify } from 'util';
-
-const execAsync = promisify(exec);
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { force = false } = body;
 
-    // Path to training script
-    const scriptPath = '/home/nam/study/realtime-pipeline-kafka-pinot/scripts/train_fraud_model.py';
-
-    // Check if sufficient data exists
-    if (!force) {
-      const pinotRes = await fetch('http://localhost:8099/query/sql', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          sql: 'SELECT COUNT(*) as total, SUM(label) as fraud_count FROM transactions'
-        })
-      });
-
-      if (pinotRes.ok) {
-        const result = await pinotRes.json();
-        const rows = result?.resultTable?.rows || [];
-        if (rows.length > 0) {
-          const [total, fraudCount] = rows[0];
-          
-          if (total < 500) {
-            return NextResponse.json({
-              success: false,
-              message: `Insufficient data: ${total} transactions (minimum 500 required)`,
-              total,
-              fraudCount
-            }, { status: 400 });
-          }
-
-          if (fraudCount === 0) {
-            return NextResponse.json({
-              success: false,
-              message: 'No fraud cases found. Model needs labeled fraud examples.',
-              total,
-              fraudCount
-            }, { status: 400 });
-          }
-        }
-      }
-    }
-
-    // Trigger training in background
-    console.log('Starting model training...');
-    const { stdout, stderr } = await execAsync(`python3 ${scriptPath}`, {
-      timeout: 600000, // 10 minutes
-      cwd: '/home/nam/study/realtime-pipeline-kafka-pinot'
+    // Forward request to FastAPI backend
+    console.log('Forwarding training request to backend...');
+    const backendUrl = process.env.BACKEND_URL || 'http://localhost:8000';
+    const response = await fetch(`${backendUrl}/api/mlflow/train`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ force })
     });
 
-    console.log('Training output:', stdout);
-    if (stderr) {
-      console.error('Training stderr:', stderr);
+    const result = await response.json();
+
+    if (!response.ok) {
+      return NextResponse.json(result, { status: response.status });
     }
 
-    return NextResponse.json({
-      success: true,
-      message: 'Model training completed successfully',
-      output: stdout.split('\n').slice(-20).join('\n') // Last 20 lines
-    });
+    console.log('Training completed successfully');
+    return NextResponse.json(result);
 
   } catch (error) {
     console.error('Training error:', error);

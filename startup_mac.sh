@@ -337,11 +337,10 @@ setup_pinot() {
 setup_monitoring() {
     print_header "Setting up Monitoring"
     
-    print_info "Starting Pinot exporter..."
-    nohup python3 monitoring/pinot_exporter.py > "$LOGS_DIR/pinot_exporter.log" 2>&1 &
-    echo $! > "$PIDS_DIR/pinot_exporter.pid"
-    sleep 3
-    print_success "Pinot exporter started (PID: $(cat $PIDS_DIR/pinot_exporter.pid))"
+    print_info "Starting Pinot exporter in Docker..."
+    docker compose up -d pinot-exporter
+    sleep 5
+    print_success "Pinot exporter started in Docker"
     
     # Verify Prometheus is collecting metrics
     sleep 5
@@ -359,15 +358,26 @@ setup_monitoring() {
 train_initial_model() {
     print_header "Training Initial ML Model"
     
-    print_info "Training fraud detection model..."
-    python3 scripts/train_and_export_mlflow.py
-    print_success "Model trained and saved"
+    print_info "Training fraud detection model via API..."
+    # Trigger training via backend API endpoint
+    response=$(curl -s -X POST http://localhost:8000/api/mlflow/train \
+        -H "Content-Type: application/json" \
+        -d '{"force": true}' \
+        --max-time 600 2>&1)
+    
+    # Check if training succeeded
+    if echo "$response" | grep -q '"success":true'; then
+        print_success "Model trained and saved"
+    else
+        print_warning "Model training may have failed. Check backend logs: docker logs backend-api"
+        echo "Response: $response" | head -5
+    fi
     
     # Verify model exists
     if [ -d "models/fraud_detection_latest" ]; then
         print_success "Model directory created"
     else
-        print_warning "Model directory not found, but training may have succeeded"
+        print_warning "Model directory not found, but training may have succeeded in MLflow"
     fi
 }
 
@@ -520,7 +530,7 @@ display_info() {
     echo -e "  Auto-Ban Monitor:  ${LOGS_DIR}/auto_ban_monitor.log"
     echo -e "  FastAPI:           docker logs backend-api"
     echo -e "  Streamlit:         docker logs streamlit-app"
-    echo -e "  Pinot Exporter:    ${LOGS_DIR}/pinot_exporter.log"
+    echo -e "  Pinot Exporter:    docker logs pinot-exporter"
     echo ""
     
     echo -e "\n${BLUE}Next Steps:${NC}"

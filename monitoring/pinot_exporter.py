@@ -6,16 +6,17 @@ Exposes Pinot cluster metrics in Prometheus format
 
 import requests
 import time
+import os
 from prometheus_client import start_http_server, Gauge, Counter, Histogram, Summary
 import logging
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Pinot endpoints
-PINOT_CONTROLLER = "http://localhost:9000"
-PINOT_BROKER = "http://localhost:8099"
-NEXTJS_API = "http://localhost:3000"
+# Pinot endpoints - use environment variables with fallback to localhost
+PINOT_CONTROLLER = os.getenv("PINOT_CONTROLLER", "http://localhost:9000")
+PINOT_BROKER = os.getenv("PINOT_BROKER", "http://localhost:8099")
+NEXTJS_API = os.getenv("NEXTJS_API", "http://localhost:3000")
 
 # Prometheus metrics
 pinot_segment_count = Gauge('pinot_server_segment_count', 'Number of segments', ['table', 'server'])

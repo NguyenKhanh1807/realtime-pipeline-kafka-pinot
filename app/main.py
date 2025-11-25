@@ -6,6 +6,7 @@ from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from app.data_generation import router as data_generation_router
+from app.mlflow_operations import router as mlflow_router
 from app.database import get_db
 from app.models_transaction_user import TransactionUser
 from app.models_user_ban import UserBan
@@ -33,6 +34,12 @@ app.include_router(
     data_generation_router,
     prefix="/api/data-generation",
     tags=["data-generation"]
+)
+
+app.include_router(
+    mlflow_router,
+    prefix="/api/mlflow",
+    tags=["mlflow"]
 )
 
 @app.get("/")

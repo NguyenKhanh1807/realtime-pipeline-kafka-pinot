@@ -234,22 +234,33 @@ async def start_data_generation(
         )
     
     try:
+        # Prepare log files
+        base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        logs_dir = os.path.join(base_path, "logs")
+        os.makedirs(logs_dir, exist_ok=True)
+        
+        # Open log files with buffering disabled for real-time logs
+        stdout_log = open(os.path.join(logs_dir, "producer.log"), "a", buffering=1)
+        stderr_log = open(os.path.join(logs_dir, "producer_error.log"), "a", buffering=1)
+        
         # Start the process
         process = subprocess.Popen(
-            ["python", script_path],
+            ["python", "-u", script_path],  # -u for unbuffered Python output
             env=env,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            preexec_fn=os.setsid  # Create new process group for easier cleanup
+            stdout=stdout_log,
+            stderr=stderr_log,
+            start_new_session=True,  # Create new session (works cross-platform)
+            close_fds=False  # Keep file descriptors open for the subprocess
         )
         
-        # Store process info
+        # Store process info (keep file handles so they stay open)
         _process_store[user_key] = {
             "pid": process.pid,
             "started_at": datetime.utcnow().isoformat(),
             "config": config.dict(),
             "records_generated": 0,
-            "last_sequence": config.start_sequence
+            "last_sequence": config.start_sequence,
+            "_log_handles": (stdout_log, stderr_log)  # Keep handles alive
         }
         
         return {
@@ -285,6 +296,15 @@ async def stop_data_generation():
         )
     
     try:
+        # Close log file handles if they exist
+        log_handles = stored_process.get("_log_handles")
+        if log_handles:
+            try:
+                log_handles[0].close()  # stdout
+                log_handles[1].close()  # stderr
+            except:
+                pass
+        
         # Kill the process group to ensure all child processes are terminated
         os.killpg(os.getpgid(pid), signal.SIGTERM)
         

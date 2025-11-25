@@ -103,6 +103,9 @@ stop_docker_services() {
     print_info "Stopping backend container..."
     docker compose stop backend 2>/dev/null || true
     
+    print_info "Stopping pinot-exporter container..."
+    docker compose stop pinot-exporter 2>/dev/null || true
+    
     print_info "Stopping all Docker containers..."
     docker compose down
     

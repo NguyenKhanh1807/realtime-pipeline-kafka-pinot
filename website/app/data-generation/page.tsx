@@ -47,7 +47,7 @@ export default function DataGenerationPage() {
   const [config, setConfig] = useState<DataGenerationConfig>({
     interval_seconds: 2,
     topic_raw: 'transactions_raw',
-    bootstrap_servers: 'localhost:9092',
+    bootstrap_servers: 'kafka:19092',
     start_sequence: 1,
     simulation_mode: 'auto',
   });

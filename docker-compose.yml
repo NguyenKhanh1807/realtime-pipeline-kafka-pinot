@@ -86,10 +86,16 @@ services:
       - ./app:/app/app
       - ./migrations:/app/migrations
       - ./models:/app/models
+      - ./crawl_data:/app/crawl_data
+      - ./scripts:/app/scripts
+      - ./utils:/app/utils
+      - ./logs:/app/logs
+      - ./mlartifacts:/app/mlartifacts
       - ./.env:/app/.env
     environment:
       - DB_URL=postgresql://postgres:postgres@postgres-fraud:5432/fraud_detection
       - MLFLOW_TRACKING_URI=http://mlflow-server:5000
+      - PINOT_BROKER_URL=http://pinot-broker:8099
     depends_on:
       - postgres
       - mlflow
@@ -103,6 +109,36 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
+
+  pinot-exporter:
+    image: python:3.11-slim
+    container_name: pinot-exporter
+    ports:
+      - "9093:9093"
+    volumes:
+      - ./monitoring/pinot_exporter.py:/app/pinot_exporter.py
+      - ./logs:/app/logs
+      - /var/run/docker.sock:/var/run/docker.sock
+    working_dir: /app
+    command:
+      - bash
+      - -c
+      - |
+        apt-get update -qq && apt-get install -y -qq docker.io > /dev/null 2>&1
+        pip install -q prometheus-client requests
+        python -u pinot_exporter.py
+    environment:
+      - PINOT_CONTROLLER=http://pinot-controller:9000
+      - PINOT_BROKER=http://pinot-broker:8099
+      - NEXTJS_API=http://172.17.0.1:3000
+    extra_hosts:
+      - "host.docker.internal:172.17.0.1"
+    depends_on:
+      - pinot-controller
+      - pinot-broker
+    networks:
+      - fraud-detection
+    restart: unless-stopped
 
   streamlit:
     image: python:3.11-slim

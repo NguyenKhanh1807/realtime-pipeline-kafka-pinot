@@ -33,7 +33,9 @@ def fetch_training_data(days_back=7, min_samples=1000):
     Returns:
         DataFrame with transaction data
     """
-    pinot_url = "http://localhost:8099/query/sql"
+    # Use environment variable for Pinot broker URL, fallback to localhost
+    pinot_url = os.getenv("PINOT_BROKER_URL", "http://localhost:8099") + "/query/sql"
+    print(f"Pinot URL: {pinot_url}")
     
     # Calculate timestamp for N days ago
     cutoff_time = datetime.now() - timedelta(days=days_back)
@@ -367,8 +369,10 @@ def main():
     print("FRAUD DETECTION MODEL TRAINING")
     print("="*60)
     
-    # Set MLflow tracking URI
-    mlflow.set_tracking_uri("http://localhost:5000")
+    # Set MLflow tracking URI from environment or use default
+    tracking_uri = os.getenv("MLFLOW_TRACKING_URI", "http://localhost:5000")
+    print(f"\nMLflow Tracking URI: {tracking_uri}")
+    mlflow.set_tracking_uri(tracking_uri)
     mlflow.set_experiment("fraud-detection")
     
     try:
@@ -404,13 +408,6 @@ def main():
             # Log metrics (all numeric values)
             mlflow.log_metrics(metrics)
             
-            # Log model
-            mlflow.xgboost.log_model(
-                model, 
-                "model",
-                registered_model_name="fraud-detection-model"
-            )
-            
             # Log feature importance as artifact
             feature_importance.to_csv("feature_importance.csv", index=False)
             mlflow.log_artifact("feature_importance.csv")
@@ -421,6 +418,12 @@ def main():
                 json.dump(feature_names, f, indent=2)
             mlflow.log_artifact("features.json")
             os.remove("features.json")
+            
+            # Log model using XGBoost native logging (compatible with MLflow 2.10.0)
+            mlflow.xgboost.log_model(
+                model,
+                artifact_path="model"
+            )
             
             # Get run info
             run = mlflow.active_run()
