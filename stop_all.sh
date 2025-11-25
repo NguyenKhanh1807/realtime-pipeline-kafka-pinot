@@ -100,7 +100,10 @@ stop_python_services() {
 stop_docker_services() {
     print_header "Stopping Docker Services"
     
-    print_info "Stopping Docker containers..."
+    print_info "Stopping backend container..."
+    docker compose stop backend 2>/dev/null || true
+    
+    print_info "Stopping all Docker containers..."
     docker compose down
     
     print_success "Docker containers stopped"

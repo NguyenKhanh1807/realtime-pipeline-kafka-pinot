@@ -382,12 +382,11 @@ start_backend() {
     python3 -m pip install -q -r requirements.txt
     print_success "Python dependencies installed"
     
-    print_info "Starting FastAPI backend..."
-    nohup python3 -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload > "$LOGS_DIR/api.log" 2>&1 &
-    echo $! > "$PIDS_DIR/api.pid"
+    print_info "Starting FastAPI backend in Docker..."
+    docker compose up -d backend
     
-    wait_for_service "FastAPI" "http://localhost:8000/health" 15
-    print_success "FastAPI backend started (PID: $(cat $PIDS_DIR/api.pid))"
+    wait_for_service "FastAPI" "http://localhost:8000/health" 30
+    print_success "FastAPI backend started in Docker"
 }
 
 start_streamlit() {
@@ -519,7 +518,7 @@ display_info() {
     echo -e "  Producer:          ${LOGS_DIR}/producer.log"
     echo -e "  Processor:         ${LOGS_DIR}/processor.log (includes ML detection)"
     echo -e "  Auto-Ban Monitor:  ${LOGS_DIR}/auto_ban_monitor.log"
-    echo -e "  FastAPI:           ${LOGS_DIR}/api.log"
+    echo -e "  FastAPI:           docker logs backend-api"
     echo -e "  Streamlit:         docker logs streamlit-app"
     echo -e "  Pinot Exporter:    ${LOGS_DIR}/pinot_exporter.log"
     echo ""
