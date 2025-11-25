@@ -1,6 +1,23 @@
 version: "3.8"
 
 services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: postgres
+    environment:
+      POSTGRES_USER: fraud_user
+      POSTGRES_PASSWORD: fraud_password
+      POSTGRES_DB: fraud_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fraud_user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   zookeeper:
     image: confluentinc/cp-zookeeper:7.5.0
     container_name: zookeeper
@@ -95,11 +112,13 @@ services:
     volumes:
       - ./crawl_data:/app
     environment:
-      BOOTSTRAP_SERVERS: ${BOOTSTRAP_SERVERS:-93.115.172.151:9092}
+      BOOTSTRAP_SERVERS: ${BOOTSTRAP_SERVERS:-kafka-rt:19092}
       TOPIC_RAW: ${TOPIC_RAW:-transactions_raw}
       PYTHONUNBUFFERED: "1"
+    depends_on:
+      - kafka
     command: >
-      sh -lc "pip install --no-cache-dir kafka-python >/dev/null &&
+      sh -lc "pip install --no-cache-dir kafka-python Faker >/dev/null &&
               python -u /app/rt_producer.py"
     restart: unless-stopped
 
@@ -110,7 +129,7 @@ services:
     volumes:
       - ./crawl_data:/app
     environment:
-      BOOTSTRAP_SERVERS: ${BOOTSTRAP_SERVERS:-93.115.172.151:9092}
+      BOOTSTRAP_SERVERS: ${BOOTSTRAP_SERVERS:-kafka-rt:19092}
       TOPIC_RAW: ${TOPIC_RAW:-transactions_raw}
       TOPIC_CLEAN: ${TOPIC_CLEAN:-transactions_rt}
       GROUP_ID: ${GROUP_ID:-rt-processor-v1}
@@ -119,4 +138,9 @@ services:
     command: >
       sh -lc "pip install --no-cache-dir kafka-python >/dev/null &&
               python -u /app/rt_processor.py"
+    depends_on:
+      - kafka
     restart: unless-stopped
+
+volumes:
+  postgres_data:

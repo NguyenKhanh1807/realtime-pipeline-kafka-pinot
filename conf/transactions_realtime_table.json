@@ -22,7 +22,7 @@
         {
           "streamType": "kafka",
           "stream.kafka.topic.name": "transactions_rt",
-          "stream.kafka.broker.list": "93.115.172.151:9092",
+          "stream.kafka.broker.list": "kafka-rt:19092",
 
           "stream.kafka.consumer.type": "lowlevel",
           "stream.kafka.consumer.prop.auto.offset.reset": "smallest",
