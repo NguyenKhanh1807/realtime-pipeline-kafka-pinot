@@ -1,0 +1,61 @@
+/Users/nguyenthanh/Library/Python/3.9/lib/python/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+======================================================================
+AUTO-BAN MONITOR STARTED
+======================================================================
+
+Ban Rules:
+  1. User with ANY transaction labeled 'banned' (label=2) → AUTO-BAN
+  2. User with 10+ warning transactions (label=1) in one day → AUTO-BAN
+
+Check Interval: Every 60 seconds
+Pinot API: http://localhost:3000/api/pinot/query
+Database: fraud_detection @ localhost
+======================================================================
+
+======================================================================
+Auto-Ban Check - 2025-11-26 02:37:07
+======================================================================
+
+[Rule 1] Checking users with banned transactions (label=2)...
+Error querying Pinot: HTTPConnectionPool(host='localhost', port=3000): Max retries exceeded with url: /api/pinot/query (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x1088d5070>: Failed to establish a new connection: [Errno 61] Connection refused'))
+No users with banned-level transactions found
+
+[Rule 2] Checking users with 10+ warning transactions today...
+Error querying Pinot: HTTPConnectionPool(host='localhost', port=3000): Max retries exceeded with url: /api/pinot/query (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x1088d5af0>: Failed to establish a new connection: [Errno 61] Connection refused'))
+No users with 10+ warning transactions today
+
+======================================================================
+Check completed at 02:37:07
+Next check in 60 seconds...
+======================================================================
+
+======================================================================
+Auto-Ban Check - 2025-11-26 02:38:07
+======================================================================
+
+[Rule 1] Checking users with banned transactions (label=2)...
+No users with banned-level transactions found
+
+[Rule 2] Checking users with 10+ warning transactions today...
+No users with 10+ warning transactions today
+
+======================================================================
+Check completed at 02:38:07
+Next check in 60 seconds...
+======================================================================
+
+======================================================================
+Auto-Ban Check - 2025-11-26 02:39:07
+======================================================================
+
+[Rule 1] Checking users with banned transactions (label=2)...
+No users with banned-level transactions found
+
+[Rule 2] Checking users with 10+ warning transactions today...
+No users with 10+ warning transactions today
+
+======================================================================
+Check completed at 02:39:07
+Next check in 60 seconds...
+======================================================================

@@ -1,0 +1,116 @@
+INFO:root:ML fraud detector loaded successfully
+INFO:root:Booting rt-processor … BOOTSTRAP=localhost:9092
+INFO:kafka.conn:<BrokerConnection node_id=bootstrap-0 host=localhost:9092 <connecting> [IPv6 ('::1', 9092, 0, 0)]>: connecting to localhost:9092 [('::1', 9092, 0, 0) IPv6]
+INFO:kafka.conn:Probing node bootstrap-0 broker version
+INFO:kafka.conn:<BrokerConnection node_id=bootstrap-0 host=localhost:9092 <connecting> [IPv6 ('::1', 9092, 0, 0)]>: Connection complete.
+INFO:kafka.conn:Broker version identified as 2.5.0
+INFO:kafka.conn:Set configuration api_version=(2, 5, 0) to skip auto check_version requests on startup
+INFO:kafka.consumer.subscription_state:Updating subscribed topics to: ('transactions_raw',)
+INFO:kafka.conn:<BrokerConnection node_id=bootstrap-0 host=localhost:9092 <connecting> [IPv6 ('::1', 9092, 0, 0)]>: connecting to localhost:9092 [('::1', 9092, 0, 0) IPv6]
+INFO:kafka.conn:Probing node bootstrap-0 broker version
+INFO:kafka.conn:<BrokerConnection node_id=bootstrap-0 host=localhost:9092 <connecting> [IPv6 ('::1', 9092, 0, 0)]>: Connection complete.
+INFO:kafka.conn:Broker version identified as 2.5.0
+INFO:kafka.conn:Set configuration api_version=(2, 5, 0) to skip auto check_version requests on startup
+INFO:root:Processor started → raw=transactions_raw → clean=transactions_rt
+INFO:kafka.cluster:Group coordinator for rt-processor-v1 is BrokerMetadata(nodeId='coordinator-1', host='localhost', port=9092, rack=None)
+INFO:kafka.coordinator:Discovered coordinator coordinator-1 for group rt-processor-v1
+INFO:kafka.coordinator:Starting new heartbeat thread
+INFO:kafka.coordinator.consumer:Revoking previously assigned partitions set() for group rt-processor-v1
+INFO:kafka.conn:<BrokerConnection node_id=coordinator-1 host=localhost:9092 <connecting> [IPv6 ('::1', 9092, 0, 0)]>: connecting to localhost:9092 [('::1', 9092, 0, 0) IPv6]
+INFO:kafka.conn:<BrokerConnection node_id=coordinator-1 host=localhost:9092 <connecting> [IPv6 ('::1', 9092, 0, 0)]>: Connection complete.
+INFO:kafka.conn:<BrokerConnection node_id=bootstrap-0 host=localhost:9092 <connected> [IPv6 ('::1', 9092, 0, 0)]>: Closing connection. 
+INFO:kafka.coordinator:(Re-)joining group rt-processor-v1
+INFO:kafka.conn:<BrokerConnection node_id=bootstrap-0 host=localhost:9092 <connecting> [IPv6 ('::1', 9092, 0, 0)]>: connecting to localhost:9092 [('::1', 9092, 0, 0) IPv6]
+INFO:kafka.conn:<BrokerConnection node_id=bootstrap-0 host=localhost:9092 <connecting> [IPv6 ('::1', 9092, 0, 0)]>: Connection complete.
+INFO:kafka.coordinator:Elected group leader -- performing partition assignments using range
+INFO:kafka.conn:<BrokerConnection node_id=1 host=localhost:9092 <connecting> [IPv6 ('::1', 9092, 0, 0)]>: connecting to localhost:9092 [('::1', 9092, 0, 0) IPv6]
+INFO:kafka.conn:<BrokerConnection node_id=1 host=localhost:9092 <connecting> [IPv6 ('::1', 9092, 0, 0)]>: Connection complete.
+INFO:kafka.conn:<BrokerConnection node_id=bootstrap-0 host=localhost:9092 <connected> [IPv6 ('::1', 9092, 0, 0)]>: Closing connection. 
+INFO:kafka.coordinator:Successfully joined group rt-processor-v1 with generation 1
+INFO:kafka.consumer.subscription_state:Updated partition assignment: [TopicPartition(topic='transactions_raw', partition=0)]
+INFO:kafka.coordinator.consumer:Setting newly assigned partitions {TopicPartition(topic='transactions_raw', partition=0)} for group rt-processor-v1
+WARNING:ml_fraud_detector:Could not load ML model: Model not found: /Users/nguyenthanh/Master/DataEngineering/final/realtime-pipeline-kafka-pinot-final/models/fraud_detection_latest/model.pkl
+WARNING:ml_fraud_detector:Falling back to rule-based detection
+INFO:kafka.conn:<BrokerConnection node_id=1 host=localhost:9092 <connecting> [IPv6 ('::1', 9092, 0, 0)]>: connecting to localhost:9092 [('::1', 9092, 0, 0) IPv6]
+INFO:kafka.conn:<BrokerConnection node_id=1 host=localhost:9092 <connecting> [IPv6 ('::1', 9092, 0, 0)]>: Connection complete.
+INFO:kafka.conn:<BrokerConnection node_id=bootstrap-0 host=localhost:9092 <connected> [IPv6 ('::1', 9092, 0, 0)]>: Closing connection. 
+INFO:root:CLEAN <- RAW off=0 → p=0, off=0 | label=0 risk=0.25
+INFO:root:CLEAN <- RAW off=1 → p=0, off=1 | label=0 risk=0.15
+INFO:root:CLEAN <- RAW off=2 → p=0, off=2 | label=0 risk=0.15
+INFO:root:CLEAN <- RAW off=3 → p=0, off=3 | label=0 risk=0.15
+INFO:root:CLEAN <- RAW off=4 → p=0, off=4 | label=0 risk=0.35
+INFO:root:CLEAN <- RAW off=5 → p=0, off=5 | label=0 risk=0.15
+INFO:root:CLEAN <- RAW off=6 → p=0, off=6 | label=0 risk=0.25
+INFO:root:CLEAN <- RAW off=7 → p=0, off=7 | label=0 risk=0.15
+INFO:root:CLEAN <- RAW off=8 → p=0, off=8 | label=0 risk=0.00
+INFO:root:CLEAN <- RAW off=9 → p=0, off=9 | label=0 risk=0.15
+INFO:root:CLEAN <- RAW off=10 → p=0, off=10 | label=0 risk=0.15
+INFO:root:CLEAN <- RAW off=11 → p=0, off=11 | label=0 risk=0.35
+INFO:root:CLEAN <- RAW off=12 → p=0, off=12 | label=0 risk=0.15
+INFO:root:CLEAN <- RAW off=13 → p=0, off=13 | label=0 risk=0.15
+INFO:root:CLEAN <- RAW off=14 → p=0, off=14 | label=0 risk=0.15
+INFO:root:CLEAN <- RAW off=15 → p=0, off=15 | label=0 risk=0.15
+INFO:root:CLEAN <- RAW off=16 → p=0, off=16 | label=0 risk=0.15
+INFO:root:CLEAN <- RAW off=17 → p=0, off=17 | label=0 risk=0.15
+INFO:root:CLEAN <- RAW off=18 → p=0, off=18 | label=0 risk=0.30
+INFO:root:CLEAN <- RAW off=19 → p=0, off=19 | label=0 risk=0.05
+INFO:root:CLEAN <- RAW off=20 → p=0, off=20 | label=1 risk=1.00
+INFO:root:CLEAN <- RAW off=21 → p=0, off=21 | label=0 risk=0.25
+INFO:root:CLEAN <- RAW off=22 → p=0, off=22 | label=0 risk=0.30
+INFO:root:CLEAN <- RAW off=25 → p=0, off=23 | label=0 risk=0.30
+INFO:root:CLEAN <- RAW off=26 → p=0, off=24 | label=0 risk=0.15
+INFO:root:CLEAN <- RAW off=27 → p=0, off=25 | label=0 risk=0.20
+INFO:root:CLEAN <- RAW off=29 → p=0, off=26 | label=0 risk=0.15
+INFO:root:CLEAN <- RAW off=30 → p=0, off=27 | label=0 risk=0.25
+INFO:root:CLEAN <- RAW off=31 → p=0, off=28 | label=0 risk=0.15
+INFO:root:CLEAN <- RAW off=33 → p=0, off=29 | label=0 risk=0.15
+INFO:root:CLEAN <- RAW off=34 → p=0, off=30 | label=0 risk=0.35
+INFO:root:CLEAN <- RAW off=35 → p=0, off=31 | label=0 risk=0.35
+INFO:root:CLEAN <- RAW off=36 → p=0, off=32 | label=0 risk=0.15
+INFO:root:CLEAN <- RAW off=37 → p=0, off=33 | label=0 risk=0.15
+INFO:root:CLEAN <- RAW off=38 → p=0, off=34 | label=1 risk=1.00
+INFO:root:CLEAN <- RAW off=39 → p=0, off=35 | label=0 risk=0.25
+INFO:root:CLEAN <- RAW off=40 → p=0, off=36 | label=1 risk=1.00
+INFO:root:CLEAN <- RAW off=41 → p=0, off=37 | label=0 risk=0.15
+INFO:root:CLEAN <- RAW off=42 → p=0, off=38 | label=0 risk=0.25
+INFO:root:CLEAN <- RAW off=43 → p=0, off=39 | label=0 risk=0.25
+INFO:root:CLEAN <- RAW off=44 → p=0, off=40 | label=0 risk=0.15
+INFO:root:CLEAN <- RAW off=45 → p=0, off=41 | label=1 risk=0.95
+INFO:root:CLEAN <- RAW off=46 → p=0, off=42 | label=0 risk=0.15
+INFO:root:CLEAN <- RAW off=47 → p=0, off=43 | label=0 risk=0.00
+INFO:root:CLEAN <- RAW off=48 → p=0, off=44 | label=0 risk=0.25
+INFO:root:CLEAN <- RAW off=49 → p=0, off=45 | label=0 risk=0.35
+INFO:root:CLEAN <- RAW off=50 → p=0, off=46 | label=0 risk=0.35
+INFO:root:CLEAN <- RAW off=51 → p=0, off=47 | label=0 risk=0.15
+INFO:root:CLEAN <- RAW off=52 → p=0, off=48 | label=0 risk=0.15
+INFO:root:CLEAN <- RAW off=53 → p=0, off=49 | label=0 risk=0.15
+INFO:root:CLEAN <- RAW off=54 → p=0, off=50 | label=0 risk=0.15
+INFO:root:CLEAN <- RAW off=55 → p=0, off=51 | label=0 risk=0.20
+INFO:root:CLEAN <- RAW off=57 → p=0, off=52 | label=1 risk=1.00
+INFO:root:CLEAN <- RAW off=58 → p=0, off=53 | label=0 risk=0.00
+INFO:root:CLEAN <- RAW off=59 → p=0, off=54 | label=0 risk=0.15
+INFO:root:CLEAN <- RAW off=60 → p=0, off=55 | label=0 risk=0.30
+INFO:root:CLEAN <- RAW off=61 → p=0, off=56 | label=0 risk=0.35
+INFO:root:CLEAN <- RAW off=62 → p=0, off=57 | label=0 risk=0.15
+INFO:root:CLEAN <- RAW off=63 → p=0, off=58 | label=0 risk=0.20
+INFO:root:CLEAN <- RAW off=64 → p=0, off=59 | label=0 risk=0.15
+INFO:root:CLEAN <- RAW off=65 → p=0, off=60 | label=0 risk=0.15
+INFO:root:CLEAN <- RAW off=66 → p=0, off=61 | label=0 risk=0.20
+INFO:root:CLEAN <- RAW off=67 → p=0, off=62 | label=1 risk=0.80
+INFO:root:CLEAN <- RAW off=68 → p=0, off=63 | label=1 risk=1.00
+INFO:root:CLEAN <- RAW off=70 → p=0, off=64 | label=1 risk=1.00
+INFO:root:CLEAN <- RAW off=71 → p=0, off=65 | label=0 risk=0.15
+INFO:root:CLEAN <- RAW off=72 → p=0, off=66 | label=0 risk=0.35
+INFO:root:CLEAN <- RAW off=73 → p=0, off=67 | label=0 risk=0.15
+INFO:root:CLEAN <- RAW off=74 → p=0, off=68 | label=0 risk=0.15
+INFO:root:CLEAN <- RAW off=75 → p=0, off=69 | label=0 risk=0.15
+INFO:root:CLEAN <- RAW off=76 → p=0, off=70 | label=0 risk=0.00
+INFO:root:CLEAN <- RAW off=77 → p=0, off=71 | label=1 risk=0.90
+INFO:root:CLEAN <- RAW off=78 → p=0, off=72 | label=0 risk=0.15
+INFO:root:CLEAN <- RAW off=79 → p=0, off=73 | label=0 risk=0.55
+INFO:root:CLEAN <- RAW off=80 → p=0, off=74 | label=0 risk=0.35
+INFO:root:CLEAN <- RAW off=81 → p=0, off=75 | label=0 risk=0.25
+INFO:root:CLEAN <- RAW off=82 → p=0, off=76 | label=0 risk=0.15
+INFO:root:CLEAN <- RAW off=83 → p=0, off=77 | label=0 risk=0.35
+INFO:root:CLEAN <- RAW off=84 → p=0, off=78 | label=1 risk=1.00
+INFO:root:CLEAN <- RAW off=85 → p=0, off=79 | label=0 risk=0.15
