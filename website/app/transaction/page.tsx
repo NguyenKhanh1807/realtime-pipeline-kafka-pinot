@@ -129,7 +129,7 @@ export default function TransactionMLPage() {
           SELECT 
             HOUR(create_dt) as hour,
             COUNT(*) as transactions,
-            SUM(CASE WHEN label = 1 THEN 1 ELSE 0 END) as fraudCount
+            SUM(CASE WHEN fraud_score > 0.9THEN 1 ELSE 0 END) as fraudCount
           FROM transactions
           GROUP BY HOUR(create_dt)
           ORDER BY hour
@@ -138,6 +138,7 @@ export default function TransactionMLPage() {
       };
       
       const hourlyResult = await pinotClient.query(hourlyQuery);
+      console.log('Hourly distribution result:', hourlyResult?.resultTable);
       if (hourlyResult && hourlyResult.resultTable) {
         const hourlyData = hourlyResult.resultTable.rows.map(row => ({
           hour: Number(row[0]),
@@ -153,7 +154,7 @@ export default function TransactionMLPage() {
           SELECT 
             DAYOFWEEK(create_dt) as dayOfWeek,
             COUNT(*) as transactions,
-            SUM(CASE WHEN label = 1 THEN 1 ELSE 0 END) as fraudCount
+            SUM(CASE WHEN fraud_score > 0.9 THEN 1 ELSE 0 END) as fraudCount
           FROM transactions
           GROUP BY DAYOFWEEK(create_dt)
           ORDER BY dayOfWeek
@@ -162,6 +163,7 @@ export default function TransactionMLPage() {
       };
       
       const dailyResult = await pinotClient.query(dailyQuery);
+      console.log('Daily distribution result:', dailyResult?.resultTable);
       if (dailyResult && dailyResult.resultTable) {
         const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
         const dailyData = dailyResult.resultTable.rows.map(row => ({

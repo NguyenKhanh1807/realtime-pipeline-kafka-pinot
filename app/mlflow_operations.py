@@ -55,12 +55,12 @@ async def train_model(request: TrainRequest):
                                 details=f"Total: {total}, Fraud: {fraud_count}"
                             )
                         
-                        if fraud_count == 0:
-                            return TrainResponse(
-                                success=False,
-                                message="No fraud cases found. Model needs labeled fraud examples.",
-                                details=f"Total: {total}, Fraud: {fraud_count}"
-                            )
+                        # if fraud_count == 0:
+                        #     return TrainResponse(
+                        #         success=False,
+                        #         message="No fraud cases found. Model needs labeled fraud examples.",
+                        #         details=f"Total: {total}, Fraud: {fraud_count}"
+                        #     )
             except Exception as e:
                 logger.warning(f"Could not check Pinot data: {e}")
                 # Continue anyway if Pinot check fails
