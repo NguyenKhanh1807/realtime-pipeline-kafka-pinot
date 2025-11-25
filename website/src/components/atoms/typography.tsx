@@ -1,8 +1,8 @@
 import { cn } from "@/src/lib/utils";
-import { forwardRef, HTMLAttributes } from "react";
+import { forwardRef, HTMLAttributes, createElement } from "react";
 
 export interface TypographyProps extends HTMLAttributes<HTMLElement> {
-  variant?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "p" | "span" | "blockquote" | "code";
+  variant?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "p" | "span" | "blockquote" | "code" | "label";
   size?: "xs" | "sm" | "base" | "lg" | "xl" | "2xl" | "3xl" | "4xl" | "5xl" | "6xl" | "7xl" | "8xl" | "9xl";
   weight?: "thin" | "light" | "normal" | "medium" | "semibold" | "bold" | "extrabold" | "black";
   color?: "default" | "muted" | "accent" | "destructive";
@@ -63,6 +63,7 @@ const variantElements = {
   span: "span",
   blockquote: "blockquote",
   code: "code",
+  label: "label",
 } as const;
 
 export const Typography = forwardRef<HTMLElement, TypographyProps>(
@@ -78,7 +79,7 @@ export const Typography = forwardRef<HTMLElement, TypographyProps>(
     children,
     ...props
   }, ref) => {
-    const Component = variantElements[variant];
+    const elementType = variantElements[variant];
 
     const classes = cn(
       sizeClasses[size],
@@ -90,14 +91,14 @@ export const Typography = forwardRef<HTMLElement, TypographyProps>(
       className
     );
 
-    return (
-      <Component
-        ref={ref as any}
-        className={classes}
-        {...props}
-      >
-        {children}
-      </Component>
+    return createElement(
+      elementType,
+      {
+        ref: ref as any,
+        className: classes,
+        ...props
+      },
+      children
     );
   }
 );

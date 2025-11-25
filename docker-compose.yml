@@ -1,122 +1,120 @@
-version: "3.8"
+version: '3.8'
 
 services:
   zookeeper:
     image: confluentinc/cp-zookeeper:7.5.0
     container_name: zookeeper
     environment:
-      ZOOKEEPER_CLIENT_PORT: "2181"
-      ZOOKEEPER_TICK_TIME: "2000"
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
     ports:
       - "2181:2181"
+    networks:
+      - fraud-detection
+    restart: unless-stopped
 
   kafka:
     image: confluentinc/cp-kafka:7.5.0
-    container_name: kafka-rt
+    container_name: kafka
     depends_on:
       - zookeeper
-    environment:
-      KAFKA_BROKER_ID: "1"
-      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
-      # Hai listener: 9092 (public) & 19092 (nội bộ docker)
-      KAFKA_LISTENERS: "PLAINTEXT://0.0.0.0:9092,PLAINTEXT_INTERNAL://0.0.0.0:19092"
-      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://${PUBLIC_IP}:9092,PLAINTEXT_INTERNAL://kafka-rt:19092"
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT"
-      KAFKA_INTER_BROKER_LISTENER_NAME: "PLAINTEXT_INTERNAL"
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: "1"
-      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: "1"
-      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: "1"
-      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
-      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: "0"
     ports:
       - "9092:9092"
-
-  pinot-controller:
-    image: apachepinot/pinot:latest
-    container_name: pinot-controller
-    command: >
-      StartController
-      -zkAddress zookeeper:2181
-      -controllerPort 9000
-    depends_on:
-      - zookeeper
-    ports:
-      - "9000:9000"
-
-  pinot-broker:
-    image: apachepinot/pinot:latest
-    container_name: pinot-broker
-    command: >
-      StartBroker
-      -zkAddress zookeeper:2181
-      -clusterName PinotCluster
-      -brokerPort 8099
-    depends_on:
-      - pinot-controller
-    ports:
-      - "8099:8099"
-
-  pinot-server:
-    image: apachepinot/pinot:latest
-    container_name: pinot-server
-    command: >
-      StartServer
-      -zkAddress zookeeper:2181
-    depends_on:
-      - pinot-controller
-
-  # upload schema & table sau khi Controller sẵn sàng
-  pinot-init:
-    image: curlimages/curl:8.10.1
-    container_name: pinot-init
-    depends_on:
-      - pinot-controller
-      - pinot-broker
-      - pinot-server
-      - kafka
-    volumes:
-      - ./conf:/conf:ro
-    entrypoint: ["/bin/sh","-lc"]
-    command: |
-      "
-      echo 'waiting controller...';
-      until curl -sf http://pinot-controller:9000/health; do sleep 2; done;
-      echo 'upload schema';
-      curl -sS -X POST -H 'Content-Type: application/json' --data-binary @/conf/transactions_schema.json http://pinot-controller:9000/schemas;
-      echo 'upload realtime table';
-      curl -sS -X POST -H 'Content-Type: application/json' --data-binary @/conf/transactions_realtime_table.json http://pinot-controller:9000/tables;
-      echo 'done';
-      "
-
-  tx-producer:
-    image: python:3.11-slim
-    container_name: tx-producer
-    working_dir: /app
-    volumes:
-      - ./crawl_data:/app
     environment:
-      BOOTSTRAP_SERVERS: ${BOOTSTRAP_SERVERS:-93.115.172.151:9092}
-      TOPIC_RAW: ${TOPIC_RAW:-transactions_raw}
-      PYTHONUNBUFFERED: "1"
-    command: >
-      sh -lc "pip install --no-cache-dir kafka-python >/dev/null &&
-              python -u /app/rt_producer.py"
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,PLAINTEXT_INTERNAL://kafka:19092
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,PLAINTEXT_INTERNAL://0.0.0.0:19092
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT_INTERNAL
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+    networks:
+      - fraud-detection
     restart: unless-stopped
 
-  tx-processor:
+  mlflow:
     image: python:3.11-slim
-    container_name: tx-processor
-    working_dir: /app
+    container_name: mlflow-server
+    ports:
+      - "5000:5000"
     volumes:
-      - ./crawl_data:/app
-    environment:
-      BOOTSTRAP_SERVERS: ${BOOTSTRAP_SERVERS:-93.115.172.151:9092}
-      TOPIC_RAW: ${TOPIC_RAW:-transactions_raw}
-      TOPIC_CLEAN: ${TOPIC_CLEAN:-transactions_rt}
-      GROUP_ID: ${GROUP_ID:-rt-processor-v1}
-      DEDUP_MAX_KEYS: ${DEDUP_MAX_KEYS:-50000}
-      PYTHONUNBUFFERED: "1"
+      - ./mlruns:/mlflow/mlruns
+      - ./mlartifacts:/mlflow/mlartifacts
+    working_dir: /mlflow
     command: >
-      sh -lc "pip install --no-cache-dir kafka-python >/dev/null &&
-              python -u /app/rt_processor.py"
+      bash -c "
+      pip install -q mlflow==2.10.0 psycopg2-binary gunicorn &&
+      mlflow server 
+        --backend-store-uri sqlite:///mlflow/mlflow.db
+        --default-artifact-root /mlflow/mlartifacts
+        --host 0.0.0.0
+        --port 5000
+        --gunicorn-opts '--bind 0.0.0.0:5000'
+      "
+    environment:
+      - MLFLOW_TRACKING_URI=http://localhost:5000
+    networks:
+      - fraud-detection
     restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
+    networks:
+      - fraud-detection
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_INSTALL_PLUGINS=grafana-piechart-panel
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards
+    networks:
+      - fraud-detection
+    restart: unless-stopped
+    depends_on:
+      - prometheus
+
+  jmx-exporter:
+    image: bitnami/jmx-exporter:latest
+    container_name: jmx-exporter
+    ports:
+      - "5556:5556"
+    volumes:
+      - ./monitoring/jmx-exporter-config.yml:/etc/jmx-exporter/config.yml
+    command:
+      - "5556"
+      - "/etc/jmx-exporter/config.yml"
+    networks:
+      - fraud-detection
+    restart: unless-stopped
+
+networks:
+  fraud-detection:
+    driver: bridge
+
+volumes:
+  prometheus-data:
+  grafana-data:

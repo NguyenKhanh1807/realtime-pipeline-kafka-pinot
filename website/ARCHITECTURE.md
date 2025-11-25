@@ -8,7 +8,7 @@ This project implements a **Fraud Detection Dashboard** using **MVVM (Model-View
 
 ### 🔍 Fraud Detection System
 - **Real-time Transaction Analysis**: Input credit card transaction details for instant fraud scoring
-- **Apache Pinot Integration**: Connects to Pinot instance at `http://93.115.172.151:8099/` for advanced analytics
+- **Apache Pinot Integration**: Connects to configurable Pinot instance (configured via environment variables) for advanced analytics
 - **Risk Assessment**: Multi-factor fraud scoring with confidence levels based on real transaction patterns
 - **Interactive Dashboard**: Monitor fraud metrics, risk factors, and transaction trends
 - **Advanced Visualizations**: Charts and graphs for fraud analytics using Recharts
@@ -426,13 +426,12 @@ app/                    # Next.js App Router
 
 ### Font Family
 
-The project uses Literata as the primary font family. It's automatically loaded and configured as the default font.
+The project uses Arial as the primary font family. It's configured as the default font for better readability and universal compatibility.
 
 ### Font Weights
 
-Literata is available in the following weights:
+Arial is available in the following weights:
 
-- Thin: 200 (`font-extralight`)
 - Light: 300 (`font-light`)
 - Regular: 400 (`font-normal`)
 - Medium: 500 (`font-medium`)

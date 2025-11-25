@@ -19,7 +19,8 @@ const config: Config = {
     },
     extend: {
       fontFamily: {
-        sans: ["var(--font-literata)", "sans-serif"],
+        sans: ["Arial", "sans-serif"],
+        arial: ["Arial", "sans-serif"],
       },
       colors: {
         border: {

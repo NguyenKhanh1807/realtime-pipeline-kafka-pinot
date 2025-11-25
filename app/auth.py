@@ -112,7 +112,12 @@ def _load_token_record(db: Session, token: str) -> AuthToken:
         raise AuthError("Token does not match user.")
     if db_token.revoked_at is not None:
         raise AuthError("Token has been revoked.")
-    if db_token.expires_at < datetime.now(tz=timezone.utc):
+    # Make sure both datetimes are timezone-aware for comparison
+    now_utc = datetime.now(tz=timezone.utc)
+    expires_at = db_token.expires_at
+    if expires_at.tzinfo is None:
+        expires_at = expires_at.replace(tzinfo=timezone.utc)
+    if expires_at < now_utc:
         raise AuthError("Token has expired.")
     return db_token
 

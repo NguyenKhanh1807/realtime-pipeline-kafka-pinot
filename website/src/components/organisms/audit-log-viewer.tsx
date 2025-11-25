@@ -135,10 +135,10 @@ export function AuditLogViewer({
 
   const getLevelColor = (level: string) => {
     switch (level) {
-      case 'error': return 'text-red-600 bg-red-50 dark:bg-red-950';
-      case 'warn': return 'text-orange-600 bg-orange-50 dark:bg-orange-950';
-      case 'debug': return 'text-blue-600 bg-blue-50 dark:bg-blue-950';
-      default: return 'text-green-600 bg-green-50 dark:bg-green-950';
+      case 'error': return 'text-red-600 bg-red-50 dark:bg-red-200';
+      case 'warn': return 'text-orange-600 bg-orange-50 dark:bg-orange-200';
+      case 'debug': return 'text-blue-600 bg-blue-50 dark:bg-blue-200';
+      default: return 'text-green-600 bg-green-50 dark:bg-green-200';
     }
   };
 
@@ -386,8 +386,8 @@ export function AuditLogViewer({
                         <span className={cn(
                           'px-2 py-1 rounded-full text-xs font-medium',
                           log.result === 'success'
-                            ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                            : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                            ? 'bg-green-100 text-green-800 dark:bg-green-200 dark:text-green-900'
+                            : 'bg-red-100 text-red-800 dark:bg-red-200 dark:text-red-900'
                         )}>
                           {log.result}
                         </span>
@@ -445,7 +445,7 @@ export function AuditLogViewer({
                           <Typography variant="span" size="sm" weight="medium" className="text-foreground mb-2 block">
                             Error
                           </Typography>
-                          <div className="text-sm text-red-600 bg-red-50 dark:bg-red-950 p-2 rounded">
+                          <div className="text-sm text-red-600 bg-red-50 dark:bg-red-200 p-2 rounded">
                             {log.errorMessage}
                           </div>
                         </div>

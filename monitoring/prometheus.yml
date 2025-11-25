@@ -1,0 +1,35 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'fraud-detection'
+    environment: 'local'
+
+scrape_configs:
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Kafka JMX metrics (via JMX exporter)
+  - job_name: 'kafka'
+    static_configs:
+      - targets: ['jmx-exporter:5556']
+        labels:
+          component: 'kafka'
+
+  # Backend API metrics (if implemented)
+  - job_name: 'backend-api'
+    metrics_path: '/metrics'
+    scrape_interval: 30s
+    static_configs:
+      - targets: ['172.18.0.1:8080']
+        labels:
+          component: 'api'
+
+  # Pinot Custom Exporter - Main metrics source
+  - job_name: 'pinot-exporter'
+    static_configs:
+      - targets: ['172.18.0.1:9093']
+        labels:
+          component: 'pinot-exporter'

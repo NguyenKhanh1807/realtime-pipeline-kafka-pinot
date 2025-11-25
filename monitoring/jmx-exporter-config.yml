@@ -1,0 +1,37 @@
+hostPort: kafka:19092
+lowercaseOutputName: true
+lowercaseOutputLabelNames: true
+whitelistObjectNames:
+  - "kafka.server:type=BrokerTopicMetrics,name=*"
+  - "kafka.server:type=ReplicaManager,name=*"
+  - "kafka.server:type=KafkaRequestHandlerPool,name=*"
+  - "kafka.network:type=RequestMetrics,name=*,request=*"
+  - "kafka.network:type=SocketServer,name=*"
+  - "kafka.log:type=LogFlushStats,name=*"
+  - "kafka.controller:type=KafkaController,name=*"
+  - "java.lang:type=Memory"
+  - "java.lang:type=GarbageCollector,name=*"
+  - "java.lang:type=Threading"
+  - "java.lang:type=OperatingSystem"
+
+rules:
+  # Broker topic metrics
+  - pattern: kafka.server<type=BrokerTopicMetrics, name=(.+)><>Count
+    name: kafka_server_brokertopicmetrics_$1_total
+    type: COUNTER
+
+  # Request metrics
+  - pattern: kafka.network<type=RequestMetrics, name=(.+), request=(.+)><>Count
+    name: kafka_network_requestmetrics_$1_total
+    labels:
+      request: "$2"
+    type: COUNTER
+
+  # Memory metrics
+  - pattern: java.lang<type=Memory><HeapMemoryUsage>(.+)
+    name: jvm_memory_heap_$1
+    type: GAUGE
+
+  - pattern: java.lang<type=Memory><NonHeapMemoryUsage>(.+)
+    name: jvm_memory_nonheap_$1
+    type: GAUGE

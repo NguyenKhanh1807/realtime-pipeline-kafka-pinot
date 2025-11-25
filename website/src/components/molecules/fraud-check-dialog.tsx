@@ -222,9 +222,9 @@ export function FraudCheckDialog({
               {/* Recommendation */}
               <div className={cn(
                 'p-4 rounded-lg border',
-                result.riskLevel === 'low' ? 'bg-green-50 border-green-200 dark:bg-green-950 dark:border-green-800' :
-                result.riskLevel === 'medium' ? 'bg-yellow-50 border-yellow-200 dark:bg-yellow-950 dark:border-yellow-800' :
-                'bg-red-50 border-red-200 dark:bg-red-950 dark:border-red-800'
+                result.riskLevel === 'low' ? 'bg-green-50 border-green-200 dark:bg-green-200 dark:border-green-400' :
+                result.riskLevel === 'medium' ? 'bg-yellow-50 border-yellow-200 dark:bg-yellow-200 dark:border-yellow-400' :
+                'bg-red-50 border-red-200 dark:bg-red-200 dark:border-red-400'
               )}>
                 <div className="flex items-start space-x-3">
                   <div className={cn(

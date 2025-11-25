@@ -1,168 +1,212 @@
-# Real-time Data Pipeline with Apache Pinot & Kafka
+# Real-time Fraud Detection Pipeline with Apache Pinot & Kafka
 
-This guide explains how to run a full end-to-end **real-time pipeline** with Kafka and Apache Pinot, including **data generation, processing, ingestion, and querying**.
+A comprehensive **real-time fraud detection system** built with Apache Pinot, Kafka, FastAPI, and Next.js. This project demonstrates a complete data pipeline from generation to visualization, featuring ML-based fraud detection, auto-ban system, and real-time monitoring.
+
+## ⚡ Quick Start
+
+**One-command startup:**
+```bash
+./startup.sh
+```
+
+Then start the frontend:
+```bash
+cd website && npm install && npm run dev
+```
+
+**Access**: http://localhost:3000
+
+See **[QUICK_START.md](QUICK_START.md)** for details.
 
 ---
 
-## 1. Start Pinot Cluster (Realtime Quickstart)
+## 🏗️ Architecture
+
+```
+Producer → Kafka → Processor → Pinot (Real-time + Offline Tables)
+                      ↓
+                ML Detector → Auto-Ban System
+                      ↓
+              PostgreSQL (Users + Bans)
+                      ↓
+         FastAPI Backend → Next.js Frontend
+                      ↓
+         Prometheus + Grafana (Monitoring)
+```
+
+---
+
+## 📚 Complete Documentation
+
+- **[QUICK_START.md](QUICK_START.md)** - Fast setup and common commands
+- **[STARTUP_GUIDE.md](STARTUP_GUIDE.md)** - Comprehensive setup guide
+- **[API_QUICK_REFERENCE.md](API_QUICK_REFERENCE.md)** - API documentation
+- **[docs/](docs/)** - Technical documentation
+
+---
+
+## 🚀 Features
+
+- ✅ **Real-time Data Pipeline**: Kafka → Pinot streaming ingestion
+- ✅ **ML Fraud Detection**: Auto-classify transactions (normal/warning/banned)
+- ✅ **Auto-Ban System**: Automatic user blocking based on fraud patterns
+- ✅ **Hybrid Tables**: Realtime + Offline Pinot tables with automatic tiering
+- ✅ **Live Dashboard**: Real-time metrics and visualizations
+- ✅ **Monitoring Stack**: Prometheus + Grafana for system metrics
+- ✅ **MLflow Integration**: Model versioning and experiment tracking
+- ✅ **RESTful API**: FastAPI backend with Swagger docs
+
+---
+
+## 🛠️ Technology Stack
+
+### Backend
+- **Apache Pinot** - OLAP datastore for real-time analytics
+- **Apache Kafka** - Event streaming platform
+- **PostgreSQL** - Relational database for users and bans
+- **FastAPI** - Modern Python web framework
+- **MLflow** - ML lifecycle management
+
+### Frontend
+- **Next.js 14** - React framework with App Router
+- **TailwindCSS** - Utility-first CSS framework
+- **Recharts** - Charting library for visualizations
+
+### Monitoring
+- **Prometheus** - Metrics collection
+- **Grafana** - Metrics visualization
+- **Custom Exporters** - Pinot and Kafka metrics
+
+### ML/Data Processing
+- **scikit-learn** - Machine learning
+- **pandas** - Data manipulation
+- **NumPy** - Numerical computing
+
+---
+
+## 📋 Prerequisites
+
+- **Docker** & **Docker Compose** (v2.0+)
+- **Python** 3.8+
+- **Node.js** 18+
+- **8GB RAM** minimum (16GB recommended)
+
+---
+
+## 🔧 Services & Ports
+
+| Service | Port | Description |
+|---------|------|-------------|
+| Next.js Frontend | 3000 | Web UI |
+| FastAPI Backend | 8000 | REST API |
+| Pinot Controller | 9000 | Pinot admin UI |
+| Pinot Broker | 8099 | Query endpoint |
+| Pinot Server | 8097-8098 | Data serving |
+| Kafka | 9092, 29092 | Message broker |
+| Zookeeper | 2181 | Kafka coordination |
+| PostgreSQL | 5432 | Relational database |
+| Prometheus | 9090 | Metrics server |
+| Grafana | 3001 | Monitoring dashboards |
+| MLflow | 5000 | ML tracking |
+| Pinot Exporter | 9093 | Prometheus metrics |
+
+---
+
+## 📖 Manual Setup
+
+For manual step-by-step setup instructions, see **[STARTUP_GUIDE.md](STARTUP_GUIDE.md)**.
+
+---
+
+## 🎯 Key Commands
 
 ```bash
-docker run -it \
-  -p 9000:9000 -p 8099:8099 \
-  apachepinot/pinot:latest QuickStart -type realtime
-```
+# Start all services
+./startup.sh
 
-- Controller: **9000**  
-- Broker: **8099**  
-- Zookeeper + Server được start kèm.  
+# Check system health
+./health_check.sh
 
-👉 Pinot UI: [http://localhost:9000](http://localhost:9000)
+# Stop all services
+./stop_all.sh
 
----
-
-## 2. Deploy Schema
-
-Schema file: `conf/transactions_schema.json`
-
-```powershell
-$controller = "http://<pinot-host>:9000"
-
-Invoke-RestMethod `
-  -Method POST `
-  -Uri "$controller/schemas?override=true" `
-  -InFile "C:\Users\Dinh Khanh\Downloads\BTL_VSC\conf\transactions_schema.json" `
-  -ContentType "application/json"
+# View logs
+tail -f logs/*.log
 ```
 
 ---
 
-## 3. Deploy Realtime Table
+## 📊 Access Points
 
-Table config: `conf/transactions_realtime_table.json`  
-(Source Kafka topic = `transactions_rt`)
+Once started, access the application at:
 
-```powershell
-Invoke-RestMethod `
-  -Method POST `
-  -Uri "$controller/tables" `
-  -InFile "C:\Users\Dinh Khanh\Downloads\BTL_VSC\conf\transactions_realtime_table.json" `
-  -ContentType "application/json"
-```
+- **Frontend Dashboard**: http://localhost:3000
+- **API Documentation**: http://localhost:8000/docs
+- **Pinot Controller**: http://localhost:9000
+- **Grafana Monitoring**: http://localhost:3001 (admin/admin)
+- **Prometheus**: http://localhost:9090
+- **MLflow**: http://localhost:5000
 
 ---
 
-## 4. Run Data Generator (Producer)
+## 🔍 System Health
 
-👉 Container sinh dữ liệu giả (Faker) và push vào Kafka topic `transactions_raw`.
+Check that everything is running:
 
-```powershell
-# Stop old container if exists
-docker rm -f tx-producer 2>$null
-
-# Start producer
-docker run -d --name tx-producer `
-  --restart unless-stopped `
-  -v "C:\Users\Dinh Khanh\Downloads\BTL_VSC\crawl_data:/app" `
-  -e BOOTSTRAP_SERVERS=93.115.172.151:9092 `
-  -e TOPIC_RAW=transactions_raw `
-  -e INTERVAL_SEC=2 `
-  -e PYTHONUNBUFFERED=1 `
-  python:3.11-slim sh -lc `
-  "pip install --no-cache-dir kafka-python Faker >/dev/null && python -u /app/rt_producer.py"
+```bash
+./health_check.sh
 ```
 
-- Script `rt_producer.py` đã có `while True`, **không cần vòng lặp ngoài shell**.  
-- Kiểm tra log:
-
-```powershell
-docker logs -f --tail=100 tx-producer
-```
-
-Kỳ vọng output:
-
-```
-RAW sent seq=... p=0 off=...
-```
+This displays:
+- ✅ Docker container status
+- ✅ Python services status
+- ✅ Data flow metrics
+- ✅ System resources
 
 ---
 
-## 5. Run Processor
+## 🛠️ Troubleshooting
 
-👉 Container đọc từ `transactions_raw`, dedup + risk scoring, rồi đẩy ra `transactions_rt`.
+### Services won't start
+```bash
+# Check port conflicts
+sudo lsof -i :PORT_NUMBER
 
-```powershell
-# Stop old container if exists
-docker rm -f tx-processor 2>$null
-
-# Start processor
-docker run -d --name tx-processor `
-  --restart unless-stopped `
-  -v "C:\Users\Dinh Khanh\Downloads\BTL_VSC\crawl_data:/app" `
-  -e BOOTSTRAP_SERVERS=93.115.172.151:9092 `
-  -e TOPIC_RAW=transactions_raw `
-  -e TOPIC_CLEAN=transactions_rt `
-  -e GROUP_ID=rt-processor-v1 `
-  -e DEDUP_MAX_KEYS=50000 `
-  -e PYTHONUNBUFFERED=1 `
-  python:3.11-slim sh -lc `
-  "pip install --no-cache-dir kafka-python >/dev/null && python -u /app/rt_processor.py"
+# Reset everything
+./stop_all.sh
+docker-compose down -v  # ⚠️ Deletes all data
+./startup.sh
 ```
 
-Kiểm tra trạng thái container + log:
+### No data in Pinot
+```bash
+# Check producer
+tail -f logs/producer.log
 
-```powershell
-docker ps --format "table {{.Names}}\t{{.Status}}"
-docker logs -f --tail=100 tx-producer
-docker logs -f --tail=100 tx-processor
+# Check processor
+tail -f logs/processor.log
+
+# Check Kafka consumer lag
+docker exec kafka kafka-consumer-groups --bootstrap-server localhost:9092 \
+  --group rt-processor-v1 --describe
 ```
 
-Ở `tx-processor` bạn phải thấy các dòng kiểu:
-
-```
-CLEAN <- RAW off=... → p=0, off=... | label=1 risk=0.20
-```
+For more troubleshooting, see **[STARTUP_GUIDE.md](STARTUP_GUIDE.md)**.
 
 ---
 
-## 6. Query Data in Pinot
+## 📝 License
 
-👉 Query trực tiếp qua REST API hoặc Pinot UI.
-
-```powershell
-$body = @{ sql = @"
-SELECT create_dt, user_seq, payment_method, transaction_amount_24hour, label
-FROM transactions
-ORDER BY create_dt DESC
-LIMIT 10
-"@ } | ConvertTo-Json
-
-Invoke-RestMethod -Method POST -Uri "$controller/sql" -Body $body -ContentType "application/json"
-```
+MIT License
 
 ---
 
-## 7. Architecture Diagram
+## 👥 Contributors
 
-```mermaid
-flowchart LR
-    A[tx-producer\nFake Data Generator] -->|transactions_raw| B((Kafka Broker))
-    B -->|consume + clean| C[tx-processor\nDedup + Risk Scoring]
-    C -->|transactions_rt| B
-    B -->|Pinot Realtime Ingestion| D[Apache Pinot\nRealtime Table]
-
-    D --> E[Pinot UI / SQL Queries]
-```
+**Maintainer**: NguyenKhanh1807
 
 ---
 
-## Notes
+**Version**: 1.0.0  
+**Last Updated**: November 25, 2025
 
-- `transactions_raw` → raw Kafka topic (input from producer).  
-- `transactions_rt` → clean Kafka topic (output từ processor).  
-- Pinot **realtime table** consume từ `transactions_rt`.  
-- Controller UI: <http://<pinot-host>:9000>  
-- Broker queries chạy trên port **8099**.  
-
----
-
-✅ Bạn đã có **working real-time ingestion pipeline** với Kafka + Pinot + custom Producer/Processor!

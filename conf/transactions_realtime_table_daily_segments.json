@@ -1,0 +1,64 @@
+{
+  "tableName": "transactions",
+  "tableType": "REALTIME",
+  "segmentsConfig": {
+    "schemaName": "transactions",
+    "timeColumnName": "create_dt",
+    "timeType": "MILLISECONDS",
+    "replication": "1",
+    "retentionTimeUnit": "DAYS",
+    "retentionTimeValue": "30",
+    "segmentPushType": "APPEND",
+    "segmentPushFrequency": "DAILY",
+    "segmentAssignmentStrategy": "BalanceNumSegmentAssignmentStrategy",
+    "minimizeDataMovement": false
+  },
+  "tableIndexConfig": {
+    "loadMode": "MMAP",
+    "invertedIndexColumns": ["user_seq", "label", "fraud_score"],
+    "noDictionaryColumns": [],
+    "rangeIndexColumns": ["create_dt", "transaction_amount_24hour"],
+    "bloomFilterColumns": [],
+    "sortedColumn": ["create_dt"]
+  },
+  "ingestionConfig": {
+    "streamIngestionConfig": {
+      "streamConfigMaps": [
+        {
+          "streamType": "kafka",
+          "stream.kafka.topic.name": "transactions_rt",
+          "stream.kafka.broker.list": "kafka:19092",
+
+          "stream.kafka.consumer.type": "lowlevel",
+          "stream.kafka.consumer.prop.auto.offset.reset": "largest",
+
+          "stream.kafka.decoder.class.name": "org.apache.pinot.plugin.stream.kafka.KafkaJSONMessageDecoder",
+
+          "realtime.segment.flush.threshold.time": "24h",
+          "realtime.segment.flush.threshold.rows": "5000000",
+          "realtime.segment.flush.autotune.initialRows": "100000",
+          "realtime.segment.flush.desired.size": "200M",
+          "realtime.segment.flush.segment.size": "100M"
+        }
+      ]
+    },
+    "transformConfigs": [],
+    "continueOnError": true,
+    "rowTimeValueCheck": true,
+    "segmentTimeValueCheck": true
+  },
+  "tenants": {
+    "broker": "DefaultTenant",
+    "server": "DefaultTenant"
+  },
+  "routing": {
+    "segmentPrunerTypes": ["time"],
+    "instanceSelectorType": "strictReplicaGroup"
+  },
+  "metadata": {
+    "customConfigs": {
+      "segment.granularity": "DAILY",
+      "analytics.enabled": "true"
+    }
+  }
+}

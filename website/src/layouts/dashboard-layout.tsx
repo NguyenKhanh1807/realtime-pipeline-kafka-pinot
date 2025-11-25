@@ -1,11 +1,10 @@
 'use client';
 
 import { Button } from '@/src/components/atoms/button';
-import { ThemeToggle } from '@/src/components/molecules/theme-switcher';
 import { useAppStore } from '@/src/viewmodels/stores';
 import { useIsAdmin, useUserDisplayName, useUser } from '@/src/contexts/app-context';
 import { cn } from '@/src/lib/utils';
-import { Menu, X, Home, User, LogOut, Shield, ChevronUp } from 'lucide-react';
+import { Menu, X, Home, User, LogOut, Shield, ChevronUp, Activity, Database } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { ReactNode, useState } from 'react';
 
@@ -16,6 +15,7 @@ interface DashboardLayoutProps {
 const navigationItems = [
   { name: 'Dashboard', href: '/dashboard', icon: Home },
   { name: 'Fraud Detection', href: '/transaction', icon: Shield },
+  { name: 'Database Management', href: '/database-management', icon: Database },
   { name: 'Admin', href: '/admin', icon: Shield, adminOnly: true },
 ];
 
@@ -57,7 +57,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         <div className="flex h-full flex-col">
           {/* Logo/Brand */}
           <div className="flex h-16 shrink-0 items-center border-b border-border px-6">
-            <h1 className="text-xl font-bold text-foreground">Realtime Pinot</h1>
+            <h1 className="text-xl font-bold text-foreground">Administration</h1>
           </div>
 
           {/* Navigation */}
@@ -163,10 +163,6 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           >
             {sidebarOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
           </Button>
-
-          <div className="ml-auto flex items-center space-x-4">
-            <ThemeToggle />
-          </div>
         </header>
 
         {/* Page content */}

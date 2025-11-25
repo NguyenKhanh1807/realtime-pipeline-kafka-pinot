@@ -1,8 +1,17 @@
 import os, json, time, logging, re
 from datetime import datetime
 from collections import deque
-from typing import Dict, Any, Tuple
+from typing import Dict, Any, Tuple, Optional
 from kafka import KafkaConsumer, KafkaProducer
+
+# Try to import ML fraud detector
+try:
+    from ml_fraud_detector import get_detector
+    ML_AVAILABLE = True
+    logging.info("ML fraud detector loaded successfully")
+except ImportError as e:
+    ML_AVAILABLE = False
+    logging.warning(f"ML fraud detector not available: {e}. Using rule-based only.")
 
 # ==== Env / Config ====
 BOOTSTRAP       = os.getenv("BOOTSTRAP_SERVERS", "kafka-rt:19092")
@@ -12,6 +21,7 @@ GROUP_ID        = os.getenv("GROUP_ID", "rt-processor-v1")
 FLUSH_INTERVAL  = float(os.getenv("FLUSH_INTERVAL_SEC", "2.0"))   # flush định kỳ (giây)
 DEDUP_MAX_KEYS  = int(os.getenv("DEDUP_MAX_KEYS", "50000"))        # dedup theo (user_seq, minute)
 HEARTBEAT_EVERY = int(os.getenv("HEARTBEAT_EVERY", "200"))         # log sau mỗi N bản ghi
+USE_ML_SCORING  = os.getenv("USE_ML_SCORING", "True").lower() in ("true", "1", "yes")  # Use ML fraud detection
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 
@@ -57,34 +67,104 @@ def _as_float(v, default=0.0) -> float:
 def _fallback(val, default):
     return val if val not in (None, "", []) else default
 
-# === Simple rule-based risk scoring + relabel ===
+# === Hybrid fraud detection: ML + Rule-based ===
 def _risk_and_label(rec: Dict[str, Any]) -> Tuple[float, int]:
+    """
+    Hybrid fraud detection using ML model (if available) with rule-based fallback.
+    
+    Approach:
+    1. Check USE_ML_SCORING config - if False, skip ML entirely
+    2. Try ML model first (trained on historical patterns)
+    3. If ML not available or fails, use rule-based scoring
+    4. For borderline cases (0.4-0.6), apply rule-based boost
+    
+    Score >= 0.6 = fraud (label=1), otherwise normal (label=0)
+    
+    Returns:
+        Tuple of (fraud_score, label)
+    """
+    ml_score: Optional[float] = None
+    ml_label: Optional[int] = None
+    
+    # Try ML model first (only if enabled and available)
+    if USE_ML_SCORING and ML_AVAILABLE:
+        try:
+            detector = get_detector()
+            ml_score, ml_label = detector.predict_fraud_score(rec)
+            
+            # If ML is confident (very low or very high), trust it
+            if ml_score < 0.3 or ml_score > 0.7:
+                return ml_score, ml_label
+                
+        except Exception as e:
+            logging.warning(f"ML prediction failed: {e}, falling back to rules")
+    
+    # Rule-based scoring (used as fallback or for borderline cases)
+    rule_score = _rule_based_score(rec)
+    
+    # If ML gave borderline result, blend with rules
+    if ml_score is not None and 0.3 <= ml_score <= 0.7:
+        # Weight: 70% ML, 30% rules for borderline cases
+        final_score = 0.7 * ml_score + 0.3 * rule_score
+        final_label = 1 if final_score >= 0.6 else 0
+        return final_score, final_label
+    
+    # Pure rule-based fallback
+    return rule_score, (1 if rule_score >= 0.6 else 0)
+
+def _rule_based_score(rec: Dict[str, Any]) -> float:
+    """
+    Rule-based fraud scoring based on transaction patterns.
+    Realistic thresholds for $0-$1000 transaction amounts.
+    
+    Returns:
+        Fraud score between 0.0 and 1.0
+    """
     score = 0.0
 
-    # amount/velocity spikes
-    if rec["transaction_amount_24hour"] > 30_000_000:
-        score += 0.25
-    if rec["transaction_amount_1week"] > 150_000_000:
-        score += 0.20
-    if rec["transaction_amount_1month"] > 300_000_000:
-        score += 0.10
-    if rec["transaction_count_24hour"] > 60:
+    # Extreme transaction velocity (very suspicious amounts)
+    if rec["transaction_amount_24hour"] > 20000:  # More than $20K/day
+        score += 0.30
+    elif rec["transaction_amount_24hour"] > 10000:  # More than $10K/day
         score += 0.15
 
-    # route/payment bất thường
-    if rec.get("payment_method") in ("CRYPTO", "WALLET"):
-        score += 0.10
-    if rec.get("receiving_country") and rec.get("country_code") and rec["receiving_country"] != rec["country_code"]:
+    if rec["transaction_amount_1week"] > 50000:  # More than $50K/week
+        score += 0.25
+    elif rec["transaction_amount_1week"] > 30000:  # More than $30K/week
         score += 0.10
 
-    # deposit lớn
-    if rec["deposit_amount"] > 10_000_000:
+    if rec["transaction_amount_1month"] > 150000:  # More than $150K/month
+        score += 0.20
+
+    # Very high transaction frequency
+    if rec["transaction_count_24hour"] > 80:  # More than 80 transactions/day
+        score += 0.25
+    elif rec["transaction_count_24hour"] > 60:  # More than 60 transactions/day
+        score += 0.10
+
+    # High-risk payment methods
+    if rec.get("payment_method") in ("CRYPTO"):  # CRYPTO is highest risk
+        score += 0.20
+    elif rec.get("payment_method") in ("WALLET"):  # WALLET is medium risk
+        score += 0.10
+
+    # Cross-border transactions (different sending/receiving countries)
+    if rec.get("receiving_country") and rec.get("country_code") and rec["receiving_country"] != rec["country_code"]:
+        score += 0.15
+
+    # Very large single transaction (top 5%)
+    if rec["deposit_amount"] > 950:  # Transactions over $950
+        score += 0.15
+    elif rec["deposit_amount"] > 900:  # Transactions over $900
         score += 0.05
 
-    label = 1 if score >= 0.35 else 0
-    if rec.get("label") == 1:  # giữ nguyên fraud nếu input đã 1
-        label = 1
-    return min(score, 1.0), label
+    # Very high overall transaction counts
+    if rec["transaction_count_1week"] > 150:
+        score += 0.15
+    if rec["transaction_count_1month"] > 250:
+        score += 0.10
+
+    return min(score, 1.0)
 
 # ====== Processor ======
 def main():
@@ -162,8 +242,19 @@ def main():
                     seen_set.intersection_update(seen_keys)
 
                 # --- Tính risk score & (re)label ---
-                risk, label = _risk_and_label(rec)
+                # If transaction already has fraud_score, use it (predefined scores)
+                if "fraud_score" in raw and isinstance(raw["fraud_score"], (int, float)):
+                    # Use predefined fraud_score and label from producer
+                    risk = float(raw["fraud_score"])
+                    # Preserve the label from producer (0=normal, 1=warning, 2=banned)
+                    label = _as_int(raw.get("label"), 0)
+                    logging.debug(f"Using predefined score: {risk:.2f}, label: {label}")
+                else:
+                    # Calculate fraud score using ML or rules
+                    risk, label = _risk_and_label(rec)
+                
                 rec["label"] = label
+                rec["fraud_score"] = risk
 
                 # --- Gửi CLEAN ---
                 meta = producer.send(TOPIC_CLEAN, value=rec).get(timeout=10)

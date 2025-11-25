@@ -1,0 +1,22 @@
+artifact_path: /home/nam/study/realtime-pipeline-kafka-pinot/mlartifacts/1/models/m-8c3d17934397402e86457cc6d2b6add2/artifacts
+flavors:
+  python_function:
+    data: model.xgb
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.xgboost
+    python_version: 3.12.2
+  xgboost:
+    code: null
+    data: model.xgb
+    model_class: xgboost.sklearn.XGBClassifier
+    model_format: xgb
+    xgb_version: 3.0.4
+mlflow_version: 3.1.4
+model_id: m-8c3d17934397402e86457cc6d2b6add2
+model_size_bytes: 151114
+model_uuid: m-8c3d17934397402e86457cc6d2b6add2
+prompts: null
+run_id: 3078ef87da3c4efdb279fd91b7b8c13a
+utc_time_created: '2025-11-21 13:17:04.622792'

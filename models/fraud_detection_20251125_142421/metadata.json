@@ -1,0 +1,6 @@
+{
+  "timestamp": "20251125_142421",
+  "model_type": "XGBoost",
+  "num_features": 44,
+  "training_date": "2025-11-25T14:24:21.228884"
+}

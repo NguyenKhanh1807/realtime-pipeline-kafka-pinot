@@ -1,16 +1,29 @@
 import numpy as np, pandas as pd
 from typing import Optional, Sequence, Tuple
 
-# Hàm tính điểm gian lận từ model YDF đã train
+# Hàm tính điểm gian lận từ regression model
 def fraud_scores_from_model(model, X: pd.DataFrame) -> np.ndarray:
     """
-    YDF RF predict trả P(NO_FRAUD) -> đổi sang P(FRAUD)
+    Get fraud scores from regression model (predicts scores 0-100 directly).
+    Clips predictions to valid range [0, 100].
     """
-    p_no = model.predict(X).astype(float)
-    return 1.0 - p_no
+    scores = model.predict(X).astype(float)
+    # Ensure scores are in valid range
+    return np.clip(scores, 0, 100)
 
 # Hàm quyết định hành động dựa trên điểm và ngưỡng
 def decide(scores: np.ndarray, th_low: float, th_high: float) -> np.ndarray:
+    """
+    Determine action based on fraud score and thresholds.
+    
+    Args:
+        scores: Fraud scores (0-100)
+        th_low: Low threshold (e.g., 60) - below this is ALLOW
+        th_high: High threshold (e.g., 90) - above this is BLOCK
+    
+    Returns:
+        Array of decisions: ALLOW, REVIEW, or BLOCK
+    """
     out = np.full(scores.shape, "ALLOW", dtype=object)
     out[(scores >= th_low) & (scores < th_high)] = "REVIEW"
     out[scores >= th_high] = "BLOCK"

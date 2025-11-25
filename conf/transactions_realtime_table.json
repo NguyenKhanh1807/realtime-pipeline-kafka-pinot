@@ -4,17 +4,20 @@
   "segmentsConfig": {
     "schemaName": "transactions",
     "timeColumnName": "create_dt",
-    "timeType": "SECONDS",
+    "timeType": "MILLISECONDS",
     "replication": "1",
     "retentionTimeUnit": "DAYS",
-    "retentionTimeValue": "7"
+    "retentionTimeValue": "30",
+    "segmentPushType": "APPEND",
+    "segmentPushFrequency": "DAILY"
   },
   "tableIndexConfig": {
     "loadMode": "MMAP",
-    "invertedIndexColumns": [],
+    "invertedIndexColumns": ["user_seq", "label", "fraud_score"],
     "noDictionaryColumns": [],
-    "rangeIndexColumns": [],
-    "bloomFilterColumns": []
+    "rangeIndexColumns": ["create_dt", "transaction_amount_24hour"],
+    "bloomFilterColumns": [],
+    "sortedColumn": ["create_dt"]
   },
   "ingestionConfig": {
     "streamIngestionConfig": {
@@ -22,23 +25,28 @@
         {
           "streamType": "kafka",
           "stream.kafka.topic.name": "transactions_rt",
-          "stream.kafka.broker.list": "93.115.172.151:9092",
+          "stream.kafka.broker.list": "kafka:19092",
 
           "stream.kafka.consumer.type": "lowlevel",
-          "stream.kafka.consumer.prop.auto.offset.reset": "smallest",
+          "stream.kafka.consumer.prop.auto.offset.reset": "largest",
 
           "stream.kafka.decoder.class.name": "org.apache.pinot.plugin.stream.kafka.KafkaJSONMessageDecoder",
 
-          "realtime.segment.flush.threshold.rows": "0",
-          "realtime.segment.flush.threshold.time": "24h",
-          "realtime.segment.flush.threshold.segment.size": "200M"
+          "realtime.segment.flush.threshold.rows": "1000"
         }
       ]
-    }
+    },
+    "transformConfigs": [],
+    "continueOnError": true,
+    "rowTimeValueCheck": false,
+    "segmentTimeValueCheck": false
   },
   "tenants": {
     "broker": "DefaultTenant",
     "server": "DefaultTenant"
+  },
+  "routing": {
+    "segmentPrunerTypes": ["time"]
   },
   "metadata": {}
 }

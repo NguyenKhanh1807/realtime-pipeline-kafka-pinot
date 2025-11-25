@@ -1,22 +1,31 @@
+# Core Data Science & ML
 pandas==2.2.2
 numpy==1.26.4
 scikit-learn==1.5.1
+xgboost==2.0.3
+joblib==1.4.2
+
+# Web Framework & API
 fastapi==0.115.0
 uvicorn[standard]==0.30.6
+python-multipart==0.0.9
+
+# Database
 SQLAlchemy==2.0.32
 psycopg2-binary==2.9.9
-pyyaml==6.0.2
-joblib==1.4.2
-python-dotenv==1.0.1
-python-multipart==0.0.9
-azure-identity==1.17.1
-azure-storage-blob==12.27.0
+
+# ML Tracking & Model Management
 mlflow==3.1.4
-ydf
-passlib[bcrypt]==1.7.4  
-PyJWT==2.9.0  
-bcrypt==4.1.2  
-apscheduler
 
+# Authentication & Security
+passlib[bcrypt]==1.7.4
+PyJWT==2.9.0
+bcrypt==4.1.2
 
+# Utilities
+pyyaml==6.0.2
+python-dotenv==1.0.1
+apscheduler==3.10.4
+
+# Installation:
 # pip install -r requirements.txt

@@ -3,7 +3,7 @@
  * Handles communication with Pinot instance for fraud detection queries
  */
 
-const PINOT_BASE_URL = 'http://93.115.172.151:8099';
+const PINOT_BASE_URL = 'http://localhost:8099';
 
 export interface PinotQueryRequest {
   sql: string;
@@ -59,10 +59,16 @@ export class PinotClient {
    */
   async query(request: PinotQueryRequest): Promise<PinotQueryResponse | null> {
     try {
+      console.log('[PinotClient] Executing query:', request.sql.substring(0, 100) + '...');
+      
+      // Use Next.js API proxy instead of direct fetch to avoid CORS issues
+      const apiUrl = '/api/pinot/query';
+      console.log('[PinotClient] Using API proxy:', apiUrl);
+      
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout (increased)
 
-      const response = await fetch(`${this.baseUrl}/query/sql`, {
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -74,25 +80,26 @@ export class PinotClient {
       clearTimeout(timeoutId);
 
       if (!response.ok) {
+        console.error('[PinotClient] Query failed with status:', response.status, response.statusText);
         throw new Error(`Pinot API error: ${response.status} ${response.statusText}`);
       }
 
       const data = await response.json();
+      console.log('[PinotClient] Query successful, rows returned:', data.resultTable?.rows?.length || 0);
       return data;
     } catch (error) {
       // Return null for network/server issues instead of throwing
       if (error instanceof Error) {
+        console.error('[PinotClient] Query error:', error.name, error.message);
         if (error.name === 'AbortError' ||
             error.message.includes('fetch') ||
             error.message.includes('NetworkError') ||
             error.message.includes('Failed to fetch')) {
+          console.warn('[PinotClient] Network/timeout error, returning null');
           return null; // Server unavailable, return null instead of throwing
         }
       }
-      // Only log in development to avoid console spam
-      if (process.env.NODE_ENV === 'development') {
-        console.warn('Pinot query failed:', error);
-      }
+      console.error('[PinotClient] Unexpected query error:', error);
       throw new Error(`Failed to query Pinot: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
@@ -173,14 +180,13 @@ export class PinotClient {
         `,
       };
 
-      // 4. Time-based patterns (recent fraud spikes)
+      // 4. Time-based patterns (overall fraud rate)
       const timePatternQuery = {
         sql: `
           SELECT
             COUNT(*) as recent_transactions,
             AVG(CASE WHEN label = 1 THEN 1.0 ELSE 0.0 END) as fraud_rate
           FROM transactions
-          WHERE create_dt >= ago('1hour')
         `,
       };
 
@@ -275,9 +281,10 @@ export class PinotClient {
     hourlyTrends: Array<{ hour: string; transactions: number; frauds: number }>;
   }> {
     try {
-      // Get time range in Pinot format
-      const timeFilter = timeRange === '24hours' ? 'ago(\'1day\')' : 'ago(\'7days\')';
-
+      console.log('[PinotClient] getFraudAnalytics called, fetching from Pinot...');
+      // Get all available transactions since we have limited data
+      // Skip time filtering for now as Pinot data is not real-time
+      
       // 1. Get total transactions and fraud stats
       const statsQuery = {
         sql: `
@@ -285,21 +292,20 @@ export class PinotClient {
             COUNT(*) as total_transactions,
             SUM(CASE WHEN label = 1 THEN 1 ELSE 0 END) as fraudulent_transactions
           FROM transactions
-          WHERE create_dt >= ${timeFilter}
         `,
       };
 
-      // 2. Get hourly trends for the last 24 hours
+      // 2. Get distribution for transaction flow in 5-minute intervals
       const hourlyTrendsQuery = {
         sql: `
           SELECT
-            HOUR(create_dt) as hour,
+            ToDateTime(create_dt, 'HH:mm') as minute,
             COUNT(*) as transactions,
             SUM(CASE WHEN label = 1 THEN 1 ELSE 0 END) as frauds
           FROM transactions
-          WHERE create_dt >= ago('1day')
-          GROUP BY HOUR(create_dt)
-          ORDER BY hour
+          GROUP BY minute
+          ORDER BY minute DESC
+          LIMIT 24
         `,
       };
 
@@ -311,25 +317,53 @@ export class PinotClient {
             COUNT(*) as total_transactions,
             SUM(CASE WHEN label = 1 THEN 1 ELSE 0 END) as fraudulent_transactions
           FROM transactions
-          WHERE create_dt >= ${timeFilter} AND receiving_country IS NOT NULL
+          WHERE receiving_country IS NOT NULL
           GROUP BY receiving_country
           ORDER BY fraudulent_transactions DESC
           LIMIT 10
         `,
       };
 
+      // 4. Get top risk factors from actual data patterns (using simple aggregation)
+      const riskFactorsQuery = {
+        sql: `
+          SELECT
+            SUM(CASE WHEN label = 1 AND deposit_amount > 5000000 THEN 1 ELSE 0 END) as high_amount_frauds,
+            SUM(CASE WHEN label = 1 AND transaction_count_24hour > 50 THEN 1 ELSE 0 END) as high_velocity_24h,
+            SUM(CASE WHEN label = 1 AND stay_qualify = 'NO' THEN 1 ELSE 0 END) as new_account_frauds,
+            SUM(CASE WHEN label = 1 AND transaction_count_1month > 100 THEN 1 ELSE 0 END) as high_velocity_monthly,
+            SUM(CASE WHEN label = 1 AND receiving_country != country_code THEN 1 ELSE 0 END) as geo_inconsistency
+          FROM transactions
+        `,
+      };
+
       // Execute queries in parallel
-      const [statsResult, hourlyResult, geoResult] = await Promise.all([
+      const [statsResult, hourlyResult, geoResult, riskFactorsResult] = await Promise.all([
         this.query(statsQuery),
         this.query(hourlyTrendsQuery),
         this.query(geoFraudQuery),
+        this.query(riskFactorsQuery),
       ]);
 
       // Check if server is unavailable (any query returned null)
-      if (!statsResult || !hourlyResult || !geoResult) {
-        console.info('Pinot server unavailable, using demo data');
-        return this.getMockAnalytics();
+      if (!statsResult || !hourlyResult || !geoResult || !riskFactorsResult) {
+        console.error('[PinotClient] One or more queries returned null:', {
+          statsResult: !!statsResult,
+          hourlyResult: !!hourlyResult,
+          geoResult: !!geoResult,
+          riskFactorsResult: !!riskFactorsResult
+        });
+        console.info('Pinot server unavailable, returning null data');
+        return {
+          totalTransactions: 0,
+          fraudulentTransactions: 0,
+          fraudRate: 0,
+          topRiskFactors: [],
+          hourlyTrends: [],
+        };
       }
+      
+      console.log('[PinotClient] All queries succeeded, processing real data...');
 
       // Extract data
       const statsData = statsResult.resultTable.rows[0] || [0, 0];
@@ -337,35 +371,31 @@ export class PinotClient {
       const fraudulentTransactions = (typeof statsData[1] === 'number' ? statsData[1] : 0);
       const fraudRate = totalTransactions > 0 ? (fraudulentTransactions / totalTransactions) * 100 : 0;
 
-      // Process hourly trends
-      const hourlyTrends: Array<{ hour: string; transactions: number; frauds: number }> = [];
-      const hourlyData = hourlyResult.resultTable.rows || [];
+      // Process hourly trends - distribute total across 24 hours with variation
+      // Use Pinot result for real-time transaction flow
+      const hourlyTrends: Array<{ hour: string; transactions: number; frauds: number }> = (hourlyResult?.resultTable?.rows || [])
+        .map((row: any) => ({
+          hour: row[0] || '',
+          transactions: typeof row[1] === 'number' ? row[1] : 0,
+          frauds: typeof row[2] === 'number' ? row[2] : 0,
+        }));
 
-      // Create 24-hour array with default values
-      for (let i = 0; i < 24; i++) {
-        const hourData = hourlyData.find((row: unknown[]) =>
-          Array.isArray(row) && row.length >= 3 &&
-          typeof row[0] === 'number' && row[0] === i
-        );
-        hourlyTrends.push({
-          hour: `${i.toString().padStart(2, '0')}:00`,
-          transactions: hourData && Array.isArray(hourData) && typeof hourData[1] === 'number'
-            ? hourData[1] as number
-            : Math.floor(Math.random() * 50) + 10,
-          frauds: hourData && Array.isArray(hourData) && typeof hourData[2] === 'number'
-            ? hourData[2] as number
-            : Math.floor(Math.random() * 3),
-        });
-      }
-
-      // Generate top risk factors based on real data patterns
+      // Process risk factors from actual data (new aggregated format)
+      const riskFactorsData = riskFactorsResult?.resultTable?.rows[0] || [0, 0, 0, 0, 0];
       const topRiskFactors = [
-        { factor: 'High fraud rate locations', count: geoResult.resultTable.rows?.length || 0 },
-        { factor: 'Amount-based fraud patterns', count: Math.floor(fraudulentTransactions * 0.4) },
-        { factor: 'Transaction velocity anomalies', count: Math.floor(fraudulentTransactions * 0.3) },
-        { factor: 'Geographic inconsistencies', count: Math.floor(fraudulentTransactions * 0.2) },
-        { factor: 'New account patterns', count: Math.floor(fraudulentTransactions * 0.1) },
-      ];
+        { factor: 'High transaction amount (>$5M)', count: typeof riskFactorsData[0] === 'number' ? riskFactorsData[0] : 0 },
+        { factor: 'High velocity 24h (>50 txns)', count: typeof riskFactorsData[1] === 'number' ? riskFactorsData[1] : 0 },
+        { factor: 'New account fraud pattern', count: typeof riskFactorsData[2] === 'number' ? riskFactorsData[2] : 0 },
+        { factor: 'High velocity monthly (>100 txns)', count: typeof riskFactorsData[3] === 'number' ? riskFactorsData[3] : 0 },
+        { factor: 'Geographic inconsistency', count: typeof riskFactorsData[4] === 'number' ? riskFactorsData[4] : 0 },
+      ]
+        .filter(item => item.count > 0) // Only show factors with actual occurrences
+        .sort((a, b) => b.count - a.count); // Sort by count descending
+      
+      // If no risk factors found, provide default message
+      if (topRiskFactors.length === 0) {
+        topRiskFactors.push({ factor: 'No specific risk patterns detected', count: 0 });
+      }
 
       return {
         totalTransactions,
@@ -376,9 +406,19 @@ export class PinotClient {
       };
 
     } catch (error) {
-      console.error('Failed to fetch fraud analytics:', error);
-      // Fallback to basic mock data if Pinot queries fail
-      return this.getMockAnalytics();
+      console.error('[PinotClient] Failed to fetch fraud analytics:', error);
+      if (error instanceof Error) {
+        console.error('[PinotClient] Error details:', error.message, error.stack);
+      }
+      // Return null values when Pinot is unavailable - no mock data
+      console.warn('[PinotClient] Returning null analytics due to error');
+      return {
+        totalTransactions: 0,
+        fraudulentTransactions: 0,
+        fraudRate: 0,
+        topRiskFactors: [],
+        hourlyTrends: [],
+      };
     }
   }
 
@@ -590,6 +630,366 @@ export class PinotClient {
     }
 
     return factors;
+  }
+
+  /**
+   * Get country-level fraud analytics
+   */
+  async getCountryFraudAnalytics(): Promise<Record<string, {
+    fraudRate: number;
+    totalTransactions: number;
+    fraudCases: number;
+    riskLevel: 'Low' | 'Medium' | 'High';
+  }>> {
+    try {
+      const query = {
+        sql: `
+          SELECT
+            receiving_country,
+            COUNT(*) as total_transactions,
+            SUM(CASE WHEN label = 1 THEN 1 ELSE 0 END) as fraudulent_transactions
+          FROM transactions
+          WHERE receiving_country IS NOT NULL
+          GROUP BY receiving_country
+          ORDER BY fraudulent_transactions DESC
+        `,
+      };
+
+      const result = await this.query(query);
+      if (!result) {
+        return {};
+      }
+
+      const countryData: Record<string, {
+        fraudRate: number;
+        totalTransactions: number;
+        fraudCases: number;
+        riskLevel: 'Low' | 'Medium' | 'High';
+      }> = {};
+
+      result.resultTable.rows.forEach((row: unknown[]) => {
+        if (Array.isArray(row) && row.length >= 3) {
+          const country = String(row[0]);
+          const totalTx = typeof row[1] === 'number' ? row[1] : 0;
+          const fraudTx = typeof row[2] === 'number' ? row[2] : 0;
+          const fraudRate = totalTx > 0 ? (fraudTx / totalTx) * 100 : 0;
+
+          countryData[country] = {
+            fraudRate: Math.round(fraudRate * 100) / 100,
+            totalTransactions: totalTx,
+            fraudCases: fraudTx,
+            riskLevel: fraudRate > 4 ? 'High' : fraudRate > 2 ? 'Medium' : 'Low',
+          };
+        }
+      });
+
+      return countryData;
+    } catch (error) {
+      console.error('Failed to fetch country fraud analytics:', error);
+      return {};
+    }
+  }
+
+  /**
+   * Get recent transactions
+   */
+  async getRecentTransactions(limit: number = 10): Promise<Array<{
+    id: string;
+    timestamp: number;
+    amount: number;
+    merchant: string;
+    location: string;
+    fraudScore: number;
+    riskLevel: 'low' | 'medium' | 'high' | 'critical';
+    status: 'approved' | 'flagged' | 'blocked';
+    userSeq: string;
+    userName: string;
+  }>> {
+    try {
+      const query = {
+        sql: `
+          SELECT
+            transaction_seq,
+            user_seq,
+            user_name,
+            create_dt,
+            deposit_amount,
+            receiving_country,
+            label,
+            fraud_score
+          FROM transactions
+          ORDER BY transaction_seq DESC
+          LIMIT ${limit}
+        `,
+      };
+
+      const result = await this.query(query);
+      
+      // More defensive checking
+      if (!result) {
+        console.warn('getRecentTransactions: Query returned null');
+        return [];
+      }
+      
+      if (!result.resultTable) {
+        console.warn('getRecentTransactions: No resultTable in response');
+        return [];
+      }
+      
+      if (!result.resultTable.rows) {
+        console.warn('getRecentTransactions: No rows in resultTable');
+        return [];
+      }
+
+      return result.resultTable.rows.map((row: unknown[]): {
+        id: string;
+        timestamp: number;
+        amount: number;
+        merchant: string;
+        location: string;
+        fraudScore: number;
+        riskLevel: 'low' | 'medium' | 'high' | 'critical';
+        status: 'approved' | 'flagged' | 'blocked';
+        userSeq: string;
+        userName: string;
+      } => {
+        const transactionSeq = String(row[0] || '');
+        const userSeq = String(row[1] || '');
+        const userName = String(row[2] || 'Unknown User');
+        const createDt = typeof row[3] === 'number' ? row[3] : Date.now();
+        const amount = typeof row[4] === 'number' ? row[4] : 0;
+        const country = String(row[5] || 'Unknown');
+        const label = typeof row[6] === 'number' ? row[6] : 0;
+        const fraudScoreRaw = typeof row[7] === 'number' ? row[7] : 0;
+
+        // Use actual fraud_score from database (0-1 range)
+        const fraudScore = fraudScoreRaw;
+        const riskLevel = fraudScore > 0.7 ? 'critical' : fraudScore > 0.5 ? 'high' : fraudScore > 0.3 ? 'medium' : 'low';
+        const status = fraudScore > 0.7 ? 'blocked' : fraudScore > 0.5 ? 'flagged' : 'approved';
+
+        return {
+          id: `TXN-${transactionSeq}`,
+          timestamp: createDt,
+          amount,
+          merchant: `Merchant ${userSeq.substring(0, 6)}`,
+          location: country,
+          fraudScore,
+          riskLevel,
+          status,
+          userSeq,
+          userName,
+        };
+      });
+    } catch (error) {
+      console.error('Failed to fetch recent transactions:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Get recent fraud transactions for alerts
+   */
+  async getRecentFraudTransactions(minutes: number = 60): Promise<Array<{
+    id: string;
+    timestamp: number;
+    amount: number;
+    merchant: string;
+    location: string;
+    customerEmail: string;
+    fraudScore: number;
+    riskLevel: 'low' | 'medium' | 'high' | 'critical';
+    factors: string[];
+    recommendedAction: 'approve' | 'review' | 'block';
+  }>> {
+    try {
+      const timeWindowMs = minutes * 60 * 1000;
+      const cutoffTime = Date.now() - timeWindowMs;
+      
+      const query = {
+        sql: `
+          SELECT
+            user_seq,
+            create_dt,
+            deposit_amount,
+            receiving_country,
+            label,
+            fraud_score
+          FROM transactions
+          WHERE label = 1
+            AND create_dt >= ${cutoffTime}
+          ORDER BY create_dt DESC
+          LIMIT 20
+        `,
+      };
+
+      const result = await this.query(query);
+      if (!result) {
+        return [];
+      }
+
+      return result.resultTable.rows.map((row: unknown[]) => {
+        const userSeq = String(row[0] || '');
+        const createDt = typeof row[1] === 'number' ? row[1] : Date.now();
+        const amount = typeof row[2] === 'number' ? row[2] : 0;
+        const country = String(row[3] || 'Unknown');
+        const label = typeof row[4] === 'number' ? row[4] : 0;
+        const fraudScoreRaw = typeof row[5] === 'number' ? row[5] : 0;
+
+        // Use actual fraud_score from database
+        const fraudScore = fraudScoreRaw;
+        const riskLevel = fraudScore > 0.9 ? 'critical' : fraudScore > 0.8 ? 'high' : fraudScore > 0.7 ? 'medium' : 'low';
+
+        return {
+          id: `FRAUD-${userSeq}-${createDt}`,
+          timestamp: createDt,
+          amount,
+          merchant: `Merchant ${userSeq.substring(0, 6)}`,
+          location: country,
+          customerEmail: `user${userSeq}@example.com`,
+          fraudScore,
+          riskLevel,
+          factors: ['High-risk pattern', 'Geographic anomaly', 'Unusual amount'],
+          recommendedAction: fraudScore > 0.9 ? 'block' : fraudScore > 0.8 ? 'review' : 'approve' as 'approve' | 'review' | 'block',
+        };
+      });
+    } catch (error) {
+      console.error('Failed to fetch recent fraud transactions:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Get total unique users from transactions
+   */
+  async getTotalUniqueUsers(): Promise<number> {
+    try {
+      const query = {
+        sql: `
+          SELECT COUNT(DISTINCT user_seq) as unique_users
+          FROM transactions
+        `,
+      };
+
+      const result = await this.query(query);
+      if (!result || !result.resultTable.rows.length) {
+        return 0;
+      }
+
+      const count = result.resultTable.rows[0][0];
+      return typeof count === 'number' ? count : 0;
+    } catch (error) {
+      console.error('Failed to fetch total unique users:', error);
+      return 0;
+    }
+  }
+
+  /**
+   * Get top transactions by amount
+   */
+  async getTopTransactions(limit: number = 5): Promise<Array<{
+    id: string;
+    amount: number;
+    location: string;
+    fraudScore: number;
+    riskLevel: 'low' | 'medium' | 'high' | 'critical';
+    merchant: string;
+  }>> {
+    try {
+      const query = {
+        sql: `
+          SELECT
+            user_seq,
+            deposit_amount,
+            receiving_country,
+            label,
+            transaction_seq,
+            fraud_score
+          FROM transactions
+          ORDER BY deposit_amount DESC
+          LIMIT ${limit}
+        `,
+      };
+
+      const result = await this.query(query);
+      if (!result) {
+        return [];
+      }
+
+      return result.resultTable.rows.map((row: unknown[]) => {
+        const userSeq = String(row[0] || '');
+        const amount = typeof row[1] === 'number' ? row[1] : 0;
+        const country = String(row[2] || 'Unknown');
+        const label = typeof row[3] === 'number' ? row[3] : 0;
+        const txnSeq = String(row[4] || '');
+        const fraudScoreRaw = typeof row[5] === 'number' ? row[5] : 0;
+
+        // Use actual fraud_score from database
+        const fraudScore = fraudScoreRaw;
+        const riskLevel = fraudScore > 0.7 ? 'critical' : fraudScore > 0.5 ? 'high' : fraudScore > 0.3 ? 'medium' : 'low';
+
+        return {
+          id: `TXN-${txnSeq}`,
+          amount,
+          location: country,
+          fraudScore,
+          riskLevel,
+          merchant: `Merchant ${userSeq.substring(0, 6)}`,
+        };
+      });
+    } catch (error) {
+      console.error('Failed to fetch top transactions:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Get top fraud countries
+   */
+  async getTopFraudCountries(limit: number = 5): Promise<Array<{
+    country: string;
+    fraudCount: number;
+    totalTransactions: number;
+    fraudRate: number;
+    riskLevel: 'Low' | 'Medium' | 'High';
+  }>> {
+    try {
+      const query = {
+        sql: `
+          SELECT
+            receiving_country,
+            COUNT(*) as total_transactions,
+            SUM(CASE WHEN label = 1 THEN 1 ELSE 0 END) as fraudulent_transactions
+          FROM transactions
+          WHERE receiving_country IS NOT NULL
+          GROUP BY receiving_country
+          ORDER BY fraudulent_transactions DESC
+          LIMIT ${limit}
+        `,
+      };
+
+      const result = await this.query(query);
+      if (!result || !result.resultTable || !result.resultTable.rows) {
+        return [];
+      }
+
+      return result.resultTable.rows.map((row: unknown[]) => {
+        const country = String(row[0] || 'Unknown');
+        const totalTx = typeof row[1] === 'number' ? row[1] : 0;
+        const fraudTx = typeof row[2] === 'number' ? row[2] : 0;
+        const fraudRate = totalTx > 0 ? (fraudTx / totalTx) * 100 : 0;
+
+        return {
+          country,
+          fraudCount: fraudTx,
+          totalTransactions: totalTx,
+          fraudRate: Math.round(fraudRate * 100) / 100,
+          riskLevel: fraudRate > 4 ? 'High' : fraudRate > 2 ? 'Medium' : 'Low',
+        };
+      });
+    } catch (error) {
+      console.error('Failed to fetch top fraud countries:', error);
+      return [];
+    }
   }
 }
 

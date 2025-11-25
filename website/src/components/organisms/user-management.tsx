@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/src/components/atoms/button';
 import { Input } from '@/src/components/atoms/input';
 import { Typography } from '@/src/components/atoms/typography';
@@ -35,43 +35,7 @@ interface UserManagementProps {
   className?: string;
 }
 
-// Mock user data - in real app, this would come from API
-const mockUsers: UserType[] = [
-  {
-    id: '1',
-    email: 'admin@company.com',
-    name: { first: 'Admin', last: 'User' },
-    role: 'admin',
-    permissions: ROLE_DEFINITIONS.admin.permissions,
-    isActive: true,
-    lastLogin: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
-    createdAt: new Date(Date.now() - 365 * 24 * 60 * 60 * 1000), // 1 year ago
-    updatedAt: new Date(),
-  },
-  {
-    id: '2',
-    email: 'analyst@company.com',
-    name: { first: 'Fraud', last: 'Analyst' },
-    role: 'analyst',
-    permissions: ROLE_DEFINITIONS.analyst.permissions,
-    isActive: true,
-    lastLogin: new Date(Date.now() - 30 * 60 * 1000), // 30 minutes ago
-    createdAt: new Date(Date.now() - 180 * 24 * 60 * 60 * 1000), // 6 months ago
-    updatedAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // 1 week ago
-  },
-  {
-    id: '3',
-    email: 'viewer@company.com',
-    name: { first: 'Report', last: 'Viewer' },
-    role: 'viewer',
-    permissions: ROLE_DEFINITIONS.viewer.permissions,
-    isActive: true,
-    lastLogin: new Date(Date.now() - 24 * 60 * 60 * 1000), // 1 day ago
-    createdAt: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000), // 3 months ago
-    updatedAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000), // 2 weeks ago
-  },
-];
-
+// User data will be loaded from API - no mock data
 export function UserManagement({
   currentUser,
   onUserCreate,
@@ -79,12 +43,38 @@ export function UserManagement({
   onUserDelete,
   className
 }: UserManagementProps) {
-  const [users, setUsers] = useState<UserType[]>(mockUsers);
+  const [users, setUsers] = useState<UserType[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState<UserRole | 'all'>('all');
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
-  const [showCreateForm, setShowCreateForm] = useState(false);
-  const [editingUser, setEditingUser] = useState<UserType | null>(null);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<UserType | null>(null);
+  const [deleteConfirmUser, setDeleteConfirmUser] = useState<UserType | null>(null);
+
+  // Load users from API (placeholder for real implementation)
+  useEffect(() => {
+    const loadUsers = async () => {
+      try {
+        setIsLoading(true);
+        // TODO: Replace with actual API call to load users from database
+        // const response = await fetch('/api/users');
+        // const userData = await response.json();
+        // setUsers(userData);
+        
+        // For now, show empty state
+        setUsers([]);
+      } catch (error) {
+        console.error('Failed to load users:', error);
+        setUsers([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadUsers();
+  }, []);
   const [loading, setLoading] = useState(false);
 
   // Filter users based on search and filters
@@ -348,8 +338,8 @@ export function UserManagement({
                   <span className={cn(
                     'inline-flex items-center px-2 py-1 rounded-full text-xs font-medium',
                     user.isActive
-                      ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                      : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                      ? 'bg-green-100 text-green-800 dark:bg-green-200 dark:text-green-900'
+                      : 'bg-red-100 text-red-800 dark:bg-red-200 dark:text-red-900'
                   )}>
                     {user.isActive ? 'Active' : 'Inactive'}
                   </span>

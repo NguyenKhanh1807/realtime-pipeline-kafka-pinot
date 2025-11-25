@@ -1,0 +1,18 @@
+{
+  "model_version": "20251120-112931",
+  "trained_at": "2025-11-20T11:43:32Z",
+  "cutoff_time": "2025-11-20 10:29:21",
+  "train_size": 968631,
+  "test_size": 242205,
+  "class_weight_pos": 2.3343120920882328,
+  "metrics": {
+    "pr_auc": 0.29853262288274995,
+    "roc_auc": 0.49945137073417417
+  },
+  "thresholds": {
+    "low": 0.3820008635520935,
+    "high": 0.595999538898468,
+    "fpr_cap": 0.01
+  },
+  "feature_count": 51
+}
