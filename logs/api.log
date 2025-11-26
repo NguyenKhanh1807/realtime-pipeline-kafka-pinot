@@ -1,0 +1,43 @@
+nohup: ignoring input
+INFO:     Will watch for changes in these directories: ['/home/nam/study/realtime-pipeline-kafka-pinot']
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [30443] using WatchFiles
+INFO:     Started server process [30451]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     127.0.0.1:55762 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36068 - "GET /api/data-generation/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43694 - "GET /api/data-generation/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43700 - "POST /api/data-generation/start HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43712 - "GET /api/data-generation/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43726 - "GET /api/data-generation/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43728 - "GET /api/data-generation/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43734 - "POST /api/data-generation/stop HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43744 - "GET /api/data-generation/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43752 - "GET /api/data-generation/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39200 - "GET /api/transaction-users HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45732 - "GET /api/transaction-users HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58354 - "GET /api/transaction-users HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58362 - "GET /api/transaction-users HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36182 - "GET /api/transaction-users HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36182 - "GET /api/transaction-users HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42532 - "GET /api/transaction-users HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42538 - "GET /api/transaction-users HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47058 - "GET /api/transaction-users HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47068 - "GET /api/transaction-users HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34482 - "GET /api/transaction-users HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34492 - "GET /api/transaction-users HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60760 - "GET /api/transaction-users HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60770 - "GET /api/transaction-users HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58382 - "GET /api/transaction-users HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58396 - "GET /api/transaction-users HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51600 - "GET /api/transaction-users HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51614 - "GET /api/transaction-users HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38408 - "GET /api/transaction-users HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38418 - "GET /api/transaction-users HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33378 - "GET /api/transaction-users HTTP/1.1" 200 OK
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [30451]
+INFO:     Stopping reloader process [30443]

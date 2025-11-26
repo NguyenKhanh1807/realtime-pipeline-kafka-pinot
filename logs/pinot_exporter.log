@@ -1,0 +1,63 @@
+nohup: ignoring input
+INFO:__main__:Pinot metrics exporter started on port 9093
+INFO:__main__:Starting Pinot metrics collection...
+INFO:__main__:Query metrics: 1 QPM, Avg latency: 84.00ms
+INFO:__main__:Kafka ingestion metrics updated
+INFO:__main__:Table transactions: 1 consuming segments
+INFO:__main__:Metrics collected successfully
+INFO:__main__:Query metrics: 1 QPM, Avg latency: 84.00ms
+INFO:__main__:Kafka ingestion metrics updated
+INFO:__main__:Table transactions: 1 consuming segments
+INFO:__main__:Metrics collected successfully
+INFO:__main__:Query metrics: 1 QPM, Avg latency: 84.00ms
+INFO:__main__:Kafka ingestion metrics updated
+INFO:__main__:Table transactions: 1 consuming segments
+INFO:__main__:Metrics collected successfully
+INFO:__main__:Query metrics: 1 QPM, Avg latency: 84.00ms
+INFO:__main__:Kafka ingestion metrics updated
+INFO:__main__:Table transactions: 1 consuming segments
+INFO:__main__:Metrics collected successfully
+INFO:__main__:Query metrics: 1 QPM, Avg latency: 84.00ms
+INFO:__main__:Kafka ingestion metrics updated
+INFO:__main__:Table transactions: 1 consuming segments
+INFO:__main__:Metrics collected successfully
+INFO:__main__:Query metrics: 1 QPM, Avg latency: 84.00ms
+INFO:__main__:Kafka ingestion metrics updated
+INFO:__main__:Table transactions: 1 consuming segments
+INFO:__main__:Metrics collected successfully
+INFO:__main__:Query metrics: 2 QPM, Avg latency: 51.00ms
+INFO:__main__:Kafka ingestion metrics updated
+INFO:__main__:Table transactions: 1 consuming segments
+INFO:__main__:Metrics collected successfully
+INFO:__main__:Query metrics: 2 QPM, Avg latency: 51.00ms
+INFO:__main__:Kafka ingestion metrics updated
+INFO:__main__:Table transactions: 1 consuming segments
+INFO:__main__:Metrics collected successfully
+INFO:__main__:Query metrics: 2 QPM, Avg latency: 51.00ms
+INFO:__main__:Kafka ingestion metrics updated
+INFO:__main__:Table transactions: 1 consuming segments
+INFO:__main__:Metrics collected successfully
+INFO:__main__:Query metrics: 2 QPM, Avg latency: 51.00ms
+INFO:__main__:Kafka ingestion metrics updated
+INFO:__main__:Table transactions: 1 consuming segments
+INFO:__main__:Metrics collected successfully
+INFO:__main__:Query metrics: 2 QPM, Avg latency: 51.00ms
+INFO:__main__:Kafka ingestion metrics updated
+INFO:__main__:Table transactions: 1 consuming segments
+INFO:__main__:Metrics collected successfully
+INFO:__main__:Query metrics: 2 QPM, Avg latency: 51.00ms
+INFO:__main__:Kafka ingestion metrics updated
+INFO:__main__:Table transactions: 1 consuming segments
+INFO:__main__:Metrics collected successfully
+INFO:__main__:Query metrics: 2 QPM, Avg latency: 51.00ms
+INFO:__main__:Kafka ingestion metrics updated
+INFO:__main__:Table transactions: 1 consuming segments
+INFO:__main__:Metrics collected successfully
+INFO:__main__:Query metrics: 2 QPM, Avg latency: 51.00ms
+INFO:__main__:Kafka ingestion metrics updated
+INFO:__main__:Table transactions: 1 consuming segments
+INFO:__main__:Metrics collected successfully
+INFO:__main__:Query metrics: 2 QPM, Avg latency: 51.00ms
+INFO:__main__:Kafka ingestion metrics updated
+INFO:__main__:Table transactions: 1 consuming segments
+INFO:__main__:Metrics collected successfully

@@ -1,0 +1,817 @@
+2025-11-26 02:18:19,577 INFO Loading users from PostgreSQL database...
+2025-11-26 02:18:19,673 INFO Loaded 300 users from database
+2025-11-26 02:18:19,673 INFO Successfully loaded 300 users. Ready to generate transactions.
+2025-11-26 02:18:19,673 INFO Fraud generation enabled: ~15% of transactions will have fraud patterns
+2025-11-26 02:18:19,674 INFO Time-based transaction rate enabled: activity varies by hour (low at night, high during business hours)
+2025-11-26 02:18:19,676 INFO <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:9092 <connecting> [IPv4 ('localhost', 9092)]>: connecting to localhost:9092 [('localhost', 9092) IPv4]
+2025-11-26 02:18:19,680 INFO <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:9092 <checking_api_versions_recv> [IPv4 ('localhost', 9092)]>: Broker version identified as 2.6
+2025-11-26 02:18:19,680 INFO <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:9092 <connected> [IPv4 ('localhost', 9092)]>: Connection complete.
+/home/nam/study/realtime-pipeline-kafka-pinot/crawl_data/rt_producer.py:38: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "updated_at": datetime.utcnow().isoformat(),
+2025-11-26 02:18:19,683 INFO ⏰ Hour changed to 02:00 - Transaction rate: 1-2 tx/batch, 2.5s sleep
+/home/nam/study/realtime-pipeline-kafka-pinot/crawl_data/rt_producer.py:105: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  now = custom_datetime if custom_datetime else datetime.utcnow()
+2025-11-26 02:18:19,785 INFO <BrokerConnection client_id=kafka-python-producer-1, node_id=1 host=localhost:9092 <connecting> [IPv4 ('127.0.0.1', 9092)]>: connecting to localhost:9092 [('127.0.0.1', 9092) IPv4]
+2025-11-26 02:18:19,786 INFO <BrokerConnection client_id=kafka-python-producer-1, node_id=1 host=localhost:9092 <connected> [IPv4 ('127.0.0.1', 9092)]>: Connection complete.
+2025-11-26 02:18:19,786 INFO <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:9092 <connected> [IPv4 ('localhost', 9092)]>: Closing connection. 
+2025-11-26 02:18:19,835 INFO ✓ RAW sent seq=1 | user=1000096 name=Russell Reid amount=$367.7
+2025-11-26 02:18:22,342 INFO ✓ RAW sent seq=2 | user=1000155 name=Antonio Munoz amount=$510.21
+2025-11-26 02:18:24,845 INFO ✓ RAW sent seq=3 | user=1000288 name=Juan Vaughn amount=$847.86
+2025-11-26 02:18:27,350 INFO ✓ RAW sent seq=4 | user=1000172 name=Justin Howard amount=$735.11
+2025-11-26 02:18:29,854 INFO 🚨 FRAUD sent seq=5 type=high_velocity | user=1000173 tx_24h=65 amt_24h=$27023 payment=WALLET
+2025-11-26 02:18:32,360 INFO ✓ RAW sent seq=6 | user=1000019 name=Joyce Jenkins amount=$307.77
+2025-11-26 02:18:34,865 INFO ✓ RAW sent seq=7 | user=1000048 name=Catherine Patterson amount=$113.16
+2025-11-26 02:18:34,869 INFO ✓ RAW sent seq=8 | user=1000162 name=Pamela Kelly amount=$586.8
+2025-11-26 02:18:37,375 INFO 🚨 FRAUD sent seq=9 type=large_amount | user=1000148 tx_24h=2 amt_24h=$31081 payment=CARD
+2025-11-26 02:18:37,379 INFO ✓ RAW sent seq=10 | user=1000103 name=Zachary Kim amount=$897.92
+2025-11-26 02:18:39,886 INFO ✓ RAW sent seq=11 | user=1000212 name=Emma Ramos amount=$704.0
+2025-11-26 02:18:39,890 INFO ✓ RAW sent seq=12 | user=1000284 name=Henry Bryan amount=$74.25
+2025-11-26 02:18:42,395 INFO ✓ RAW sent seq=13 | user=1000141 name=Cynthia Edwards amount=$536.83
+2025-11-26 02:18:44,899 INFO ✓ RAW sent seq=14 | user=1000225 name=Amanda Baker amount=$615.72
+2025-11-26 02:18:44,904 INFO ✓ RAW sent seq=15 | user=1000148 name=Jeremy Lane amount=$750.33
+2025-11-26 02:18:47,410 INFO ✓ RAW sent seq=16 | user=1000218 name=Adam Jordan amount=$359.65
+2025-11-26 02:18:49,917 INFO ✓ RAW sent seq=17 | user=1000087 name=Henry Bryan amount=$957.63
+2025-11-26 02:18:49,920 INFO ✓ RAW sent seq=18 | user=1000147 name=Scarlett Wade amount=$484.93
+2025-11-26 02:18:52,426 INFO ✓ RAW sent seq=19 | user=1000261 name=Mia Barker amount=$62.68
+2025-11-26 02:18:52,432 INFO ✓ RAW sent seq=20 | user=1000049 name=Keith Fields amount=$36.36
+2025-11-26 02:18:54,937 INFO ✓ RAW sent seq=21 | user=1000168 name=Ryan Collins amount=$691.7
+2025-11-26 02:18:54,942 INFO 🚨 FRAUD sent seq=22 type=large_amount | user=1000185 tx_24h=5 amt_24h=$48597 payment=BANK
+2025-11-26 02:18:57,448 INFO ✓ RAW sent seq=23 | user=1000199 name=Kyle Castillo amount=$751.35
+2025-11-26 02:18:59,954 INFO ✓ RAW sent seq=24 | user=1000185 name=Scott Ward amount=$606.37
+2025-11-26 02:19:02,460 INFO 🚨 FRAUD sent seq=25 type=mixed_pattern | user=1000211 tx_24h=89 amt_24h=$41577 payment=WALLET
+2025-11-26 02:19:02,464 INFO 🚨 FRAUD sent seq=26 type=mixed_pattern | user=1000068 tx_24h=82 amt_24h=$52777 payment=CRYPTO
+2025-11-26 02:19:04,970 INFO ✓ RAW sent seq=27 | user=1000089 name=Randy Robbins amount=$402.67
+2025-11-26 02:19:07,476 INFO ✓ RAW sent seq=28 | user=1000033 name=Melissa Rivera amount=$576.09
+2025-11-26 02:19:09,982 INFO ✓ RAW sent seq=29 | user=1000144 name=Anthony Clark amount=$633.33
+2025-11-26 02:19:09,986 INFO ✓ RAW sent seq=30 | user=1000029 name=Leah Watts amount=$146.97
+2025-11-26 02:19:12,492 INFO ✓ RAW sent seq=31 | user=1000204 name=Brian Hall amount=$41.53
+2025-11-26 02:19:12,497 INFO ✓ RAW sent seq=32 | user=1000082 name=Gene Sandoval amount=$583.12
+2025-11-26 02:19:15,003 INFO ✓ RAW sent seq=33 | user=1000015 name=Carolyn Sanders amount=$24.84
+2025-11-26 02:19:15,006 INFO ✓ RAW sent seq=34 | user=1000180 name=Jennifer Garcia amount=$173.85
+2025-11-26 02:19:17,512 INFO ✓ RAW sent seq=35 | user=1000244 name=Tammy Mason amount=$649.57
+2025-11-26 02:19:17,517 INFO ✓ RAW sent seq=36 | user=1000253 name=Mary Johnson amount=$209.94
+2025-11-26 02:19:20,023 INFO 🚨 FRAUD sent seq=37 type=cross_border | user=1000163 tx_24h=37 amt_24h=$17449 payment=CRYPTO
+2025-11-26 02:19:22,528 INFO ✓ RAW sent seq=38 | user=1000203 name=Jeremy Lane amount=$802.03
+2025-11-26 02:19:25,033 INFO ✓ RAW sent seq=39 | user=1000272 name=Brandon Richardson amount=$652.87
+2025-11-26 02:19:25,036 INFO ✓ RAW sent seq=40 | user=1000038 name=Christopher Lee amount=$656.11
+2025-11-26 02:19:27,542 INFO ✓ RAW sent seq=41 | user=1000060 name=Donna Nguyen amount=$266.47
+2025-11-26 02:19:27,547 INFO ✓ RAW sent seq=42 | user=1000193 name=Kennedy Park amount=$914.27
+2025-11-26 02:19:30,052 INFO ✓ RAW sent seq=43 | user=1000146 name=Kathryn Arnold amount=$518.09
+2025-11-26 02:19:30,055 INFO ✓ RAW sent seq=44 | user=1000049 name=Keith Fields amount=$152.56
+2025-11-26 02:19:32,561 INFO 🚨 FRAUD sent seq=45 type=cross_border | user=1000230 tx_24h=36 amt_24h=$26984 payment=CASH
+2025-11-26 02:19:35,067 INFO ✓ RAW sent seq=46 | user=1000241 name=Kaylee Rich amount=$428.02
+2025-11-26 02:19:35,071 INFO ✓ RAW sent seq=47 | user=1000231 name=Nicole Cox amount=$214.12
+2025-11-26 02:19:37,576 INFO ✓ RAW sent seq=48 | user=1000217 name=Eliana Weaver amount=$654.08
+2025-11-26 02:19:37,579 INFO ✓ RAW sent seq=49 | user=1000046 name=Deborah Mitchell amount=$761.29
+2025-11-26 02:19:40,082 INFO 🚨 FRAUD sent seq=50 type=crypto_suspicious | user=1000092 tx_24h=47 amt_24h=$28385 payment=CRYPTO
+2025-11-26 02:19:42,587 INFO 🚨 FRAUD sent seq=51 type=high_velocity | user=1000109 tx_24h=114 amt_24h=$24784 payment=CARD
+2025-11-26 02:19:42,591 INFO ✓ RAW sent seq=52 | user=1000112 name=Phillip Hogan amount=$61.28
+2025-11-26 02:19:45,095 INFO ✓ RAW sent seq=53 | user=1000296 name=Andrea Mendez amount=$442.3
+2025-11-26 02:19:47,601 INFO ✓ RAW sent seq=54 | user=1000295 name=Ronald Gomez amount=$905.07
+2025-11-26 02:19:50,104 INFO ✓ RAW sent seq=55 | user=1000159 name=Michelle Flores amount=$596.41
+2025-11-26 02:19:50,110 INFO ✓ RAW sent seq=56 | user=1000208 name=Jesse Chapman amount=$259.46
+2025-11-26 02:19:52,613 INFO ✓ RAW sent seq=57 | user=1000034 name=Kennedy Park amount=$689.89
+2025-11-26 02:19:55,117 INFO ✓ RAW sent seq=58 | user=1000044 name=Lillian Zimmerman amount=$911.09
+2025-11-26 02:19:57,621 INFO 🚨 FRAUD sent seq=59 type=cross_border | user=1000142 tx_24h=48 amt_24h=$22390 payment=CRYPTO
+2025-11-26 02:20:00,125 INFO ✓ RAW sent seq=60 | user=1000239 name=Mariah York amount=$297.83
+2025-11-26 02:20:00,128 INFO ✓ RAW sent seq=61 | user=1000288 name=Juan Vaughn amount=$519.67
+2025-11-26 02:20:02,631 INFO ✓ RAW sent seq=62 | user=1000216 name=Lily Palmer amount=$954.18
+2025-11-26 02:20:02,634 INFO ✓ RAW sent seq=63 | user=1000161 name=Robert Williams amount=$124.22
+2025-11-26 02:20:05,140 INFO 🚨 FRAUD sent seq=64 type=high_velocity | user=1000276 tx_24h=107 amt_24h=$40975 payment=CASH
+2025-11-26 02:20:07,645 INFO ✓ RAW sent seq=65 | user=1000192 name=Jerry Butler amount=$89.06
+2025-11-26 02:20:10,149 INFO ✓ RAW sent seq=66 | user=1000180 name=Jennifer Garcia amount=$981.13
+2025-11-26 02:20:10,154 INFO ✓ RAW sent seq=67 | user=1000092 name=Jade Tucker amount=$665.94
+2025-11-26 02:20:12,659 INFO ✓ RAW sent seq=68 | user=1000089 name=Randy Robbins amount=$130.81
+2025-11-26 02:20:15,165 INFO ✓ RAW sent seq=69 | user=1000063 name=Jacob Stewart amount=$900.63
+2025-11-26 02:20:17,671 INFO ✓ RAW sent seq=70 | user=1000200 name=Jerry Butler amount=$466.02
+2025-11-26 02:20:20,177 INFO ✓ RAW sent seq=71 | user=1000131 name=Jeff Cannon amount=$348.58
+2025-11-26 02:20:20,182 INFO 🚨 FRAUD sent seq=72 type=cross_border | user=1000053 tx_24h=57 amt_24h=$26431 payment=CRYPTO
+2025-11-26 02:20:22,687 INFO ✓ RAW sent seq=73 | user=1000235 name=Frances Reynolds amount=$822.19
+2025-11-26 02:20:22,689 INFO ✓ RAW sent seq=74 | user=1000064 name=Milton Holloway amount=$341.41
+2025-11-26 02:20:25,194 INFO ✓ RAW sent seq=75 | user=1000263 name=Carlos Lucas amount=$753.63
+2025-11-26 02:20:25,198 INFO ✓ RAW sent seq=76 | user=1000234 name=Serenity Ware amount=$383.1
+2025-11-26 02:20:27,702 INFO ✓ RAW sent seq=77 | user=1000096 name=Russell Reid amount=$132.57
+2025-11-26 02:20:30,205 INFO ✓ RAW sent seq=78 | user=1000035 name=Michelle Flores amount=$795.56
+2025-11-26 02:20:32,710 INFO ✓ RAW sent seq=79 | user=1000253 name=Mary Johnson amount=$878.57
+2025-11-26 02:20:35,213 INFO 🚨 FRAUD sent seq=80 type=crypto_suspicious | user=1000155 tx_24h=84 amt_24h=$42644 payment=CRYPTO
+2025-11-26 02:20:35,216 INFO 🚨 FRAUD sent seq=81 type=crypto_suspicious | user=1000213 tx_24h=65 amt_24h=$43585 payment=CRYPTO
+2025-11-26 02:20:37,722 INFO ✓ RAW sent seq=82 | user=1000137 name=Francis Roman amount=$783.23
+2025-11-26 02:20:37,726 INFO ✓ RAW sent seq=83 | user=1000268 name=Austin Holmes amount=$694.45
+2025-11-26 02:20:40,229 INFO ✓ RAW sent seq=84 | user=1000271 name=Angela Murphy amount=$466.98
+2025-11-26 02:20:40,232 INFO ✓ RAW sent seq=85 | user=1000181 name=Ella Preston amount=$417.34
+2025-11-26 02:20:42,738 INFO ✓ RAW sent seq=86 | user=1000107 name=Edgar Strickland amount=$961.86
+2025-11-26 02:20:45,241 INFO ✓ RAW sent seq=87 | user=1000196 name=Gregory Price amount=$151.56
+2025-11-26 02:20:47,746 INFO ✓ RAW sent seq=88 | user=1000243 name=Mia Barker amount=$961.18
+2025-11-26 02:20:50,249 INFO ✓ RAW sent seq=89 | user=1000128 name=Aurora Fowler amount=$909.72
+2025-11-26 02:20:50,253 INFO ✓ RAW sent seq=90 | user=1000090 name=Raymond Foster amount=$577.15
+2025-11-26 02:20:52,760 INFO 🚨 FRAUD sent seq=91 type=crypto_suspicious | user=1000052 tx_24h=75 amt_24h=$42123 payment=CRYPTO
+2025-11-26 02:20:55,266 INFO ✓ RAW sent seq=92 | user=1000215 name=Teresa Gonzales amount=$38.4
+2025-11-26 02:20:57,772 INFO 🚨 FRAUD sent seq=93 type=large_amount | user=1000203 tx_24h=2 amt_24h=$57288 payment=WALLET
+2025-11-26 02:21:00,275 INFO ✓ RAW sent seq=94 | user=1000222 name=Kennedy Park amount=$972.15
+2025-11-26 02:21:02,779 INFO ✓ RAW sent seq=95 | user=1000199 name=Kyle Castillo amount=$370.06
+2025-11-26 02:21:05,285 INFO ✓ RAW sent seq=96 | user=1000137 name=Francis Roman amount=$956.51
+2025-11-26 02:21:05,288 INFO ✓ RAW sent seq=97 | user=1000169 name=Carl Stone amount=$592.34
+2025-11-26 02:21:07,794 INFO ✓ RAW sent seq=98 | user=1000169 name=Carl Stone amount=$203.97
+2025-11-26 02:21:10,299 INFO ✓ RAW sent seq=99 | user=1000169 name=Carl Stone amount=$861.26
+2025-11-26 02:21:10,306 INFO ✓ RAW sent seq=100 | user=1000110 name=Eleanor Parks amount=$989.12
+2025-11-26 02:21:10,307 INFO 📊 Stats: 100 total, 16 fraud (16.0%)
+2025-11-26 02:21:12,810 INFO ✓ RAW sent seq=101 | user=1000123 name=Aaron Coleman amount=$182.9
+2025-11-26 02:21:15,316 INFO 🚨 FRAUD sent seq=102 type=mixed_pattern | user=1000163 tx_24h=70 amt_24h=$36425 payment=CRYPTO
+2025-11-26 02:21:15,319 INFO 🚨 FRAUD sent seq=103 type=mixed_pattern | user=1000082 tx_24h=66 amt_24h=$53315 payment=CRYPTO
+2025-11-26 02:21:17,825 INFO ✓ RAW sent seq=104 | user=1000141 name=Cynthia Edwards amount=$187.91
+2025-11-26 02:21:17,829 INFO ✓ RAW sent seq=105 | user=1000279 name=Kaylee Rich amount=$632.7
+2025-11-26 02:21:20,334 INFO 🚨 FRAUD sent seq=106 type=mixed_pattern | user=1000067 tx_24h=64 amt_24h=$54083 payment=WALLET
+2025-11-26 02:21:22,839 INFO ✓ RAW sent seq=107 | user=1000240 name=Roy Crane amount=$528.56
+2025-11-26 02:21:22,842 INFO ✓ RAW sent seq=108 | user=1000174 name=Zachary Kim amount=$4.48
+2025-11-26 02:21:25,348 INFO ✓ RAW sent seq=109 | user=1000057 name=Theresa Myers amount=$658.87
+2025-11-26 02:21:25,352 INFO ✓ RAW sent seq=110 | user=1000186 name=Sophia Hart amount=$613.24
+2025-11-26 02:21:27,858 INFO 🚨 FRAUD sent seq=111 type=cross_border | user=1000052 tx_24h=54 amt_24h=$25653 payment=CASH
+2025-11-26 02:21:30,362 INFO ✓ RAW sent seq=112 | user=1000106 name=Jacqueline Meyer amount=$178.51
+2025-11-26 02:21:32,867 INFO ✓ RAW sent seq=113 | user=1000114 name=Jonathan Morgan amount=$625.8
+2025-11-26 02:21:32,870 INFO ✓ RAW sent seq=114 | user=1000151 name=Tony Stokes amount=$481.46
+2025-11-26 02:21:35,376 INFO ✓ RAW sent seq=115 | user=1000060 name=Donna Nguyen amount=$161.06
+2025-11-26 02:21:35,381 INFO ✓ RAW sent seq=116 | user=1000171 name=Gianna Simon amount=$590.23
+2025-11-26 02:21:37,885 INFO ✓ RAW sent seq=117 | user=1000042 name=Shawn Bowen amount=$260.71
+2025-11-26 02:21:40,391 INFO ✓ RAW sent seq=118 | user=1000116 name=Theresa Myers amount=$197.18
+2025-11-26 02:21:42,894 INFO ✓ RAW sent seq=119 | user=1000108 name=Janice Warren amount=$344.91
+2025-11-26 02:21:42,897 INFO ✓ RAW sent seq=120 | user=1000166 name=Timothy Evans amount=$618.92
+2025-11-26 02:21:45,403 INFO ✓ RAW sent seq=121 | user=1000231 name=Nicole Cox amount=$637.23
+2025-11-26 02:21:47,909 INFO 🚨 FRAUD sent seq=122 type=large_amount | user=1000288 tx_24h=4 amt_24h=$46804 payment=BANK
+2025-11-26 02:21:50,415 INFO ✓ RAW sent seq=123 | user=1000293 name=Adam Jordan amount=$676.56
+2025-11-26 02:21:50,419 INFO ✓ RAW sent seq=124 | user=1000245 name=Reagan Francis amount=$146.88
+2025-11-26 02:21:52,922 INFO ✓ RAW sent seq=125 | user=1000052 name=Billy Dean amount=$845.55
+2025-11-26 02:21:52,924 INFO ✓ RAW sent seq=126 | user=1000030 name=Iris Nichols amount=$996.4
+2025-11-26 02:21:55,429 INFO ✓ RAW sent seq=127 | user=1000265 name=Brandon Richardson amount=$789.9
+2025-11-26 02:21:57,934 INFO ✓ RAW sent seq=128 | user=1000100 name=Jack Hughes amount=$791.86
+2025-11-26 02:21:57,937 INFO ✓ RAW sent seq=129 | user=1000035 name=Michelle Flores amount=$734.94
+2025-11-26 02:22:00,442 INFO ✓ RAW sent seq=130 | user=1000084 name=Allen Bates amount=$530.56
+2025-11-26 02:22:02,945 INFO ✓ RAW sent seq=131 | user=1000185 name=Scott Ward amount=$568.53
+2025-11-26 02:22:05,451 INFO 🚨 FRAUD sent seq=132 type=crypto_suspicious | user=1000053 tx_24h=71 amt_24h=$40259 payment=CRYPTO
+2025-11-26 02:22:07,960 INFO ✓ RAW sent seq=133 | user=1000084 name=Allen Bates amount=$47.57
+2025-11-26 02:22:10,464 INFO ✓ RAW sent seq=134 | user=1000174 name=Zachary Kim amount=$758.58
+2025-11-26 02:22:12,970 INFO ✓ RAW sent seq=135 | user=1000300 name=Carolyn Sanders amount=$725.03
+2025-11-26 02:22:15,476 INFO ✓ RAW sent seq=136 | user=1000123 name=Aaron Coleman amount=$813.79
+2025-11-26 02:22:15,479 INFO ✓ RAW sent seq=137 | user=1000166 name=Timothy Evans amount=$822.22
+2025-11-26 02:22:17,983 INFO ✓ RAW sent seq=138 | user=1000074 name=Mary Johnson amount=$310.86
+2025-11-26 02:22:17,986 INFO 🚨 FRAUD sent seq=139 type=crypto_suspicious | user=1000226 tx_24h=76 amt_24h=$39047 payment=CRYPTO
+2025-11-26 02:22:20,492 INFO ✓ RAW sent seq=140 | user=1000264 name=Elena Hardy amount=$212.14
+2025-11-26 02:22:22,995 INFO ✓ RAW sent seq=141 | user=1000271 name=Angela Murphy amount=$82.24
+2025-11-26 02:22:22,998 INFO ✓ RAW sent seq=142 | user=1000250 name=Catherine Patterson amount=$349.87
+2025-11-26 02:22:25,503 INFO ✓ RAW sent seq=143 | user=1000072 name=Isabelle Floyd amount=$666.09
+2025-11-26 02:22:28,007 INFO ✓ RAW sent seq=144 | user=1000104 name=Sara Pierce amount=$872.0
+2025-11-26 02:22:28,010 INFO ✓ RAW sent seq=145 | user=1000230 name=Beverly Hunt amount=$395.84
+2025-11-26 02:22:30,516 INFO ✓ RAW sent seq=146 | user=1000297 name=Samuel Russell amount=$868.1
+2025-11-26 02:22:30,520 INFO 🚨 FRAUD sent seq=147 type=cross_border | user=1000106 tx_24h=46 amt_24h=$22569 payment=WALLET
+2025-11-26 02:22:33,024 INFO ✓ RAW sent seq=148 | user=1000074 name=Mary Johnson amount=$934.68
+2025-11-26 02:22:33,027 INFO ✓ RAW sent seq=149 | user=1000202 name=Juan Vaughn amount=$642.88
+2025-11-26 02:22:35,532 INFO ✓ RAW sent seq=150 | user=1000073 name=Reagan Francis amount=$628.98
+2025-11-26 02:22:35,535 INFO ✓ RAW sent seq=151 | user=1000277 name=Craig Garrett amount=$505.61
+2025-11-26 02:22:38,041 INFO ✓ RAW sent seq=152 | user=1000260 name=Lewis Hampton amount=$835.68
+2025-11-26 02:22:40,547 INFO ✓ RAW sent seq=153 | user=1000048 name=Catherine Patterson amount=$542.53
+2025-11-26 02:22:43,052 INFO ✓ RAW sent seq=154 | user=1000109 name=Shawn Bowen amount=$435.34
+2025-11-26 02:22:45,556 INFO 🚨 FRAUD sent seq=155 type=high_velocity | user=1000288 tx_24h=117 amt_24h=$41883 payment=BANK
+2025-11-26 02:22:45,560 INFO 🚨 FRAUD sent seq=156 type=large_amount | user=1000120 tx_24h=7 amt_24h=$57943 payment=CARD
+2025-11-26 02:22:48,065 INFO ✓ RAW sent seq=157 | user=1000152 name=Victoria Patterson amount=$828.24
+2025-11-26 02:22:50,571 INFO ✓ RAW sent seq=158 | user=1000260 name=Lewis Hampton amount=$316.59
+2025-11-26 02:22:53,074 INFO ✓ RAW sent seq=159 | user=1000003 name=Kimberly King amount=$21.43
+2025-11-26 02:22:55,580 INFO ✓ RAW sent seq=160 | user=1000244 name=Tammy Mason amount=$487.53
+2025-11-26 02:22:58,083 INFO ✓ RAW sent seq=161 | user=1000049 name=Keith Fields amount=$590.08
+2025-11-26 02:23:00,588 INFO ✓ RAW sent seq=162 | user=1000034 name=Kennedy Park amount=$98.69
+2025-11-26 02:23:00,592 INFO ✓ RAW sent seq=163 | user=1000017 name=Tyler Fisher amount=$101.28
+2025-11-26 02:23:03,098 INFO 🚨 FRAUD sent seq=164 type=crypto_suspicious | user=1000105 tx_24h=46 amt_24h=$37689 payment=CRYPTO
+2025-11-26 02:23:03,104 INFO ✓ RAW sent seq=165 | user=1000086 name=Kennedy Park amount=$401.4
+2025-11-26 02:23:05,610 INFO ✓ RAW sent seq=166 | user=1000258 name=Layla Leonard amount=$526.99
+2025-11-26 02:23:08,113 INFO ✓ RAW sent seq=167 | user=1000082 name=Gene Sandoval amount=$937.44
+2025-11-26 02:23:10,619 INFO ✓ RAW sent seq=168 | user=1000203 name=Jeremy Lane amount=$565.77
+2025-11-26 02:23:13,124 INFO ✓ RAW sent seq=169 | user=1000274 name=Serenity Ware amount=$846.22
+2025-11-26 02:23:13,126 INFO ✓ RAW sent seq=170 | user=1000111 name=Joyce Jenkins amount=$659.96
+2025-11-26 02:23:15,631 INFO ✓ RAW sent seq=171 | user=1000269 name=Roger Day amount=$186.6
+2025-11-26 02:23:15,634 INFO ✓ RAW sent seq=172 | user=1000065 name=Janice Warren amount=$689.29
+2025-11-26 02:23:18,142 INFO 🚨 FRAUD sent seq=173 type=high_velocity | user=1000205 tx_24h=54 amt_24h=$26301 payment=WALLET
+2025-11-26 02:23:20,647 INFO 🚨 FRAUD sent seq=174 type=cross_border | user=1000045 tx_24h=51 amt_24h=$15515 payment=CASH
+2025-11-26 02:23:20,652 INFO 🚨 FRAUD sent seq=175 type=cross_border | user=1000070 tx_24h=52 amt_24h=$28185 payment=CRYPTO
+2025-11-26 02:23:23,155 INFO 🚨 FRAUD sent seq=176 type=large_amount | user=1000190 tx_24h=6 amt_24h=$31590 payment=CRYPTO
+2025-11-26 02:23:23,158 INFO 🚨 FRAUD sent seq=177 type=crypto_suspicious | user=1000197 tx_24h=72 amt_24h=$27570 payment=CRYPTO
+2025-11-26 02:23:25,663 INFO ✓ RAW sent seq=178 | user=1000229 name=Sara Pierce amount=$854.46
+2025-11-26 02:23:25,668 INFO ✓ RAW sent seq=179 | user=1000020 name=Patricia Brown amount=$228.49
+2025-11-26 02:23:28,173 INFO ✓ RAW sent seq=180 | user=1000232 name=Judy Austin amount=$481.47
+2025-11-26 02:23:28,178 INFO ✓ RAW sent seq=181 | user=1000235 name=Frances Reynolds amount=$756.26
+2025-11-26 02:23:30,681 INFO 🚨 FRAUD sent seq=182 type=cross_border | user=1000060 tx_24h=47 amt_24h=$32200 payment=CRYPTO
+2025-11-26 02:23:33,186 INFO ✓ RAW sent seq=183 | user=1000018 name=Brandon Richardson amount=$391.89
+2025-11-26 02:23:35,689 INFO ✓ RAW sent seq=184 | user=1000212 name=Emma Ramos amount=$950.72
+2025-11-26 02:23:38,192 INFO ✓ RAW sent seq=185 | user=1000262 name=Jeffrey Cruz amount=$865.91
+2025-11-26 02:23:38,194 INFO 🚨 FRAUD sent seq=186 type=large_amount | user=1000207 tx_24h=5 amt_24h=$50255 payment=BANK
+2025-11-26 02:23:40,700 INFO ✓ RAW sent seq=187 | user=1000231 name=Nicole Cox amount=$991.22
+2025-11-26 02:23:40,703 INFO ✓ RAW sent seq=188 | user=1000096 name=Russell Reid amount=$482.15
+2025-11-26 02:23:43,208 INFO ✓ RAW sent seq=189 | user=1000151 name=Tony Stokes amount=$806.85
+2025-11-26 02:23:45,714 INFO ✓ RAW sent seq=190 | user=1000133 name=Bradley Gross amount=$58.18
+2025-11-26 02:23:45,717 INFO ✓ RAW sent seq=191 | user=1000094 name=Katherine Wood amount=$501.9
+2025-11-26 02:23:48,220 INFO ✓ RAW sent seq=192 | user=1000081 name=Sofia Harper amount=$550.12
+2025-11-26 02:23:50,726 INFO ✓ RAW sent seq=193 | user=1000193 name=Kennedy Park amount=$526.6
+2025-11-26 02:23:50,729 INFO ✓ RAW sent seq=194 | user=1000218 name=Adam Jordan amount=$656.14
+2025-11-26 02:23:53,232 INFO ✓ RAW sent seq=195 | user=1000203 name=Jeremy Lane amount=$906.95
+2025-11-26 02:23:55,738 INFO ✓ RAW sent seq=196 | user=1000055 name=Mark Lewis amount=$950.72
+2025-11-26 02:23:55,742 INFO ✓ RAW sent seq=197 | user=1000072 name=Isabelle Floyd amount=$318.93
+2025-11-26 02:23:58,248 INFO ✓ RAW sent seq=198 | user=1000074 name=Mary Johnson amount=$122.78
+2025-11-26 02:23:58,252 INFO ✓ RAW sent seq=199 | user=1000048 name=Catherine Patterson amount=$169.16
+2025-11-26 02:24:00,757 INFO ✓ RAW sent seq=200 | user=1000172 name=Justin Howard amount=$843.34
+2025-11-26 02:24:00,758 INFO 📊 Stats: 200 total, 34 fraud (17.0%)
+2025-11-26 02:24:03,262 INFO ✓ RAW sent seq=201 | user=1000027 name=Gloria Graham amount=$572.27
+2025-11-26 02:24:03,265 INFO ✓ RAW sent seq=202 | user=1000285 name=Isabelle Floyd amount=$761.98
+2025-11-26 02:24:05,770 INFO ✓ RAW sent seq=203 | user=1000266 name=Ivy Farmer amount=$19.84
+2025-11-26 02:24:08,276 INFO ✓ RAW sent seq=204 | user=1000087 name=Henry Bryan amount=$889.43
+2025-11-26 02:24:10,783 INFO 🚨 FRAUD sent seq=205 type=mixed_pattern | user=1000042 tx_24h=83 amt_24h=$54982 payment=WALLET
+2025-11-26 02:24:13,286 INFO ✓ RAW sent seq=206 | user=1000145 name=Alice Watts amount=$670.71
+2025-11-26 02:24:13,292 INFO 🚨 FRAUD sent seq=207 type=large_amount | user=1000090 tx_24h=8 amt_24h=$43414 payment=BANK
+2025-11-26 02:24:15,797 INFO 🚨 FRAUD sent seq=208 type=large_amount | user=1000009 tx_24h=9 amt_24h=$45451 payment=CRYPTO
+2025-11-26 02:24:15,802 INFO ✓ RAW sent seq=209 | user=1000014 name=Roy Crane amount=$623.86
+2025-11-26 02:24:18,305 INFO ✓ RAW sent seq=210 | user=1000213 name=Ella Preston amount=$357.42
+2025-11-26 02:24:20,812 INFO ✓ RAW sent seq=211 | user=1000068 name=Zachary Kim amount=$214.01
+2025-11-26 02:24:20,824 INFO 🚨 FRAUD sent seq=212 type=high_velocity | user=1000272 tx_24h=70 amt_24h=$26106 payment=CARD
+2025-11-26 02:24:23,328 INFO ✓ RAW sent seq=213 | user=1000060 name=Donna Nguyen amount=$164.77
+2025-11-26 02:24:25,834 INFO ✓ RAW sent seq=214 | user=1000126 name=Stephen Peterson amount=$538.44
+2025-11-26 02:24:25,837 INFO 🚨 FRAUD sent seq=215 type=crypto_suspicious | user=1000291 tx_24h=50 amt_24h=$44824 payment=CRYPTO
+2025-11-26 02:24:28,341 INFO 🚨 FRAUD sent seq=216 type=large_amount | user=1000078 tx_24h=8 amt_24h=$57420 payment=BANK
+2025-11-26 02:24:28,344 INFO ✓ RAW sent seq=217 | user=1000242 name=Kennedy Park amount=$419.31
+2025-11-26 02:24:30,849 INFO ✓ RAW sent seq=218 | user=1000072 name=Isabelle Floyd amount=$268.64
+2025-11-26 02:24:30,853 INFO ✓ RAW sent seq=219 | user=1000067 name=Walter Tyler amount=$278.22
+2025-11-26 02:24:33,358 INFO 🚨 FRAUD sent seq=220 type=cross_border | user=1000034 tx_24h=43 amt_24h=$24303 payment=CASH
+2025-11-26 02:24:33,362 INFO ✓ RAW sent seq=221 | user=1000218 name=Adam Jordan amount=$934.71
+2025-11-26 02:24:35,868 INFO ✓ RAW sent seq=222 | user=1000079 name=Penelope Lyons amount=$775.78
+2025-11-26 02:24:35,871 INFO 🚨 FRAUD sent seq=223 type=high_velocity | user=1000106 tx_24h=118 amt_24h=$44263 payment=CRYPTO
+2025-11-26 02:24:38,380 INFO 🚨 FRAUD sent seq=224 type=high_velocity | user=1000239 tx_24h=70 amt_24h=$39729 payment=WALLET
+2025-11-26 02:24:40,885 INFO 🚨 FRAUD sent seq=225 type=crypto_suspicious | user=1000230 tx_24h=52 amt_24h=$29685 payment=CRYPTO
+2025-11-26 02:24:40,891 INFO ✓ RAW sent seq=226 | user=1000188 name=Dave Manning amount=$629.18
+2025-11-26 02:24:43,396 INFO ✓ RAW sent seq=227 | user=1000083 name=Joshua Hill amount=$103.45
+2025-11-26 02:24:45,899 INFO ✓ RAW sent seq=228 | user=1000205 name=Julie Henderson amount=$958.49
+2025-11-26 02:24:48,404 INFO 🚨 FRAUD sent seq=229 type=mixed_pattern | user=1000049 tx_24h=70 amt_24h=$53156 payment=WALLET
+2025-11-26 02:24:48,407 INFO ✓ RAW sent seq=230 | user=1000031 name=Mary Johnson amount=$143.81
+2025-11-26 02:24:50,911 INFO ✓ RAW sent seq=231 | user=1000147 name=Scarlett Wade amount=$427.86
+2025-11-26 02:24:50,916 INFO ✓ RAW sent seq=232 | user=1000214 name=Heather Hayes amount=$473.72
+2025-11-26 02:24:53,419 INFO ✓ RAW sent seq=233 | user=1000288 name=Juan Vaughn amount=$68.54
+2025-11-26 02:24:55,924 INFO ✓ RAW sent seq=234 | user=1000214 name=Heather Hayes amount=$819.98
+2025-11-26 02:24:58,428 INFO ✓ RAW sent seq=235 | user=1000125 name=Susan Wilson amount=$330.63
+2025-11-26 02:25:00,934 INFO ✓ RAW sent seq=236 | user=1000193 name=Kennedy Park amount=$2.82
+2025-11-26 02:25:00,938 INFO ✓ RAW sent seq=237 | user=1000106 name=Jacqueline Meyer amount=$254.78
+2025-11-26 02:25:03,441 INFO 🚨 FRAUD sent seq=238 type=cross_border | user=1000066 tx_24h=74 amt_24h=$31327 payment=CASH
+2025-11-26 02:25:05,946 INFO ✓ RAW sent seq=239 | user=1000123 name=Aaron Coleman amount=$958.57
+2025-11-26 02:25:08,451 INFO 🚨 FRAUD sent seq=240 type=high_velocity | user=1000210 tx_24h=70 amt_24h=$20113 payment=WALLET
+2025-11-26 02:25:10,955 INFO ✓ RAW sent seq=241 | user=1000067 name=Walter Tyler amount=$214.7
+2025-11-26 02:25:13,460 INFO ✓ RAW sent seq=242 | user=1000162 name=Pamela Kelly amount=$358.42
+2025-11-26 02:25:15,965 INFO ✓ RAW sent seq=243 | user=1000243 name=Mia Barker amount=$154.67
+2025-11-26 02:25:18,470 INFO 🚨 FRAUD sent seq=244 type=mixed_pattern | user=1000266 tx_24h=84 amt_24h=$43088 payment=WALLET
+2025-11-26 02:25:18,474 INFO 🚨 FRAUD sent seq=245 type=large_amount | user=1000149 tx_24h=5 amt_24h=$33223 payment=CRYPTO
+2025-11-26 02:25:20,980 INFO ✓ RAW sent seq=246 | user=1000029 name=Leah Watts amount=$644.54
+2025-11-26 02:25:20,992 INFO ✓ RAW sent seq=247 | user=1000276 name=Emery Schneider amount=$382.41
+2025-11-26 02:25:23,498 INFO ✓ RAW sent seq=248 | user=1000135 name=Jack Parsons amount=$83.83
+2025-11-26 02:25:23,501 INFO ✓ RAW sent seq=249 | user=1000147 name=Scarlett Wade amount=$521.52
+2025-11-26 02:25:26,006 INFO ✓ RAW sent seq=250 | user=1000177 name=Allen Bates amount=$879.67
+2025-11-26 02:25:28,510 INFO ✓ RAW sent seq=251 | user=1000152 name=Victoria Patterson amount=$765.2
+2025-11-26 02:25:28,515 INFO 🚨 FRAUD sent seq=252 type=crypto_suspicious | user=1000243 tx_24h=65 amt_24h=$34531 payment=CRYPTO
+2025-11-26 02:25:31,018 INFO 🚨 FRAUD sent seq=253 type=cross_border | user=1000145 tx_24h=30 amt_24h=$19706 payment=CARD
+2025-11-26 02:25:31,023 INFO ✓ RAW sent seq=254 | user=1000272 name=Brandon Richardson amount=$145.56
+2025-11-26 02:25:33,528 INFO ✓ RAW sent seq=255 | user=1000035 name=Michelle Flores amount=$757.13
+2025-11-26 02:25:36,033 INFO ✓ RAW sent seq=256 | user=1000266 name=Ivy Farmer amount=$748.22
+2025-11-26 02:25:38,537 INFO 🚨 FRAUD sent seq=257 type=cross_border | user=1000298 tx_24h=49 amt_24h=$33805 payment=WALLET
+2025-11-26 02:25:41,042 INFO ✓ RAW sent seq=258 | user=1000250 name=Catherine Patterson amount=$758.74
+2025-11-26 02:25:41,046 INFO ✓ RAW sent seq=259 | user=1000041 name=Nicholas Cook amount=$683.12
+2025-11-26 02:25:43,551 INFO 🚨 FRAUD sent seq=260 type=mixed_pattern | user=1000109 tx_24h=90 amt_24h=$52114 payment=WALLET
+2025-11-26 02:25:43,556 INFO ✓ RAW sent seq=261 | user=1000210 name=Carl Stone amount=$26.84
+2025-11-26 02:25:46,059 INFO ✓ RAW sent seq=262 | user=1000269 name=Roger Day amount=$216.02
+2025-11-26 02:25:46,062 INFO ✓ RAW sent seq=263 | user=1000006 name=Joel Chandler amount=$412.77
+2025-11-26 02:25:48,567 INFO ✓ RAW sent seq=264 | user=1000211 name=Anthony Clark amount=$828.45
+2025-11-26 02:25:51,073 INFO ✓ RAW sent seq=265 | user=1000215 name=Teresa Gonzales amount=$134.29
+2025-11-26 02:25:53,578 INFO ✓ RAW sent seq=266 | user=1000066 name=Francis Roman amount=$296.36
+2025-11-26 02:25:53,582 INFO ✓ RAW sent seq=267 | user=1000274 name=Serenity Ware amount=$994.63
+2025-11-26 02:25:56,086 INFO ✓ RAW sent seq=268 | user=1000265 name=Brandon Richardson amount=$763.61
+2025-11-26 02:25:56,090 INFO ✓ RAW sent seq=269 | user=1000156 name=Piper Pearson amount=$364.92
+2025-11-26 02:25:58,595 INFO 🚨 FRAUD sent seq=270 type=crypto_suspicious | user=1000081 tx_24h=59 amt_24h=$35808 payment=CRYPTO
+2025-11-26 02:26:01,098 INFO ✓ RAW sent seq=271 | user=1000061 name=Jade Tucker amount=$584.81
+2025-11-26 02:26:03,604 INFO ✓ RAW sent seq=272 | user=1000247 name=Vincent Hodges amount=$61.17
+2025-11-26 02:26:03,606 INFO ✓ RAW sent seq=273 | user=1000084 name=Allen Bates amount=$615.92
+2025-11-26 02:26:06,111 INFO ✓ RAW sent seq=274 | user=1000177 name=Allen Bates amount=$816.8
+2025-11-26 02:26:08,617 INFO ✓ RAW sent seq=275 | user=1000017 name=Tyler Fisher amount=$115.06
+2025-11-26 02:26:11,120 INFO ✓ RAW sent seq=276 | user=1000219 name=Tammy Mason amount=$881.25
+2025-11-26 02:26:13,626 INFO 🚨 FRAUD sent seq=277 type=high_velocity | user=1000140 tx_24h=90 amt_24h=$26901 payment=CRYPTO
+2025-11-26 02:26:16,131 INFO ✓ RAW sent seq=278 | user=1000071 name=Emma Ramos amount=$931.54
+2025-11-26 02:26:16,136 INFO ✓ RAW sent seq=279 | user=1000026 name=Martha Francis amount=$219.14
+2025-11-26 02:26:18,642 INFO 🚨 FRAUD sent seq=280 type=crypto_suspicious | user=1000215 tx_24h=85 amt_24h=$27188 payment=CRYPTO
+2025-11-26 02:26:18,645 INFO ✓ RAW sent seq=281 | user=1000100 name=Jack Hughes amount=$186.84
+2025-11-26 02:26:21,151 INFO ✓ RAW sent seq=282 | user=1000189 name=Patricia Brown amount=$96.92
+2025-11-26 02:26:23,656 INFO 🚨 FRAUD sent seq=283 type=mixed_pattern | user=1000070 tx_24h=73 amt_24h=$53299 payment=WALLET
+2025-11-26 02:26:23,661 INFO ✓ RAW sent seq=284 | user=1000216 name=Lily Palmer amount=$148.17
+2025-11-26 02:26:26,165 INFO ✓ RAW sent seq=285 | user=1000151 name=Tony Stokes amount=$521.32
+2025-11-26 02:26:28,668 INFO ✓ RAW sent seq=286 | user=1000203 name=Jeremy Lane amount=$399.6
+2025-11-26 02:26:28,670 INFO ✓ RAW sent seq=287 | user=1000270 name=Shawn Bowen amount=$100.87
+2025-11-26 02:26:31,175 INFO ✓ RAW sent seq=288 | user=1000096 name=Russell Reid amount=$501.79
+2025-11-26 02:26:33,680 INFO ✓ RAW sent seq=289 | user=1000256 name=Austin Holmes amount=$455.74
+2025-11-26 02:26:33,683 INFO 🚨 FRAUD sent seq=290 type=large_amount | user=1000082 tx_24h=1 amt_24h=$47423 payment=CARD
+2025-11-26 02:26:36,188 INFO ✓ RAW sent seq=291 | user=1000086 name=Kennedy Park amount=$119.52
+2025-11-26 02:26:36,192 INFO ✓ RAW sent seq=292 | user=1000038 name=Christopher Lee amount=$454.45
+2025-11-26 02:26:38,698 INFO ✓ RAW sent seq=293 | user=1000212 name=Emma Ramos amount=$987.6
+2025-11-26 02:26:41,203 INFO ✓ RAW sent seq=294 | user=1000277 name=Craig Garrett amount=$399.05
+2025-11-26 02:26:43,708 INFO 🚨 FRAUD sent seq=295 type=cross_border | user=1000211 tx_24h=69 amt_24h=$19171 payment=CRYPTO
+2025-11-26 02:26:43,711 INFO ✓ RAW sent seq=296 | user=1000170 name=Patrick Powell amount=$374.18
+2025-11-26 02:26:46,216 INFO ✓ RAW sent seq=297 | user=1000200 name=Jerry Butler amount=$53.3
+2025-11-26 02:26:48,721 INFO 🚨 FRAUD sent seq=298 type=cross_border | user=1000257 tx_24h=45 amt_24h=$30738 payment=BANK
+2025-11-26 02:26:48,724 INFO ✓ RAW sent seq=299 | user=1000265 name=Brandon Richardson amount=$841.83
+2025-11-26 02:26:51,230 INFO 🚨 FRAUD sent seq=300 type=mixed_pattern | user=1000118 tx_24h=79 amt_24h=$38721 payment=WALLET
+2025-11-26 02:26:51,231 INFO 📊 Stats: 300 total, 61 fraud (20.3%)
+2025-11-26 02:26:53,736 INFO ✓ RAW sent seq=301 | user=1000043 name=Michelle Flores amount=$497.92
+2025-11-26 02:26:53,739 INFO ✓ RAW sent seq=302 | user=1000085 name=Philip Benson amount=$648.01
+2025-11-26 02:26:56,245 INFO 🚨 FRAUD sent seq=303 type=mixed_pattern | user=1000097 tx_24h=92 amt_24h=$37587 payment=CRYPTO
+2025-11-26 02:26:56,249 INFO ✓ RAW sent seq=304 | user=1000023 name=Allen Bates amount=$183.6
+2025-11-26 02:26:58,755 INFO ✓ RAW sent seq=305 | user=1000202 name=Juan Vaughn amount=$775.22
+2025-11-26 02:27:01,260 INFO ✓ RAW sent seq=306 | user=1000206 name=Leo Craig amount=$256.35
+2025-11-26 02:27:01,263 INFO ✓ RAW sent seq=307 | user=1000180 name=Jennifer Garcia amount=$656.97
+2025-11-26 02:27:03,767 INFO ✓ RAW sent seq=308 | user=1000024 name=Jose Simmons amount=$850.09
+2025-11-26 02:27:06,271 INFO ✓ RAW sent seq=309 | user=1000193 name=Kennedy Park amount=$227.18
+2025-11-26 02:27:06,275 INFO ✓ RAW sent seq=310 | user=1000240 name=Roy Crane amount=$714.09
+2025-11-26 02:27:08,779 INFO ✓ RAW sent seq=311 | user=1000136 name=Dale Newton amount=$353.44
+2025-11-26 02:27:11,284 INFO ✓ RAW sent seq=312 | user=1000131 name=Jeff Cannon amount=$929.73
+2025-11-26 02:27:13,788 INFO ✓ RAW sent seq=313 | user=1000292 name=Peter Stokes amount=$242.33
+2025-11-26 02:27:16,293 INFO 🚨 FRAUD sent seq=314 type=large_amount | user=1000109 tx_24h=1 amt_24h=$32021 payment=CARD
+2025-11-26 02:27:16,298 INFO ✓ RAW sent seq=315 | user=1000105 name=Jade Tucker amount=$436.17
+2025-11-26 02:27:18,803 INFO ✓ RAW sent seq=316 | user=1000173 name=Victor Mcdonald amount=$418.02
+2025-11-26 02:27:18,814 INFO ✓ RAW sent seq=317 | user=1000049 name=Keith Fields amount=$992.6
+2025-11-26 02:27:21,319 INFO ✓ RAW sent seq=318 | user=1000254 name=Jack Parsons amount=$62.29
+2025-11-26 02:27:21,331 INFO 🚨 FRAUD sent seq=319 type=cross_border | user=1000104 tx_24h=54 amt_24h=$28656 payment=CARD
+2025-11-26 02:27:23,834 INFO ✓ RAW sent seq=320 | user=1000204 name=Brian Hall amount=$815.86
+2025-11-26 02:27:23,837 INFO ✓ RAW sent seq=321 | user=1000055 name=Mark Lewis amount=$869.75
+2025-11-26 02:27:26,341 INFO ✓ RAW sent seq=322 | user=1000107 name=Edgar Strickland amount=$123.88
+2025-11-26 02:27:26,347 INFO 🚨 FRAUD sent seq=323 type=high_velocity | user=1000198 tx_24h=106 amt_24h=$44738 payment=BANK
+2025-11-26 02:27:28,850 INFO ✓ RAW sent seq=324 | user=1000224 name=Thomas Taylor amount=$422.62
+2025-11-26 02:27:31,355 INFO 🚨 FRAUD sent seq=325 type=high_velocity | user=1000106 tx_24h=96 amt_24h=$36491 payment=CRYPTO
+2025-11-26 02:27:31,359 INFO ✓ RAW sent seq=326 | user=1000049 name=Keith Fields amount=$173.13
+2025-11-26 02:27:33,862 INFO ✓ RAW sent seq=327 | user=1000109 name=Shawn Bowen amount=$399.86
+2025-11-26 02:27:33,865 INFO ✓ RAW sent seq=328 | user=1000009 name=Nancy Perez amount=$138.73
+2025-11-26 02:27:36,369 INFO ✓ RAW sent seq=329 | user=1000090 name=Raymond Foster amount=$935.3
+2025-11-26 02:27:36,373 INFO ✓ RAW sent seq=330 | user=1000184 name=Aurora Fowler amount=$502.14
+2025-11-26 02:27:38,877 INFO 🚨 FRAUD sent seq=331 type=mixed_pattern | user=1000090 tx_24h=81 amt_24h=$45709 payment=CRYPTO
+2025-11-26 02:27:41,382 INFO ✓ RAW sent seq=332 | user=1000274 name=Serenity Ware amount=$465.46
+2025-11-26 02:27:43,888 INFO ✓ RAW sent seq=333 | user=1000265 name=Brandon Richardson amount=$681.61
+2025-11-26 02:27:43,891 INFO ✓ RAW sent seq=334 | user=1000136 name=Dale Newton amount=$939.55
+2025-11-26 02:27:46,395 INFO ✓ RAW sent seq=335 | user=1000129 name=Gene Sandoval amount=$935.77
+2025-11-26 02:27:48,902 INFO ✓ RAW sent seq=336 | user=1000127 name=Lisa White amount=$44.0
+2025-11-26 02:27:51,408 INFO ✓ RAW sent seq=337 | user=1000094 name=Katherine Wood amount=$774.2
+2025-11-26 02:27:51,412 INFO ✓ RAW sent seq=338 | user=1000040 name=Hugh Singleton amount=$767.92
+2025-11-26 02:27:53,917 INFO ✓ RAW sent seq=339 | user=1000268 name=Austin Holmes amount=$813.49
+2025-11-26 02:27:56,421 INFO ✓ RAW sent seq=340 | user=1000014 name=Roy Crane amount=$723.16
+2025-11-26 02:27:58,925 INFO 🚨 FRAUD sent seq=341 type=high_velocity | user=1000053 tx_24h=86 amt_24h=$48574 payment=WALLET
+2025-11-26 02:27:58,928 INFO ✓ RAW sent seq=342 | user=1000213 name=Ella Preston amount=$202.29
+2025-11-26 02:28:01,433 INFO ✓ RAW sent seq=343 | user=1000009 name=Nancy Perez amount=$731.35
+2025-11-26 02:28:01,437 INFO ✓ RAW sent seq=344 | user=1000151 name=Tony Stokes amount=$75.96
+2025-11-26 02:28:03,943 INFO ✓ RAW sent seq=345 | user=1000121 name=Bella Curtis amount=$414.5
+2025-11-26 02:28:06,448 INFO ✓ RAW sent seq=346 | user=1000034 name=Kennedy Park amount=$508.51
+2025-11-26 02:28:08,951 INFO 🚨 FRAUD sent seq=347 type=high_velocity | user=1000243 tx_24h=102 amt_24h=$34000 payment=CRYPTO
+2025-11-26 02:28:08,953 INFO ✓ RAW sent seq=348 | user=1000116 name=Theresa Myers amount=$243.81
+2025-11-26 02:28:11,457 INFO ✓ RAW sent seq=349 | user=1000252 name=Karen Martin amount=$676.43
+2025-11-26 02:28:11,460 INFO ✓ RAW sent seq=350 | user=1000085 name=Philip Benson amount=$785.18
+2025-11-26 02:28:13,965 INFO ✓ RAW sent seq=351 | user=1000029 name=Leah Watts amount=$862.41
+2025-11-26 02:28:13,970 INFO ✓ RAW sent seq=352 | user=1000089 name=Randy Robbins amount=$983.91
+2025-11-26 02:28:16,475 INFO ✓ RAW sent seq=353 | user=1000221 name=Kathryn Arnold amount=$384.61
+2025-11-26 02:28:16,478 INFO ✓ RAW sent seq=354 | user=1000296 name=Andrea Mendez amount=$383.68
+2025-11-26 02:28:18,985 INFO ✓ RAW sent seq=355 | user=1000094 name=Katherine Wood amount=$413.52
+2025-11-26 02:28:18,988 INFO ✓ RAW sent seq=356 | user=1000141 name=Cynthia Edwards amount=$93.78
+2025-11-26 02:28:21,494 INFO ✓ RAW sent seq=357 | user=1000018 name=Brandon Richardson amount=$123.03
+2025-11-26 02:28:23,999 INFO ✓ RAW sent seq=358 | user=1000290 name=Amy Morris amount=$816.63
+2025-11-26 02:28:26,505 INFO ✓ RAW sent seq=359 | user=1000189 name=Patricia Brown amount=$742.47
+2025-11-26 02:28:26,507 INFO ✓ RAW sent seq=360 | user=1000187 name=Jennifer Garcia amount=$136.78
+2025-11-26 02:28:29,014 INFO ✓ RAW sent seq=361 | user=1000095 name=Aaliyah Horton amount=$538.22
+2025-11-26 02:28:31,519 INFO ✓ RAW sent seq=362 | user=1000097 name=David Rodriguez amount=$174.76
+2025-11-26 02:28:34,025 INFO 🚨 FRAUD sent seq=363 type=crypto_suspicious | user=1000142 tx_24h=55 amt_24h=$30649 payment=CRYPTO
+2025-11-26 02:28:36,530 INFO ✓ RAW sent seq=364 | user=1000138 name=Mary Johnson amount=$30.64
+2025-11-26 02:28:36,534 INFO ✓ RAW sent seq=365 | user=1000147 name=Scarlett Wade amount=$241.37
+2025-11-26 02:28:39,039 INFO ✓ RAW sent seq=366 | user=1000118 name=Willie Hudson amount=$931.99
+2025-11-26 02:28:39,043 INFO ✓ RAW sent seq=367 | user=1000220 name=Billy Dean amount=$605.91
+2025-11-26 02:28:41,548 INFO ✓ RAW sent seq=368 | user=1000007 name=Valentina Nixon amount=$623.51
+2025-11-26 02:28:41,552 INFO 🚨 FRAUD sent seq=369 type=mixed_pattern | user=1000211 tx_24h=87 amt_24h=$38476 payment=CRYPTO
+2025-11-26 02:28:44,058 INFO 🚨 FRAUD sent seq=370 type=high_velocity | user=1000151 tx_24h=63 amt_24h=$25535 payment=WALLET
+2025-11-26 02:28:46,561 INFO ✓ RAW sent seq=371 | user=1000114 name=Jonathan Morgan amount=$119.69
+2025-11-26 02:28:49,066 INFO 🚨 FRAUD sent seq=372 type=high_velocity | user=1000266 tx_24h=94 amt_24h=$22348 payment=CARD
+2025-11-26 02:28:51,571 INFO ✓ RAW sent seq=373 | user=1000235 name=Frances Reynolds amount=$503.68
+2025-11-26 02:28:51,574 INFO ✓ RAW sent seq=374 | user=1000245 name=Reagan Francis amount=$51.69
+2025-11-26 02:28:54,079 INFO ✓ RAW sent seq=375 | user=1000262 name=Jeffrey Cruz amount=$189.81
+2025-11-26 02:28:56,585 INFO 🚨 FRAUD sent seq=376 type=mixed_pattern | user=1000239 tx_24h=76 amt_24h=$42849 payment=WALLET
+2025-11-26 02:28:59,090 INFO 🚨 FRAUD sent seq=377 type=high_velocity | user=1000253 tx_24h=120 amt_24h=$35186 payment=CASH
+2025-11-26 02:28:59,095 INFO ✓ RAW sent seq=378 | user=1000030 name=Iris Nichols amount=$891.68
+2025-11-26 02:29:01,600 INFO ✓ RAW sent seq=379 | user=1000120 name=Ariana Bass amount=$752.91
+2025-11-26 02:29:01,603 INFO ✓ RAW sent seq=380 | user=1000219 name=Tammy Mason amount=$230.29
+2025-11-26 02:29:04,108 INFO 🚨 FRAUD sent seq=381 type=high_velocity | user=1000123 tx_24h=111 amt_24h=$40832 payment=BANK
+2025-11-26 02:29:06,613 INFO ✓ RAW sent seq=382 | user=1000064 name=Milton Holloway amount=$689.48
+2025-11-26 02:29:09,119 INFO ✓ RAW sent seq=383 | user=1000053 name=Anthony Clark amount=$337.27
+2025-11-26 02:29:11,624 INFO ✓ RAW sent seq=384 | user=1000211 name=Anthony Clark amount=$102.66
+2025-11-26 02:29:11,627 INFO ✓ RAW sent seq=385 | user=1000199 name=Kyle Castillo amount=$732.33
+2025-11-26 02:29:14,136 INFO ✓ RAW sent seq=386 | user=1000117 name=Sandra Robinson amount=$352.71
+2025-11-26 02:29:16,641 INFO ✓ RAW sent seq=387 | user=1000170 name=Patrick Powell amount=$291.87
+2025-11-26 02:29:16,646 INFO ✓ RAW sent seq=388 | user=1000286 name=Jack Parsons amount=$613.42
+2025-11-26 02:29:19,151 INFO ✓ RAW sent seq=389 | user=1000174 name=Zachary Kim amount=$252.22
+2025-11-26 02:29:19,154 INFO 🚨 FRAUD sent seq=390 type=high_velocity | user=1000161 tx_24h=75 amt_24h=$35860 payment=BANK
+2025-11-26 02:29:21,659 INFO 🚨 FRAUD sent seq=391 type=cross_border | user=1000256 tx_24h=74 amt_24h=$32352 payment=BANK
+2025-11-26 02:29:24,165 INFO ✓ RAW sent seq=392 | user=1000296 name=Andrea Mendez amount=$704.08
+2025-11-26 02:29:24,170 INFO 🚨 FRAUD sent seq=393 type=large_amount | user=1000131 tx_24h=8 amt_24h=$30871 payment=CASH
+2025-11-26 02:29:26,675 INFO ✓ RAW sent seq=394 | user=1000023 name=Allen Bates amount=$117.22
+2025-11-26 02:29:29,178 INFO ✓ RAW sent seq=395 | user=1000097 name=David Rodriguez amount=$153.35
+2025-11-26 02:29:29,180 INFO ✓ RAW sent seq=396 | user=1000221 name=Kathryn Arnold amount=$537.37
+2025-11-26 02:29:31,685 INFO ✓ RAW sent seq=397 | user=1000232 name=Judy Austin amount=$475.69
+2025-11-26 02:29:31,687 INFO 🚨 FRAUD sent seq=398 type=crypto_suspicious | user=1000079 tx_24h=75 amt_24h=$38115 payment=CRYPTO
+2025-11-26 02:29:34,192 INFO ✓ RAW sent seq=399 | user=1000140 name=Evan Casey amount=$708.24
+2025-11-26 02:29:36,698 INFO 🚨 FRAUD sent seq=400 type=crypto_suspicious | user=1000299 tx_24h=74 amt_24h=$27147 payment=CRYPTO
+2025-11-26 02:29:36,702 INFO ✓ RAW sent seq=401 | user=1000108 name=Janice Warren amount=$23.68
+2025-11-26 02:29:39,207 INFO ✓ RAW sent seq=402 | user=1000261 name=Mia Barker amount=$215.54
+2025-11-26 02:29:41,711 INFO ✓ RAW sent seq=403 | user=1000247 name=Vincent Hodges amount=$211.76
+2025-11-26 02:29:41,715 INFO 🚨 FRAUD sent seq=404 type=large_amount | user=1000137 tx_24h=4 amt_24h=$33443 payment=CARD
+2025-11-26 02:29:44,220 INFO ✓ RAW sent seq=405 | user=1000168 name=Ryan Collins amount=$595.52
+2025-11-26 02:29:46,725 INFO ✓ RAW sent seq=406 | user=1000219 name=Tammy Mason amount=$682.28
+2025-11-26 02:29:46,730 INFO ✓ RAW sent seq=407 | user=1000247 name=Vincent Hodges amount=$207.69
+2025-11-26 02:29:49,235 INFO ✓ RAW sent seq=408 | user=1000150 name=Frank Myers amount=$748.96
+2025-11-26 02:29:51,740 INFO ✓ RAW sent seq=409 | user=1000026 name=Martha Francis amount=$935.85
+2025-11-26 02:29:51,743 INFO ✓ RAW sent seq=410 | user=1000213 name=Ella Preston amount=$966.24
+2025-11-26 02:29:54,248 INFO ✓ RAW sent seq=411 | user=1000135 name=Jack Parsons amount=$496.42
+2025-11-26 02:29:56,751 INFO ✓ RAW sent seq=412 | user=1000085 name=Philip Benson amount=$191.28
+2025-11-26 02:29:59,257 INFO ✓ RAW sent seq=413 | user=1000068 name=Zachary Kim amount=$613.77
+2025-11-26 02:30:01,760 INFO ✓ RAW sent seq=414 | user=1000136 name=Dale Newton amount=$320.35
+2025-11-26 02:30:04,265 INFO 🚨 FRAUD sent seq=415 type=mixed_pattern | user=1000272 tx_24h=93 amt_24h=$39064 payment=CRYPTO
+2025-11-26 02:30:06,770 INFO ✓ RAW sent seq=416 | user=1000060 name=Donna Nguyen amount=$29.8
+2025-11-26 02:30:06,774 INFO 🚨 FRAUD sent seq=417 type=large_amount | user=1000037 tx_24h=2 amt_24h=$33666 payment=WALLET
+2025-11-26 02:30:09,279 INFO ✓ RAW sent seq=418 | user=1000231 name=Nicole Cox amount=$687.55
+2025-11-26 02:30:11,782 INFO ✓ RAW sent seq=419 | user=1000108 name=Janice Warren amount=$625.55
+2025-11-26 02:30:14,286 INFO ✓ RAW sent seq=420 | user=1000117 name=Sandra Robinson amount=$110.33
+2025-11-26 02:30:14,289 INFO ✓ RAW sent seq=421 | user=1000145 name=Alice Watts amount=$327.32
+2025-11-26 02:30:16,794 INFO ✓ RAW sent seq=422 | user=1000266 name=Ivy Farmer amount=$579.74
+2025-11-26 02:30:19,299 INFO ✓ RAW sent seq=423 | user=1000093 name=Jordan Banks amount=$481.78
+2025-11-26 02:30:19,301 INFO ✓ RAW sent seq=424 | user=1000152 name=Victoria Patterson amount=$83.67
+2025-11-26 02:30:21,807 INFO 🚨 FRAUD sent seq=425 type=high_velocity | user=1000141 tx_24h=82 amt_24h=$37909 payment=WALLET
+2025-11-26 02:30:21,811 INFO ✓ RAW sent seq=426 | user=1000078 name=Scott Ward amount=$736.31
+2025-11-26 02:30:24,316 INFO 🚨 FRAUD sent seq=427 type=large_amount | user=1000112 tx_24h=4 amt_24h=$37860 payment=WALLET
+2025-11-26 02:30:24,320 INFO 🚨 FRAUD sent seq=428 type=crypto_suspicious | user=1000120 tx_24h=77 amt_24h=$26389 payment=CRYPTO
+2025-11-26 02:30:26,826 INFO ✓ RAW sent seq=429 | user=1000067 name=Walter Tyler amount=$458.39
+2025-11-26 02:30:26,830 INFO ✓ RAW sent seq=430 | user=1000262 name=Jeffrey Cruz amount=$842.56
+2025-11-26 02:30:29,333 INFO ✓ RAW sent seq=431 | user=1000263 name=Carlos Lucas amount=$197.07
+2025-11-26 02:30:31,839 INFO ✓ RAW sent seq=432 | user=1000003 name=Kimberly King amount=$56.16
+2025-11-26 02:30:34,344 INFO ✓ RAW sent seq=433 | user=1000080 name=Laura Turner amount=$938.96
+2025-11-26 02:30:34,347 INFO ✓ RAW sent seq=434 | user=1000198 name=Gregory Price amount=$370.6
+2025-11-26 02:30:36,851 INFO ✓ RAW sent seq=435 | user=1000084 name=Allen Bates amount=$792.1
+2025-11-26 02:30:36,855 INFO 🚨 FRAUD sent seq=436 type=crypto_suspicious | user=1000226 tx_24h=46 amt_24h=$39355 payment=CRYPTO
+2025-11-26 02:30:39,362 INFO ✓ RAW sent seq=437 | user=1000073 name=Reagan Francis amount=$878.49
+2025-11-26 02:30:39,377 INFO 🚨 FRAUD sent seq=438 type=mixed_pattern | user=1000161 tx_24h=62 amt_24h=$54626 payment=WALLET
+2025-11-26 02:30:41,883 INFO ✓ RAW sent seq=439 | user=1000244 name=Tammy Mason amount=$242.72
+2025-11-26 02:30:44,388 INFO 🚨 FRAUD sent seq=440 type=mixed_pattern | user=1000288 tx_24h=64 amt_24h=$50277 payment=CRYPTO
+2025-11-26 02:30:46,893 INFO ✓ RAW sent seq=441 | user=1000120 name=Ariana Bass amount=$401.1
+2025-11-26 02:30:49,398 INFO ✓ RAW sent seq=442 | user=1000106 name=Jacqueline Meyer amount=$122.93
+2025-11-26 02:30:49,402 INFO ✓ RAW sent seq=443 | user=1000055 name=Mark Lewis amount=$319.82
+2025-11-26 02:30:51,907 INFO ✓ RAW sent seq=444 | user=1000085 name=Philip Benson amount=$499.78
+2025-11-26 02:30:54,411 INFO ✓ RAW sent seq=445 | user=1000168 name=Ryan Collins amount=$7.6
+2025-11-26 02:30:54,415 INFO ✓ RAW sent seq=446 | user=1000061 name=Jade Tucker amount=$108.8
+2025-11-26 02:30:56,920 INFO ✓ RAW sent seq=447 | user=1000112 name=Phillip Hogan amount=$761.52
+2025-11-26 02:30:56,923 INFO ✓ RAW sent seq=448 | user=1000084 name=Allen Bates amount=$699.17
+2025-11-26 02:30:59,429 INFO ✓ RAW sent seq=449 | user=1000107 name=Edgar Strickland amount=$315.34
+2025-11-26 02:31:01,934 INFO 🚨 FRAUD sent seq=450 type=high_velocity | user=1000247 tx_24h=63 amt_24h=$30720 payment=CASH
+2025-11-26 02:31:01,938 INFO ✓ RAW sent seq=451 | user=1000236 name=Austin Holmes amount=$473.81
+2025-11-26 02:31:04,441 INFO ✓ RAW sent seq=452 | user=1000024 name=Jose Simmons amount=$232.02
+2025-11-26 02:31:04,443 INFO ✓ RAW sent seq=453 | user=1000251 name=Thomas Taylor amount=$571.42
+2025-11-26 02:31:06,947 INFO ✓ RAW sent seq=454 | user=1000193 name=Kennedy Park amount=$834.7
+2025-11-26 02:31:09,450 INFO ✓ RAW sent seq=455 | user=1000017 name=Tyler Fisher amount=$76.88
+2025-11-26 02:31:11,954 INFO ✓ RAW sent seq=456 | user=1000083 name=Joshua Hill amount=$832.08
+2025-11-26 02:31:11,957 INFO ✓ RAW sent seq=457 | user=1000145 name=Alice Watts amount=$763.9
+2025-11-26 02:31:14,462 INFO ✓ RAW sent seq=458 | user=1000185 name=Scott Ward amount=$417.79
+2025-11-26 02:31:16,966 INFO ✓ RAW sent seq=459 | user=1000172 name=Justin Howard amount=$314.66
+2025-11-26 02:31:19,469 INFO ✓ RAW sent seq=460 | user=1000188 name=Dave Manning amount=$271.6
+2025-11-26 02:31:19,472 INFO ✓ RAW sent seq=461 | user=1000300 name=Carolyn Sanders amount=$349.56
+2025-11-26 02:31:21,977 INFO ✓ RAW sent seq=462 | user=1000298 name=Megan Tucker amount=$647.43
+2025-11-26 02:31:21,982 INFO ✓ RAW sent seq=463 | user=1000277 name=Craig Garrett amount=$612.68
+2025-11-26 02:31:24,487 INFO ✓ RAW sent seq=464 | user=1000059 name=Donald Walker amount=$655.36
+2025-11-26 02:31:24,490 INFO 🚨 FRAUD sent seq=465 type=large_amount | user=1000120 tx_24h=8 amt_24h=$40346 payment=BANK
+2025-11-26 02:31:26,994 INFO ✓ RAW sent seq=466 | user=1000016 name=Janice Warren amount=$929.0
+2025-11-26 02:31:29,498 INFO ✓ RAW sent seq=467 | user=1000290 name=Amy Morris amount=$575.86
+2025-11-26 02:31:29,500 INFO ✓ RAW sent seq=468 | user=1000016 name=Janice Warren amount=$811.0
+2025-11-26 02:31:32,006 INFO 🚨 FRAUD sent seq=469 type=crypto_suspicious | user=1000025 tx_24h=43 amt_24h=$26250 payment=CRYPTO
+2025-11-26 02:31:34,510 INFO 🚨 FRAUD sent seq=470 type=high_velocity | user=1000262 tx_24h=62 amt_24h=$31477 payment=WALLET
+2025-11-26 02:31:34,515 INFO ✓ RAW sent seq=471 | user=1000139 name=Evelyn Cole amount=$351.45
+2025-11-26 02:31:37,019 INFO ✓ RAW sent seq=472 | user=1000108 name=Janice Warren amount=$165.93
+2025-11-26 02:31:37,021 INFO ✓ RAW sent seq=473 | user=1000032 name=Jack Parsons amount=$595.23
+2025-11-26 02:31:39,526 INFO ✓ RAW sent seq=474 | user=1000241 name=Kaylee Rich amount=$441.95
+2025-11-26 02:31:42,029 INFO 🚨 FRAUD sent seq=475 type=high_velocity | user=1000298 tx_24h=72 amt_24h=$38990 payment=CRYPTO
+2025-11-26 02:31:42,037 INFO ✓ RAW sent seq=476 | user=1000258 name=Layla Leonard amount=$273.89
+2025-11-26 02:31:44,540 INFO ✓ RAW sent seq=477 | user=1000059 name=Donald Walker amount=$203.09
+2025-11-26 02:31:47,044 INFO ✓ RAW sent seq=478 | user=1000113 name=Brenda Bailey amount=$994.47
+2025-11-26 02:31:49,547 INFO ✓ RAW sent seq=479 | user=1000068 name=Zachary Kim amount=$995.13
+2025-11-26 02:31:52,052 INFO ✓ RAW sent seq=480 | user=1000158 name=Carl Stone amount=$749.57
+2025-11-26 02:31:52,057 INFO ✓ RAW sent seq=481 | user=1000217 name=Eliana Weaver amount=$910.05
+2025-11-26 02:31:54,560 INFO 🚨 FRAUD sent seq=482 type=crypto_suspicious | user=1000085 tx_24h=63 amt_24h=$28930 payment=CRYPTO
+2025-11-26 02:31:54,565 INFO ✓ RAW sent seq=483 | user=1000173 name=Victor Mcdonald amount=$977.03
+2025-11-26 02:31:57,071 INFO ✓ RAW sent seq=484 | user=1000207 name=David Rodriguez amount=$594.68
+2025-11-26 02:31:59,574 INFO ✓ RAW sent seq=485 | user=1000185 name=Scott Ward amount=$996.0
+2025-11-26 02:31:59,578 INFO ✓ RAW sent seq=486 | user=1000248 name=Serenity Ware amount=$661.62
+2025-11-26 02:32:02,081 INFO ✓ RAW sent seq=487 | user=1000107 name=Edgar Strickland amount=$174.79
+2025-11-26 02:32:02,085 INFO ✓ RAW sent seq=488 | user=1000061 name=Jade Tucker amount=$922.75
+2025-11-26 02:32:04,589 INFO ✓ RAW sent seq=489 | user=1000109 name=Shawn Bowen amount=$319.11
+2025-11-26 02:32:07,093 INFO ✓ RAW sent seq=490 | user=1000122 name=Susan Wilson amount=$992.04
+2025-11-26 02:32:09,598 INFO ✓ RAW sent seq=491 | user=1000180 name=Jennifer Garcia amount=$551.03
+2025-11-26 02:32:09,601 INFO ✓ RAW sent seq=492 | user=1000255 name=Hannah Wallace amount=$889.77
+2025-11-26 02:32:12,105 INFO 🚨 FRAUD sent seq=493 type=mixed_pattern | user=1000102 tx_24h=90 amt_24h=$39109 payment=WALLET
+2025-11-26 02:32:14,610 INFO ✓ RAW sent seq=494 | user=1000050 name=Ashley Young amount=$117.56
+2025-11-26 02:32:17,114 INFO ✓ RAW sent seq=495 | user=1000135 name=Jack Parsons amount=$986.96
+2025-11-26 02:32:19,618 INFO ✓ RAW sent seq=496 | user=1000229 name=Sara Pierce amount=$793.13
+2025-11-26 02:32:19,621 INFO ✓ RAW sent seq=497 | user=1000042 name=Shawn Bowen amount=$144.67
+2025-11-26 02:32:22,126 INFO ✓ RAW sent seq=498 | user=1000041 name=Nicholas Cook amount=$749.23
+2025-11-26 02:32:22,130 INFO ✓ RAW sent seq=499 | user=1000220 name=Billy Dean amount=$687.4
+2025-11-26 02:32:24,635 INFO ✓ RAW sent seq=500 | user=1000004 name=Sean Ferguson amount=$626.92
+2025-11-26 02:32:24,640 INFO ✓ RAW sent seq=501 | user=1000075 name=Logan Wheeler amount=$419.42
+2025-11-26 02:32:27,144 INFO ✓ RAW sent seq=502 | user=1000151 name=Tony Stokes amount=$13.73
+2025-11-26 02:32:27,147 INFO ✓ RAW sent seq=503 | user=1000013 name=Dave Manning amount=$386.07
+2025-11-26 02:32:29,650 INFO ✓ RAW sent seq=504 | user=1000248 name=Serenity Ware amount=$274.03
+2025-11-26 02:32:32,155 INFO ✓ RAW sent seq=505 | user=1000160 name=Billy Dean amount=$773.39
+2025-11-26 02:32:34,659 INFO ✓ RAW sent seq=506 | user=1000091 name=Calvin Daniels amount=$859.91
+2025-11-26 02:32:37,164 INFO ✓ RAW sent seq=507 | user=1000239 name=Mariah York amount=$771.9
+2025-11-26 02:32:39,669 INFO ✓ RAW sent seq=508 | user=1000188 name=Dave Manning amount=$14.54
+2025-11-26 02:32:39,673 INFO ✓ RAW sent seq=509 | user=1000087 name=Henry Bryan amount=$874.66
+2025-11-26 02:32:42,178 INFO 🚨 FRAUD sent seq=510 type=cross_border | user=1000113 tx_24h=50 amt_24h=$20592 payment=BANK
+2025-11-26 02:32:42,181 INFO ✓ RAW sent seq=511 | user=1000093 name=Jordan Banks amount=$29.37
+2025-11-26 02:32:44,685 INFO ✓ RAW sent seq=512 | user=1000206 name=Leo Craig amount=$259.71
+2025-11-26 02:32:47,189 INFO ✓ RAW sent seq=513 | user=1000014 name=Roy Crane amount=$221.38
+2025-11-26 02:32:47,191 INFO ✓ RAW sent seq=514 | user=1000001 name=Walter Tyler amount=$556.38
+2025-11-26 02:32:49,694 INFO ✓ RAW sent seq=515 | user=1000101 name=Terry Rice amount=$810.91
+2025-11-26 02:32:52,198 INFO 🚨 FRAUD sent seq=516 type=mixed_pattern | user=1000135 tx_24h=61 amt_24h=$53844 payment=WALLET
+2025-11-26 02:32:52,201 INFO ✓ RAW sent seq=517 | user=1000261 name=Mia Barker amount=$48.42
+2025-11-26 02:32:54,706 INFO ✓ RAW sent seq=518 | user=1000161 name=Robert Williams amount=$669.18
+2025-11-26 02:32:54,711 INFO ✓ RAW sent seq=519 | user=1000069 name=Floyd Ramsey amount=$291.93
+2025-11-26 02:32:57,216 INFO ✓ RAW sent seq=520 | user=1000173 name=Victor Mcdonald amount=$444.51
+2025-11-26 02:32:57,220 INFO ✓ RAW sent seq=521 | user=1000216 name=Lily Palmer amount=$133.27
+2025-11-26 02:32:59,724 INFO ✓ RAW sent seq=522 | user=1000213 name=Ella Preston amount=$446.98
+2025-11-26 02:32:59,727 INFO ✓ RAW sent seq=523 | user=1000059 name=Donald Walker amount=$72.34
+2025-11-26 02:33:02,232 INFO ✓ RAW sent seq=524 | user=1000099 name=Arthur Webb amount=$853.96
+2025-11-26 02:33:04,736 INFO ✓ RAW sent seq=525 | user=1000245 name=Reagan Francis amount=$578.3
+2025-11-26 02:33:07,241 INFO ✓ RAW sent seq=526 | user=1000195 name=Sharon Parker amount=$835.4
+2025-11-26 02:33:07,245 INFO ✓ RAW sent seq=527 | user=1000256 name=Austin Holmes amount=$382.23
+2025-11-26 02:33:09,750 INFO 🚨 FRAUD sent seq=528 type=mixed_pattern | user=1000083 tx_24h=80 amt_24h=$45114 payment=CRYPTO
+2025-11-26 02:33:09,753 INFO 🚨 FRAUD sent seq=529 type=cross_border | user=1000224 tx_24h=45 amt_24h=$32240 payment=CARD
+2025-11-26 02:33:12,257 INFO ✓ RAW sent seq=530 | user=1000266 name=Ivy Farmer amount=$556.72
+2025-11-26 02:33:14,762 INFO ✓ RAW sent seq=531 | user=1000280 name=Margaret Ramirez amount=$485.85
+2025-11-26 02:33:17,266 INFO ✓ RAW sent seq=532 | user=1000170 name=Patrick Powell amount=$485.24
+2025-11-26 02:33:17,268 INFO ✓ RAW sent seq=533 | user=1000275 name=Stella Castro amount=$929.28
+2025-11-26 02:33:19,771 INFO ✓ RAW sent seq=534 | user=1000103 name=Zachary Kim amount=$224.55
+2025-11-26 02:33:19,773 INFO ✓ RAW sent seq=535 | user=1000240 name=Roy Crane amount=$701.22
+2025-11-26 02:33:22,278 INFO ✓ RAW sent seq=536 | user=1000194 name=Emma Ramos amount=$132.13
+2025-11-26 02:33:22,282 INFO ✓ RAW sent seq=537 | user=1000264 name=Elena Hardy amount=$977.0
+2025-11-26 02:33:24,787 INFO ✓ RAW sent seq=538 | user=1000138 name=Mary Johnson amount=$404.49
+2025-11-26 02:33:27,293 INFO ✓ RAW sent seq=539 | user=1000103 name=Zachary Kim amount=$695.41
+2025-11-26 02:33:29,796 INFO ✓ RAW sent seq=540 | user=1000174 name=Zachary Kim amount=$436.11
+2025-11-26 02:33:29,798 INFO ✓ RAW sent seq=541 | user=1000059 name=Donald Walker amount=$515.16
+2025-11-26 02:33:32,303 INFO ✓ RAW sent seq=542 | user=1000022 name=Eric Gutierrez amount=$718.26
+2025-11-26 02:33:32,307 INFO 🚨 FRAUD sent seq=543 type=high_velocity | user=1000234 tx_24h=78 amt_24h=$47801 payment=CASH
+2025-11-26 02:33:34,812 INFO ✓ RAW sent seq=544 | user=1000102 name=Chloe Berry amount=$257.76
+2025-11-26 02:33:34,816 INFO 🚨 FRAUD sent seq=545 type=mixed_pattern | user=1000279 tx_24h=76 amt_24h=$41592 payment=CRYPTO
+2025-11-26 02:33:37,326 INFO ✓ RAW sent seq=546 | user=1000238 name=Robert Williams amount=$93.46
+2025-11-26 02:33:39,831 INFO ✓ RAW sent seq=547 | user=1000059 name=Donald Walker amount=$894.41
+2025-11-26 02:33:39,835 INFO ✓ RAW sent seq=548 | user=1000005 name=Marcus Goodwin amount=$267.56
+2025-11-26 02:33:42,340 INFO ✓ RAW sent seq=549 | user=1000269 name=Roger Day amount=$762.08
+2025-11-26 02:33:42,343 INFO ✓ RAW sent seq=550 | user=1000257 name=Mary Johnson amount=$38.75
+2025-11-26 02:33:44,846 INFO ✓ RAW sent seq=551 | user=1000141 name=Cynthia Edwards amount=$745.61
+2025-11-26 02:33:47,350 INFO ✓ RAW sent seq=552 | user=1000274 name=Serenity Ware amount=$518.03
+2025-11-26 02:33:47,354 INFO 🚨 FRAUD sent seq=553 type=mixed_pattern | user=1000124 tx_24h=78 amt_24h=$52912 payment=WALLET
+2025-11-26 02:33:49,860 INFO ✓ RAW sent seq=554 | user=1000264 name=Elena Hardy amount=$5.15
+2025-11-26 02:33:49,864 INFO ✓ RAW sent seq=555 | user=1000173 name=Victor Mcdonald amount=$356.9
+2025-11-26 02:33:52,368 INFO ✓ RAW sent seq=556 | user=1000123 name=Aaron Coleman amount=$819.4
+2025-11-26 02:33:52,370 INFO ✓ RAW sent seq=557 | user=1000270 name=Shawn Bowen amount=$757.31
+2025-11-26 02:33:54,875 INFO ✓ RAW sent seq=558 | user=1000073 name=Reagan Francis amount=$455.88
+2025-11-26 02:33:54,877 INFO ✓ RAW sent seq=559 | user=1000191 name=Donald Walker amount=$321.3
+2025-11-26 02:33:57,382 INFO ✓ RAW sent seq=560 | user=1000300 name=Carolyn Sanders amount=$629.94
+2025-11-26 02:33:57,387 INFO ✓ RAW sent seq=561 | user=1000075 name=Logan Wheeler amount=$433.63
+2025-11-26 02:33:59,892 INFO ✓ RAW sent seq=562 | user=1000258 name=Layla Leonard amount=$156.78
+2025-11-26 02:33:59,895 INFO ✓ RAW sent seq=563 | user=1000268 name=Austin Holmes amount=$336.7
+2025-11-26 02:34:02,398 INFO ✓ RAW sent seq=564 | user=1000185 name=Scott Ward amount=$811.1
+2025-11-26 02:34:02,400 INFO ✓ RAW sent seq=565 | user=1000190 name=Tony Stokes amount=$959.32
+2025-11-26 02:34:04,904 INFO 🚨 FRAUD sent seq=566 type=mixed_pattern | user=1000060 tx_24h=79 amt_24h=$44215 payment=WALLET
+2025-11-26 02:34:04,908 INFO ✓ RAW sent seq=567 | user=1000116 name=Theresa Myers amount=$47.81
+2025-11-26 02:34:07,413 INFO ✓ RAW sent seq=568 | user=1000204 name=Brian Hall amount=$713.51
+2025-11-26 02:34:07,417 INFO 🚨 FRAUD sent seq=569 type=high_velocity | user=1000262 tx_24h=67 amt_24h=$33277 payment=CRYPTO
+2025-11-26 02:34:09,921 INFO ✓ RAW sent seq=570 | user=1000181 name=Ella Preston amount=$220.25
+2025-11-26 02:34:12,426 INFO ✓ RAW sent seq=571 | user=1000123 name=Aaron Coleman amount=$646.83
+2025-11-26 02:34:14,930 INFO ✓ RAW sent seq=572 | user=1000153 name=Russell Howell amount=$574.82
+2025-11-26 02:34:17,434 INFO ✓ RAW sent seq=573 | user=1000041 name=Nicholas Cook amount=$501.45
+2025-11-26 02:34:19,939 INFO ✓ RAW sent seq=574 | user=1000190 name=Tony Stokes amount=$982.77
+2025-11-26 02:34:19,941 INFO ✓ RAW sent seq=575 | user=1000202 name=Juan Vaughn amount=$923.87
+2025-11-26 02:34:22,445 INFO ✓ RAW sent seq=576 | user=1000039 name=Larry Reed amount=$52.9
+2025-11-26 02:34:24,949 INFO ✓ RAW sent seq=577 | user=1000039 name=Larry Reed amount=$796.97
+2025-11-26 02:34:27,453 INFO ✓ RAW sent seq=578 | user=1000102 name=Chloe Berry amount=$666.49
+2025-11-26 02:34:27,455 INFO ✓ RAW sent seq=579 | user=1000106 name=Jacqueline Meyer amount=$35.13
+2025-11-26 02:34:29,958 INFO ✓ RAW sent seq=580 | user=1000143 name=Doris Barrett amount=$112.76
+2025-11-26 02:34:32,461 INFO ✓ RAW sent seq=581 | user=1000176 name=Rose Sutton amount=$38.34
+2025-11-26 02:34:34,964 INFO ✓ RAW sent seq=582 | user=1000039 name=Larry Reed amount=$4.58
+2025-11-26 02:34:37,469 INFO ✓ RAW sent seq=583 | user=1000172 name=Justin Howard amount=$670.17
+2025-11-26 02:34:37,473 INFO ✓ RAW sent seq=584 | user=1000262 name=Jeffrey Cruz amount=$556.97
+2025-11-26 02:34:39,976 INFO ✓ RAW sent seq=585 | user=1000134 name=Julia Dawson amount=$941.27
+2025-11-26 02:34:39,978 INFO ✓ RAW sent seq=586 | user=1000269 name=Roger Day amount=$940.71
+2025-11-26 02:34:42,483 INFO ✓ RAW sent seq=587 | user=1000278 name=Reagan Francis amount=$385.62
+2025-11-26 02:34:44,987 INFO ✓ RAW sent seq=588 | user=1000018 name=Brandon Richardson amount=$530.44
+2025-11-26 02:34:47,492 INFO ✓ RAW sent seq=589 | user=1000207 name=David Rodriguez amount=$347.08
+2025-11-26 02:34:47,494 INFO ✓ RAW sent seq=590 | user=1000269 name=Roger Day amount=$412.21
+2025-11-26 02:34:50,000 INFO ✓ RAW sent seq=591 | user=1000065 name=Janice Warren amount=$217.28
+2025-11-26 02:34:50,003 INFO ✓ RAW sent seq=592 | user=1000150 name=Frank Myers amount=$239.98
+2025-11-26 02:34:52,508 INFO ✓ RAW sent seq=593 | user=1000274 name=Serenity Ware amount=$843.86
+2025-11-26 02:34:55,013 INFO 🚨 FRAUD sent seq=594 type=mixed_pattern | user=1000111 tx_24h=78 amt_24h=$50442 payment=WALLET
+2025-11-26 02:34:55,016 INFO 🚨 FRAUD sent seq=595 type=cross_border | user=1000047 tx_24h=45 amt_24h=$22527 payment=CARD
+2025-11-26 02:34:57,521 INFO ✓ RAW sent seq=596 | user=1000169 name=Carl Stone amount=$951.65
+2025-11-26 02:34:57,523 INFO 🚨 FRAUD sent seq=597 type=crypto_suspicious | user=1000098 tx_24h=81 amt_24h=$29584 payment=CRYPTO
+2025-11-26 02:35:00,026 INFO ✓ RAW sent seq=598 | user=1000258 name=Layla Leonard amount=$131.09
+2025-11-26 02:35:00,029 INFO ✓ RAW sent seq=599 | user=1000291 name=Angela Murphy amount=$156.9
+2025-11-26 02:35:02,534 INFO ✓ RAW sent seq=600 | user=1000255 name=Hannah Wallace amount=$657.05
+2025-11-26 02:35:02,539 INFO ✓ RAW sent seq=601 | user=1000159 name=Michelle Flores amount=$787.5
+2025-11-26 02:35:05,044 INFO ✓ RAW sent seq=602 | user=1000001 name=Walter Tyler amount=$13.62
+2025-11-26 02:35:05,046 INFO ✓ RAW sent seq=603 | user=1000284 name=Henry Bryan amount=$390.56
+2025-11-26 02:35:07,551 INFO 🚨 FRAUD sent seq=604 type=high_velocity | user=1000295 tx_24h=92 amt_24h=$40544 payment=CASH
+2025-11-26 02:35:10,053 INFO ✓ RAW sent seq=605 | user=1000038 name=Christopher Lee amount=$558.74
+2025-11-26 02:35:10,055 INFO ✓ RAW sent seq=606 | user=1000216 name=Lily Palmer amount=$937.98
+2025-11-26 02:35:12,560 INFO ✓ RAW sent seq=607 | user=1000017 name=Tyler Fisher amount=$837.16
+2025-11-26 02:35:15,065 INFO ✓ RAW sent seq=608 | user=1000014 name=Roy Crane amount=$597.08
+2025-11-26 02:35:15,069 INFO ✓ RAW sent seq=609 | user=1000240 name=Roy Crane amount=$240.1
+2025-11-26 02:35:17,573 INFO ✓ RAW sent seq=610 | user=1000114 name=Jonathan Morgan amount=$319.73
+2025-11-26 02:35:20,077 INFO ✓ RAW sent seq=611 | user=1000231 name=Nicole Cox amount=$241.48
+2025-11-26 02:35:22,581 INFO ✓ RAW sent seq=612 | user=1000162 name=Pamela Kelly amount=$818.11
+2025-11-26 02:35:25,086 INFO ✓ RAW sent seq=613 | user=1000155 name=Antonio Munoz amount=$404.14
+2025-11-26 02:35:27,591 INFO ✓ RAW sent seq=614 | user=1000188 name=Dave Manning amount=$528.98
+2025-11-26 02:35:30,096 INFO ✓ RAW sent seq=615 | user=1000285 name=Isabelle Floyd amount=$682.11
+2025-11-26 02:35:30,099 INFO ✓ RAW sent seq=616 | user=1000036 name=Rebecca Phillips amount=$666.69
+2025-11-26 02:35:32,603 INFO ✓ RAW sent seq=617 | user=1000053 name=Anthony Clark amount=$682.86
+2025-11-26 02:35:35,108 INFO ✓ RAW sent seq=618 | user=1000149 name=Dave Manning amount=$853.34
+2025-11-26 02:35:37,611 INFO ✓ RAW sent seq=619 | user=1000190 name=Tony Stokes amount=$633.61
+2025-11-26 02:35:37,614 INFO ✓ RAW sent seq=620 | user=1000086 name=Kennedy Park amount=$165.25
+2025-11-26 02:35:40,118 INFO ✓ RAW sent seq=621 | user=1000041 name=Nicholas Cook amount=$862.99
+2025-11-26 02:35:42,623 INFO ✓ RAW sent seq=622 | user=1000087 name=Henry Bryan amount=$779.02
+2025-11-26 02:35:45,128 INFO 🚨 FRAUD sent seq=623 type=mixed_pattern | user=1000085 tx_24h=61 amt_24h=$39586 payment=WALLET
+2025-11-26 02:35:45,132 INFO ✓ RAW sent seq=624 | user=1000178 name=Austin Holmes amount=$820.53
+2025-11-26 02:35:47,637 INFO ✓ RAW sent seq=625 | user=1000004 name=Sean Ferguson amount=$981.24
+2025-11-26 02:35:50,144 INFO ✓ RAW sent seq=626 | user=1000073 name=Reagan Francis amount=$344.4
+2025-11-26 02:35:50,147 INFO ✓ RAW sent seq=627 | user=1000014 name=Roy Crane amount=$41.84
+2025-11-26 02:35:52,654 INFO ✓ RAW sent seq=628 | user=1000144 name=Anthony Clark amount=$841.46
+2025-11-26 02:35:55,159 INFO ✓ RAW sent seq=629 | user=1000262 name=Jeffrey Cruz amount=$759.21
+2025-11-26 02:35:55,163 INFO ✓ RAW sent seq=630 | user=1000218 name=Adam Jordan amount=$3.92
+2025-11-26 02:35:57,667 INFO ✓ RAW sent seq=631 | user=1000274 name=Serenity Ware amount=$581.75
+2025-11-26 02:35:57,669 INFO ✓ RAW sent seq=632 | user=1000139 name=Evelyn Cole amount=$631.55
+2025-11-26 02:36:00,172 INFO 🚨 FRAUD sent seq=633 type=mixed_pattern | user=1000059 tx_24h=67 amt_24h=$46821 payment=CRYPTO
+2025-11-26 02:36:00,174 INFO ✓ RAW sent seq=634 | user=1000039 name=Larry Reed amount=$972.35
+2025-11-26 02:36:02,679 INFO 🚨 FRAUD sent seq=635 type=mixed_pattern | user=1000225 tx_24h=85 amt_24h=$37318 payment=WALLET
+2025-11-26 02:36:02,682 INFO ✓ RAW sent seq=636 | user=1000257 name=Mary Johnson amount=$636.31
+2025-11-26 02:36:05,187 INFO ✓ RAW sent seq=637 | user=1000181 name=Ella Preston amount=$446.11
+2025-11-26 02:36:07,692 INFO ✓ RAW sent seq=638 | user=1000223 name=Brooklyn Rios amount=$986.98
+2025-11-26 02:36:10,196 INFO ✓ RAW sent seq=639 | user=1000092 name=Jade Tucker amount=$474.8
+2025-11-26 02:36:12,699 INFO ✓ RAW sent seq=640 | user=1000245 name=Reagan Francis amount=$243.15
+2025-11-26 02:36:12,702 INFO ✓ RAW sent seq=641 | user=1000113 name=Brenda Bailey amount=$277.47
+2025-11-26 02:36:15,207 INFO ✓ RAW sent seq=642 | user=1000014 name=Roy Crane amount=$222.32
+2025-11-26 02:36:15,210 INFO ✓ RAW sent seq=643 | user=1000092 name=Jade Tucker amount=$896.79
+2025-11-26 02:36:17,715 INFO ✓ RAW sent seq=644 | user=1000291 name=Angela Murphy amount=$952.82
+2025-11-26 02:36:17,719 INFO 🚨 FRAUD sent seq=645 type=high_velocity | user=1000041 tx_24h=70 amt_24h=$25758 payment=CARD
+2025-11-26 02:36:20,222 INFO ✓ RAW sent seq=646 | user=1000160 name=Billy Dean amount=$379.68
+2025-11-26 02:36:22,727 INFO 🚨 FRAUD sent seq=647 type=mixed_pattern | user=1000147 tx_24h=75 amt_24h=$41054 payment=CRYPTO
+2025-11-26 02:36:25,232 INFO ✓ RAW sent seq=648 | user=1000005 name=Marcus Goodwin amount=$385.58
+2025-11-26 02:36:25,237 INFO ✓ RAW sent seq=649 | user=1000199 name=Kyle Castillo amount=$858.11
+2025-11-26 02:36:27,741 INFO ✓ RAW sent seq=650 | user=1000283 name=Emilia Mayo amount=$18.61
+2025-11-26 02:36:27,744 INFO ✓ RAW sent seq=651 | user=1000167 name=Mary Johnson amount=$727.17
+2025-11-26 02:36:30,247 INFO ✓ RAW sent seq=652 | user=1000033 name=Melissa Rivera amount=$728.66
+2025-11-26 02:36:30,249 INFO ✓ RAW sent seq=653 | user=1000066 name=Francis Roman amount=$999.0
+2025-11-26 02:36:32,754 INFO 🚨 FRAUD sent seq=654 type=mixed_pattern | user=1000131 tx_24h=80 amt_24h=$50399 payment=WALLET
+2025-11-26 02:36:35,258 INFO ✓ RAW sent seq=655 | user=1000096 name=Russell Reid amount=$351.42
+2025-11-26 02:36:37,763 INFO ✓ RAW sent seq=656 | user=1000215 name=Teresa Gonzales amount=$33.65
+2025-11-26 02:36:37,766 INFO ✓ RAW sent seq=657 | user=1000019 name=Joyce Jenkins amount=$297.69
+2025-11-26 02:36:40,270 INFO ✓ RAW sent seq=658 | user=1000144 name=Anthony Clark amount=$880.26
+2025-11-26 02:36:42,775 INFO ✓ RAW sent seq=659 | user=1000255 name=Hannah Wallace amount=$931.45
+2025-11-26 02:36:42,779 INFO ✓ RAW sent seq=660 | user=1000085 name=Philip Benson amount=$7.02
+2025-11-26 02:36:45,284 INFO ✓ RAW sent seq=661 | user=1000277 name=Craig Garrett amount=$910.71
+2025-11-26 02:36:47,788 INFO ✓ RAW sent seq=662 | user=1000122 name=Susan Wilson amount=$15.03
+2025-11-26 02:36:47,790 INFO ✓ RAW sent seq=663 | user=1000101 name=Terry Rice amount=$941.97
+2025-11-26 02:36:50,294 INFO ✓ RAW sent seq=664 | user=1000071 name=Emma Ramos amount=$584.05
+2025-11-26 02:36:50,298 INFO ✓ RAW sent seq=665 | user=1000148 name=Jeremy Lane amount=$341.4
+2025-11-26 02:36:52,803 INFO 🚨 FRAUD sent seq=666 type=mixed_pattern | user=1000103 tx_24h=84 amt_24h=$38904 payment=WALLET
+2025-11-26 02:36:52,807 INFO ✓ RAW sent seq=667 | user=1000068 name=Zachary Kim amount=$763.87
+2025-11-26 02:36:55,312 INFO ✓ RAW sent seq=668 | user=1000253 name=Mary Johnson amount=$164.26
+2025-11-26 02:36:57,817 INFO ✓ RAW sent seq=669 | user=1000074 name=Mary Johnson amount=$187.66
+2025-11-26 02:36:57,820 INFO ✓ RAW sent seq=670 | user=1000009 name=Nancy Perez amount=$585.62
+2025-11-26 02:37:00,324 INFO ✓ RAW sent seq=671 | user=1000277 name=Craig Garrett amount=$740.38
+2025-11-26 02:37:02,827 INFO ✓ RAW sent seq=672 | user=1000298 name=Megan Tucker amount=$830.41
+2025-11-26 02:37:02,830 INFO ✓ RAW sent seq=673 | user=1000276 name=Emery Schneider amount=$991.31
+2025-11-26 02:37:05,334 INFO ✓ RAW sent seq=674 | user=1000238 name=Robert Williams amount=$604.82
+2025-11-26 02:37:07,839 INFO ✓ RAW sent seq=675 | user=1000039 name=Larry Reed amount=$73.66
+2025-11-26 02:37:10,344 INFO ✓ RAW sent seq=676 | user=1000089 name=Randy Robbins amount=$722.75
+2025-11-26 02:37:10,347 INFO ✓ RAW sent seq=677 | user=1000020 name=Patricia Brown amount=$484.63
+2025-11-26 02:37:12,851 INFO ✓ RAW sent seq=678 | user=1000203 name=Jeremy Lane amount=$719.25
+2025-11-26 02:37:12,855 INFO 🚨 FRAUD sent seq=679 type=mixed_pattern | user=1000007 tx_24h=69 amt_24h=$42160 payment=CRYPTO
+2025-11-26 02:37:15,360 INFO ✓ RAW sent seq=680 | user=1000158 name=Carl Stone amount=$77.76
+2025-11-26 02:37:15,364 INFO ✓ RAW sent seq=681 | user=1000164 name=Genesis Manning amount=$94.89
+2025-11-26 02:37:17,868 INFO ✓ RAW sent seq=682 | user=1000038 name=Christopher Lee amount=$554.43
+2025-11-26 02:37:20,372 INFO ✓ RAW sent seq=683 | user=1000002 name=Lydia Ramsey amount=$426.14
+2025-11-26 02:37:22,883 INFO ✓ RAW sent seq=684 | user=1000298 name=Megan Tucker amount=$705.12
+2025-11-26 02:37:25,386 INFO 🚨 FRAUD sent seq=685 type=mixed_pattern | user=1000064 tx_24h=97 amt_24h=$51806 payment=WALLET
+2025-11-26 02:37:25,389 INFO 🚨 FRAUD sent seq=686 type=mixed_pattern | user=1000012 tx_24h=68 amt_24h=$53374 payment=CRYPTO
+2025-11-26 02:37:27,893 INFO ✓ RAW sent seq=687 | user=1000298 name=Megan Tucker amount=$35.41
+2025-11-26 02:37:30,398 INFO 🚨 FRAUD sent seq=688 type=cross_border | user=1000194 tx_24h=79 amt_24h=$16478 payment=CASH
+2025-11-26 02:37:30,401 INFO ✓ RAW sent seq=689 | user=1000135 name=Jack Parsons amount=$450.66
+2025-11-26 02:37:32,906 INFO ✓ RAW sent seq=690 | user=1000090 name=Raymond Foster amount=$922.04
+2025-11-26 02:37:32,911 INFO ✓ RAW sent seq=691 | user=1000018 name=Brandon Richardson amount=$234.98
+2025-11-26 02:37:35,414 INFO ✓ RAW sent seq=692 | user=1000242 name=Kennedy Park amount=$586.99
+2025-11-26 02:37:35,417 INFO ✓ RAW sent seq=693 | user=1000224 name=Thomas Taylor amount=$950.2
+2025-11-26 02:37:37,924 INFO ✓ RAW sent seq=694 | user=1000055 name=Mark Lewis amount=$211.05
+2025-11-26 02:37:40,428 INFO ✓ RAW sent seq=695 | user=1000112 name=Phillip Hogan amount=$643.46
+2025-11-26 02:37:40,431 INFO ✓ RAW sent seq=696 | user=1000231 name=Nicole Cox amount=$918.78
+2025-11-26 02:37:42,935 INFO ✓ RAW sent seq=697 | user=1000038 name=Christopher Lee amount=$829.85
+2025-11-26 02:37:45,441 INFO ✓ RAW sent seq=698 | user=1000034 name=Kennedy Park amount=$227.09
+2025-11-26 02:37:45,444 INFO ✓ RAW sent seq=699 | user=1000166 name=Timothy Evans amount=$340.84
+2025-11-26 02:37:47,950 INFO ✓ RAW sent seq=700 | user=1000020 name=Patricia Brown amount=$104.08
+2025-11-26 02:37:47,954 INFO ✓ RAW sent seq=701 | user=1000224 name=Thomas Taylor amount=$401.99
+2025-11-26 02:37:50,459 INFO ✓ RAW sent seq=702 | user=1000071 name=Emma Ramos amount=$558.37
+2025-11-26 02:37:52,964 INFO ✓ RAW sent seq=703 | user=1000096 name=Russell Reid amount=$672.22
+2025-11-26 02:37:52,968 INFO ✓ RAW sent seq=704 | user=1000062 name=Melissa Rivera amount=$433.78
+2025-11-26 02:37:55,470 INFO ✓ RAW sent seq=705 | user=1000254 name=Jack Parsons amount=$672.01
+2025-11-26 02:37:55,472 INFO ✓ RAW sent seq=706 | user=1000243 name=Mia Barker amount=$797.05
+2025-11-26 02:37:57,976 INFO ✓ RAW sent seq=707 | user=1000134 name=Julia Dawson amount=$929.14
+2025-11-26 02:38:00,481 INFO 🚨 FRAUD sent seq=708 type=mixed_pattern | user=1000041 tx_24h=63 amt_24h=$38534 payment=CRYPTO
+2025-11-26 02:38:02,986 INFO ✓ RAW sent seq=709 | user=1000165 name=Sara Pierce amount=$343.3
+2025-11-26 02:38:02,990 INFO 🚨 FRAUD sent seq=710 type=mixed_pattern | user=1000101 tx_24h=71 amt_24h=$46161 payment=WALLET
+2025-11-26 02:38:05,496 INFO ✓ RAW sent seq=711 | user=1000278 name=Reagan Francis amount=$938.13
+2025-11-26 02:38:05,500 INFO ✓ RAW sent seq=712 | user=1000094 name=Katherine Wood amount=$352.16
+2025-11-26 02:38:08,005 INFO 🚨 FRAUD sent seq=713 type=cross_border | user=1000059 tx_24h=47 amt_24h=$32388 payment=CRYPTO
+2025-11-26 02:38:10,509 INFO 🚨 FRAUD sent seq=714 type=crypto_suspicious | user=1000278 tx_24h=87 amt_24h=$38199 payment=CRYPTO
+2025-11-26 02:38:10,511 INFO ✓ RAW sent seq=715 | user=1000059 name=Donald Walker amount=$956.89
+2025-11-26 02:38:13,014 INFO ✓ RAW sent seq=716 | user=1000279 name=Kaylee Rich amount=$91.21
+2025-11-26 02:38:15,518 INFO ✓ RAW sent seq=717 | user=1000046 name=Deborah Mitchell amount=$207.2
+2025-11-26 02:38:15,520 INFO ✓ RAW sent seq=718 | user=1000252 name=Karen Martin amount=$411.83
+2025-11-26 02:38:18,025 INFO ✓ RAW sent seq=719 | user=1000145 name=Alice Watts amount=$343.79
+2025-11-26 02:38:20,530 INFO 🚨 FRAUD sent seq=720 type=large_amount | user=1000115 tx_24h=6 amt_24h=$31073 payment=CASH
+2025-11-26 02:38:23,035 INFO ✓ RAW sent seq=721 | user=1000025 name=Chester Glenn amount=$35.13
+2025-11-26 02:38:25,540 INFO ✓ RAW sent seq=722 | user=1000050 name=Ashley Young amount=$198.48
+2025-11-26 02:38:28,045 INFO ✓ RAW sent seq=723 | user=1000079 name=Penelope Lyons amount=$486.52
+2025-11-26 02:38:30,549 INFO 🚨 FRAUD sent seq=724 type=crypto_suspicious | user=1000098 tx_24h=84 amt_24h=$36628 payment=CRYPTO
+2025-11-26 02:38:33,054 INFO ✓ RAW sent seq=725 | user=1000059 name=Donald Walker amount=$944.46
+2025-11-26 02:38:35,559 INFO ✓ RAW sent seq=726 | user=1000034 name=Kennedy Park amount=$560.48
+2025-11-26 02:38:35,563 INFO ✓ RAW sent seq=727 | user=1000242 name=Kennedy Park amount=$427.12
+2025-11-26 02:38:38,068 INFO ✓ RAW sent seq=728 | user=1000042 name=Shawn Bowen amount=$460.83
+2025-11-26 02:38:38,070 INFO 🚨 FRAUD sent seq=729 type=large_amount | user=1000289 tx_24h=2 amt_24h=$51942 payment=WALLET
+2025-11-26 02:38:40,575 INFO ✓ RAW sent seq=730 | user=1000046 name=Deborah Mitchell amount=$62.1
+2025-11-26 02:38:43,080 INFO ✓ RAW sent seq=731 | user=1000100 name=Jack Hughes amount=$657.46
+2025-11-26 02:38:43,082 INFO ✓ RAW sent seq=732 | user=1000125 name=Susan Wilson amount=$60.03
+2025-11-26 02:38:45,587 INFO ✓ RAW sent seq=733 | user=1000209 name=Julia Dawson amount=$330.69
+2025-11-26 02:38:45,591 INFO ✓ RAW sent seq=734 | user=1000158 name=Carl Stone amount=$936.08
+2025-11-26 02:38:48,094 INFO ✓ RAW sent seq=735 | user=1000065 name=Janice Warren amount=$669.81
+2025-11-26 02:38:50,599 INFO ✓ RAW sent seq=736 | user=1000244 name=Tammy Mason amount=$715.07
+2025-11-26 02:38:50,603 INFO ✓ RAW sent seq=737 | user=1000235 name=Frances Reynolds amount=$178.59
+2025-11-26 02:38:53,107 INFO ✓ RAW sent seq=738 | user=1000053 name=Anthony Clark amount=$444.43
+2025-11-26 02:38:53,111 INFO 🚨 FRAUD sent seq=739 type=large_amount | user=1000054 tx_24h=9 amt_24h=$43503 payment=CARD
+2025-11-26 02:38:55,616 INFO ✓ RAW sent seq=740 | user=1000295 name=Ronald Gomez amount=$284.5
+2025-11-26 02:38:55,621 INFO ✓ RAW sent seq=741 | user=1000168 name=Ryan Collins amount=$180.96
+2025-11-26 02:38:58,125 INFO ✓ RAW sent seq=742 | user=1000161 name=Robert Williams amount=$470.75
+2025-11-26 02:38:58,127 INFO 🚨 FRAUD sent seq=743 type=large_amount | user=1000223 tx_24h=3 amt_24h=$30128 payment=CARD
+2025-11-26 02:39:00,632 INFO ✓ RAW sent seq=744 | user=1000067 name=Walter Tyler amount=$900.65
+2025-11-26 02:39:03,134 INFO ✓ RAW sent seq=745 | user=1000220 name=Billy Dean amount=$997.33
+2025-11-26 02:39:03,137 INFO ✓ RAW sent seq=746 | user=1000187 name=Jennifer Garcia amount=$161.92
+2025-11-26 02:39:05,642 INFO ✓ RAW sent seq=747 | user=1000128 name=Aurora Fowler amount=$1.19
+2025-11-26 02:39:08,147 INFO ✓ RAW sent seq=748 | user=1000138 name=Mary Johnson amount=$419.17
+2025-11-26 02:39:08,151 INFO ✓ RAW sent seq=749 | user=1000027 name=Gloria Graham amount=$963.7
+2025-11-26 02:39:10,656 INFO ✓ RAW sent seq=750 | user=1000229 name=Sara Pierce amount=$160.15
+2025-11-26 02:39:13,161 INFO ✓ RAW sent seq=751 | user=1000111 name=Joyce Jenkins amount=$417.76
+2025-11-26 02:39:15,666 INFO ✓ RAW sent seq=752 | user=1000049 name=Keith Fields amount=$586.38
+2025-11-26 02:39:18,170 INFO ✓ RAW sent seq=753 | user=1000198 name=Gregory Price amount=$456.61
+2025-11-26 02:39:20,674 INFO ✓ RAW sent seq=754 | user=1000182 name=Aaron Coleman amount=$831.59
+2025-11-26 02:39:23,179 INFO ✓ RAW sent seq=755 | user=1000060 name=Donna Nguyen amount=$203.96
+2025-11-26 02:39:25,683 INFO ✓ RAW sent seq=756 | user=1000015 name=Carolyn Sanders amount=$666.95
+2025-11-26 02:39:28,188 INFO ✓ RAW sent seq=757 | user=1000243 name=Mia Barker amount=$356.26
+2025-11-26 02:39:28,190 INFO ✓ RAW sent seq=758 | user=1000137 name=Francis Roman amount=$279.76
+2025-11-26 02:39:30,695 INFO 🚨 FRAUD sent seq=759 type=crypto_suspicious | user=1000073 tx_24h=52 amt_24h=$31798 payment=CRYPTO
+2025-11-26 02:39:33,200 INFO ✓ RAW sent seq=760 | user=1000244 name=Tammy Mason amount=$659.53
+2025-11-26 02:39:35,705 INFO 🚨 FRAUD sent seq=761 type=high_velocity | user=1000209 tx_24h=62 amt_24h=$49243 payment=CASH
+2025-11-26 02:39:38,209 INFO 🚨 FRAUD sent seq=762 type=crypto_suspicious | user=1000285 tx_24h=76 amt_24h=$28043 payment=CRYPTO
+2025-11-26 02:39:38,212 INFO 🚨 FRAUD sent seq=763 type=mixed_pattern | user=1000213 tx_24h=87 amt_24h=$53579 payment=CRYPTO
+2025-11-26 02:39:40,717 INFO ✓ RAW sent seq=764 | user=1000014 name=Roy Crane amount=$368.14
+2025-11-26 02:39:40,720 INFO ✓ RAW sent seq=765 | user=1000241 name=Kaylee Rich amount=$717.75
+2025-11-26 02:39:43,224 INFO ✓ RAW sent seq=766 | user=1000054 name=Marcus Goodwin amount=$442.93
+2025-11-26 02:39:45,728 INFO 🚨 FRAUD sent seq=767 type=high_velocity | user=1000085 tx_24h=107 amt_24h=$30705 payment=WALLET
+2025-11-26 02:39:48,233 INFO ✓ RAW sent seq=768 | user=1000111 name=Joyce Jenkins amount=$966.82
+2025-11-26 02:39:48,237 INFO ✓ RAW sent seq=769 | user=1000215 name=Teresa Gonzales amount=$141.21
+2025-11-26 02:39:50,742 INFO ✓ RAW sent seq=770 | user=1000234 name=Serenity Ware amount=$538.71
+2025-11-26 02:39:50,746 INFO ✓ RAW sent seq=771 | user=1000223 name=Brooklyn Rios amount=$222.91
+2025-11-26 02:39:53,251 INFO ✓ RAW sent seq=772 | user=1000282 name=Dave Manning amount=$30.97
+2025-11-26 02:39:53,254 INFO ✓ RAW sent seq=773 | user=1000060 name=Donna Nguyen amount=$467.86
+2025-11-26 02:39:55,758 INFO ✓ RAW sent seq=774 | user=1000271 name=Angela Murphy amount=$273.36
+2025-11-26 02:39:58,263 INFO ✓ RAW sent seq=775 | user=1000123 name=Aaron Coleman amount=$263.05
+2025-11-26 02:39:58,267 INFO ✓ RAW sent seq=776 | user=1000081 name=Sofia Harper amount=$758.26
+2025-11-26 02:40:00,772 INFO ✓ RAW sent seq=777 | user=1000039 name=Larry Reed amount=$339.42
+2025-11-26 02:40:00,774 INFO ✓ RAW sent seq=778 | user=1000143 name=Doris Barrett amount=$234.79
+2025-11-26 02:40:03,279 INFO 🚨 FRAUD sent seq=779 type=high_velocity | user=1000279 tx_24h=61 amt_24h=$22911 payment=WALLET
+2025-11-26 02:40:05,784 INFO 🚨 FRAUD sent seq=780 type=high_velocity | user=1000013 tx_24h=75 amt_24h=$23764 payment=BANK
+2025-11-26 02:40:08,289 INFO ✓ RAW sent seq=781 | user=1000026 name=Martha Francis amount=$838.18
+2025-11-26 02:40:10,794 INFO ✓ RAW sent seq=782 | user=1000148 name=Jeremy Lane amount=$631.35
+2025-11-26 02:40:10,798 INFO ✓ RAW sent seq=783 | user=1000129 name=Gene Sandoval amount=$793.36
+2025-11-26 02:40:13,302 INFO ✓ RAW sent seq=784 | user=1000048 name=Catherine Patterson amount=$795.05
+2025-11-26 02:40:13,304 INFO ✓ RAW sent seq=785 | user=1000288 name=Juan Vaughn amount=$283.62
+2025-11-26 02:40:15,809 INFO ✓ RAW sent seq=786 | user=1000282 name=Dave Manning amount=$737.27
+2025-11-26 02:40:15,811 INFO ✓ RAW sent seq=787 | user=1000221 name=Kathryn Arnold amount=$820.49
+2025-11-26 02:40:18,316 INFO ✓ RAW sent seq=788 | user=1000066 name=Francis Roman amount=$32.79
+2025-11-26 02:40:20,821 INFO ✓ RAW sent seq=789 | user=1000210 name=Carl Stone amount=$110.11
+2025-11-26 02:40:20,825 INFO ✓ RAW sent seq=790 | user=1000089 name=Randy Robbins amount=$501.12
+2025-11-26 02:40:23,329 INFO ✓ RAW sent seq=791 | user=1000219 name=Tammy Mason amount=$960.03
+2025-11-26 02:40:25,834 INFO ✓ RAW sent seq=792 | user=1000017 name=Tyler Fisher amount=$514.54
+2025-11-26 02:40:25,838 INFO ✓ RAW sent seq=793 | user=1000151 name=Tony Stokes amount=$313.18
+2025-11-26 02:40:28,342 INFO ✓ RAW sent seq=794 | user=1000214 name=Heather Hayes amount=$27.51
+2025-11-26 02:40:30,847 INFO ✓ RAW sent seq=795 | user=1000087 name=Henry Bryan amount=$97.1
+2025-11-26 02:40:30,850 INFO ✓ RAW sent seq=796 | user=1000050 name=Ashley Young amount=$547.12
+2025-11-26 02:40:33,355 INFO ✓ RAW sent seq=797 | user=1000044 name=Lillian Zimmerman amount=$479.54
+2025-11-26 02:40:33,359 INFO ✓ RAW sent seq=798 | user=1000201 name=Chester Glenn amount=$635.07
