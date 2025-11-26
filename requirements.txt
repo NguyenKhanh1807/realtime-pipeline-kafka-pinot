@@ -15,7 +15,7 @@ SQLAlchemy==2.0.32
 psycopg2-binary==2.9.9
 
 # Kafka
-kafka-python==2.0.2
+kafka-python-ng==2.2.2
 
 # Data Generation
 faker==28.4.1
