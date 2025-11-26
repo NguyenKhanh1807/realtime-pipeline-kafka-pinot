@@ -1,13 +1,16 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Brain, TrendingUp, Activity, Database, RefreshCw, CheckCircle, AlertTriangle, XCircle, Clock, Cpu, BarChart3, Zap, Play, ExternalLink, Download } from 'lucide-react';
+import { Brain, TrendingUp, Activity, Database, RefreshCw, CheckCircle, AlertTriangle, XCircle, Clock, Cpu, BarChart3, Zap, Play, ExternalLink, Download, PieChart, Sparkles, SlidersHorizontal } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/src/components/atoms/card';
 import { Button } from '@/src/components/atoms/button';
 import { Typography } from '@/src/components/atoms/typography';
 import { DashboardLayout } from '@/src/layouts/dashboard-layout';
 import { cn } from '@/src/lib/utils';
-import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { 
+  BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, 
+  PieChart as RechartsPieChart, Pie, Cell, ComposedChart, ErrorBar 
+} from 'recharts';
 
 // Helper function to generate mock feature importance
 function generateMockFeatureImportance(): FeatureImportance[] {
@@ -104,8 +107,72 @@ interface DailyDistribution {
   fraudCount: number;
 }
 
+interface DistributionItem {
+  name: string;
+  count: number;
+  ratio?: number;
+}
+
+interface HistogramBin {
+  bucket: string;
+  before: number;
+  after: number;
+}
+
+interface EdaSummary {
+  runAt?: string;
+  dataset?: {
+    rows: number;
+    cols: number;
+    sampleColumns?: string[];
+  };
+  labelDistribution: DistributionItem[];
+  paymentMethods: DistributionItem[];
+  countryDistribution: DistributionItem[];
+  hourlyDistribution: { hour: number; count: number }[];
+  amountHistogram: HistogramBin[];
+  missingRates: { column: string; rate: number }[];
+  boxByLabel?: Array<{ label: string; min: number | null; q1: number | null; median: number | null; q3: number | null; max: number | null; mean: number | null }>;
+  corrPairs?: Array<{ f1: string; f2: string; corr: number }>;
+  dailyTrend?: Array<{ date: string; count: number }>;
+  countryByLabel?: Array<{ bucket: string; label: string; count: number }>;
+  calendar?: {
+    month: Array<{ bucket: number; count: number }>;
+    dayOfWeek: Array<{ bucket: number; count: number }>;
+    dayOfMonth: Array<{ bucket: number; count: number }>;
+  };
+  trapFlags?: Array<{ flag: string; count: number; ratio: number }>;
+  timeSpans?: Array<{ name: string; mean: number | null; p50: number | null; p90: number | null; max: number | null }>;
+  calendarByLabel?: {
+    month: Array<{ bucket: number; label: string; count: number }>;
+    dayOfWeek: Array<{ bucket: number; label: string; count: number }>;
+    dayOfMonth: Array<{ bucket: number; label: string; count: number }>;
+    hour: Array<{ bucket: number; label: string; count: number }>;
+  };
+  timeBoxByLabel?: Array<{ feature: string; label: string; min: number | null; q1: number | null; median: number | null; q3: number | null; max: number | null; mean: number | null }>;
+  timeHistsByLabel?: Record<string, Array<{ bin: string; label: string; count: number }>>;
+}
+
+interface PreprocessingSummary {
+  clippingStats?: {
+    before?: { min?: number | null; max?: number | null; mean?: number | null; median?: number | null };
+    after?: { min?: number | null; max?: number | null; mean?: number | null; median?: number | null };
+  };
+  histogram: HistogramBin[];
+  engineered?: {
+    newColumns: string[];
+    totalNew: number;
+    totalColumnsAfter: number;
+  };
+  engineeredDistributions?: Array<{ name: string; buckets: Array<{ value: string; count: number; ratio: number }> }>;
+  scalingPreview: { column: string; meanBefore: number | null; stdBefore: number | null; meanAfter: number | null; stdAfter: number | null }[];
+  pipelineShape: { step: string; rows: number; cols: number }[];
+  stageInfo?: Array<{ stage: string; cols: number; numericCols: number; categoricalCols: number }>;
+  encodedCategoricals?: string[];
+}
+
 export default function TransactionMLPage() {
-  const [activeTab, setActiveTab] = useState<'overview' | 'metrics' | 'features' | 'training' | 'models'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'metrics' | 'features' | 'training' | 'models' | 'eda' | 'preprocessing'>('overview');
   const [modelInfo, setModelInfo] = useState<ModelInfo | null>(null);
   const [modelMetrics, setModelMetrics] = useState<ModelMetrics | null>(null);
   const [featureImportance, setFeatureImportance] = useState<FeatureImportance[]>([]);
@@ -117,6 +184,61 @@ export default function TransactionMLPage() {
   const [training, setTraining] = useState(false);
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
   const [mounted, setMounted] = useState(false);
+  const [edaSummary, setEdaSummary] = useState<EdaSummary | null>(null);
+  const [preprocessingSummary, setPreprocessingSummary] = useState<PreprocessingSummary | null>(null);
+  const [insightsLoading, setInsightsLoading] = useState(false);
+
+  // Fetch insight data từ script preProcessing (EDA + pipeline)
+  const fetchPreprocessingInsights = async () => {
+    setInsightsLoading(true);
+    try {
+      const response = await fetch('/api/preprocessing');
+      if (!response.ok) {
+        throw new Error('Preprocessing API failed');
+      }
+      const data = await response.json();
+      const eda = data?.eda || {};
+      const prep = data?.preprocessing || {};
+
+      setEdaSummary({
+        runAt: data?.runAt,
+        dataset: data?.dataset,
+        labelDistribution: eda.labelDistribution || [],
+        paymentMethods: eda.paymentMethods || [],
+        countryDistribution: eda.countryDistribution || [],
+        hourlyDistribution: eda.hourlyDistribution || [],
+        amountHistogram: eda.amountHistogram || [],
+        missingRates: eda.missingRates || [],
+        boxByLabel: eda.boxByLabel || [],
+        corrPairs: eda.corrPairs || [],
+        dailyTrend: eda.dailyTrend || [],
+        calendar: eda.calendar || { month: [], dayOfWeek: [], dayOfMonth: [] },
+        countryByLabel: eda.countryByLabel || [],
+        trapFlags: eda.trapFlags || [],
+        timeSpans: eda.timeSpans || [],
+        calendarByLabel: eda.calendarByLabel || { month: [], dayOfWeek: [], dayOfMonth: [], hour: [] },
+        timeBoxByLabel: eda.timeBoxByLabel || [],
+        timeHistsByLabel: eda.timeHistsByLabel || {},
+      });
+
+      setPreprocessingSummary({
+        clippingStats: prep.clippingStats,
+        histogram: prep.histogram || eda.amountHistogram || [],
+        engineered: prep.engineered,
+        engineeredDistributions: prep.engineeredDistributions || [],
+        scalingPreview: prep.scalingPreview || [],
+        pipelineShape: prep.pipelineShape || [],
+        stageInfo: prep.stageInfo || [],
+        encodedCategoricals: prep.encodedCategoricals || [],
+      });
+    } catch (error) {
+      console.error('Failed to load preprocessing insights:', error);
+      setEdaSummary(null);
+      setPreprocessingSummary(null);
+    } finally {
+      setInsightsLoading(false);
+    }
+  };
 
   const fetchDistributionData = async () => {
     try {
@@ -288,10 +410,12 @@ export default function TransactionMLPage() {
   useEffect(() => {
     setMounted(true);
     fetchModelData();
+    fetchPreprocessingInsights();
   }, []);
 
   const handleRefresh = () => {
     fetchModelData();
+    fetchPreprocessingInsights();
   };
 
   const handleTrainModel = async () => {
@@ -325,6 +449,8 @@ export default function TransactionMLPage() {
     { id: 'metrics' as const, label: 'Performance', icon: TrendingUp },
     { id: 'features' as const, label: 'Features', icon: BarChart3 },
     { id: 'training' as const, label: 'Training', icon: Database },
+    { id: 'eda' as const, label: 'Phân tích dữ liệu (EDA)', icon: PieChart },
+    { id: 'preprocessing' as const, label: 'Tiền xử lý & đặc trưng', icon: Sparkles },
   ];
 
   return (
@@ -413,6 +539,12 @@ export default function TransactionMLPage() {
             )}
             {activeTab === 'training' && (
               <TrainingTab trainingStats={trainingStats} modelInfo={modelInfo} />
+            )}
+            {activeTab === 'eda' && (
+              <EdaTab edaSummary={edaSummary} loading={insightsLoading} />
+            )}
+            {activeTab === 'preprocessing' && (
+              <PreprocessingTab summary={preprocessingSummary} loading={insightsLoading} />
             )}
           </>
         )}
@@ -1454,6 +1586,678 @@ function TrainingTab({ trainingStats, modelInfo }: { trainingStats: TrainingStat
           </div>
         </div>
       </Card>
+    </div>
+  );
+}
+
+// EDA Tab
+function EdaTab({ edaSummary, loading }: { edaSummary: EdaSummary | null; loading: boolean }) {
+  // Nếu API chưa về, hiển thị spinner nhẹ
+  if (loading && !edaSummary) {
+    return (
+      <Card className="p-12 text-center">
+        <RefreshCw className="h-10 w-10 animate-spin mx-auto mb-4 text-blue-500" />
+        <Typography variant="p" className="text-muted-foreground">
+          Đang tải thống kê EDA từ pipeline preProcessing...
+        </Typography>
+      </Card>
+    );
+  }
+
+  const summary: EdaSummary = edaSummary || {
+    labelDistribution: [],
+    paymentMethods: [],
+    countryDistribution: [],
+    hourlyDistribution: [],
+    amountHistogram: [],
+    missingRates: [],
+  };
+
+  const histogramData = (summary.amountHistogram || []).map((item) => ({
+    bucket: item.bucket,
+    Trước: item.before,
+    Sau: item.after,
+  }));
+
+  const dailyTrend = summary.dailyTrend || [];
+  const corrPairs = summary.corrPairs || [];
+  const boxStats = summary.boxByLabel || [];
+  const boxChartData = boxStats.map((b) => ({
+    label: b.label,
+    median: b.median ?? 0,
+    min: b.min ?? 0,
+    max: b.max ?? 0,
+    mean: b.mean ?? 0,
+  }));
+  const calendar = summary.calendar || { month: [], dayOfWeek: [], dayOfMonth: [] };
+  const trapFlags = summary.trapFlags || [];
+  const timeSpans = summary.timeSpans || [];
+  const calendarByLabel = summary.calendarByLabel || { month: [], dayOfWeek: [], dayOfMonth: [], hour: [] };
+  const timeBoxByLabel = summary.timeBoxByLabel || [];
+  const timeHistsByLabel = summary.timeHistsByLabel || {};
+  const countryByLabel = summary.countryByLabel || [];
+
+  const groupCalendarByLabel = (list: { bucket: number; label: string; count: number }[]) => {
+    const grouped: Record<number, Record<string, number>> = {};
+    list.forEach(item => {
+      grouped[item.bucket] = grouped[item.bucket] || {};
+      grouped[item.bucket][item.label] = item.count;
+    });
+    return Object.entries(grouped).map(([bucket, obj]) => ({ bucket: Number(bucket), ...obj }));
+  };
+
+  const buildStackedHist = (list: { bin: string; label: string; count: number }[]) => {
+    const grouped: Record<string, any> = {};
+    list.forEach(item => {
+      if (!grouped[item.bin]) grouped[item.bin] = { bin: item.bin };
+      grouped[item.bin][item.label] = item.count;
+    });
+    return Object.values(grouped);
+  };
+
+  const groupByLabelGeneric = (list: Array<{ bucket: string | number; label: string; count: number }>) => {
+    const grouped: Record<string, any> = {};
+    list.forEach(item => {
+      const key = String(item.bucket);
+      if (!grouped[key]) grouped[key] = { bucket: key };
+      grouped[key][item.label] = item.count;
+    });
+    return Object.values(grouped);
+  };
+
+  return (
+    <div className="grid grid-cols-1 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card className="p-4">
+          <Typography variant="span" className="text-sm text-muted-foreground">
+            Tổng mẫu sau khi load
+          </Typography>
+          <Typography variant="h3" className="text-2xl font-bold">
+            {summary.dataset?.rows?.toLocaleString() || 'N/A'}
+          </Typography>
+          <Typography variant="span" className="text-xs text-muted-foreground">
+            Cập nhật: {summary.runAt ? new Date(summary.runAt).toLocaleString() : 'N/A'}
+          </Typography>
+        </Card>
+        <Card className="p-4">
+          <Typography variant="span" className="text-sm text-muted-foreground">
+            Số cột
+          </Typography>
+          <Typography variant="h3" className="text-2xl font-bold">
+            {summary.dataset?.cols || 'N/A'}
+          </Typography>
+          <Typography variant="span" className="text-xs text-muted-foreground">
+            Ví dụ cột: {summary.dataset?.sampleColumns?.slice(0, 3).join(', ') || '...'}
+          </Typography>
+        </Card>
+        <Card className="p-4">
+          <Typography variant="span" className="text-sm text-muted-foreground">
+            Mất dữ liệu nhiều nhất
+          </Typography>
+          <Typography variant="h3" className="text-2xl font-bold">
+            {summary.missingRates?.[0]?.column || 'Ổn định'}
+          </Typography>
+          <Typography variant="span" className="text-xs text-muted-foreground">
+            {summary.missingRates?.[0]?.rate ? `${(summary.missingRates[0].rate * 100).toFixed(1)}% null` : 'Ít NA'}
+          </Typography>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card className="p-6">
+          <div className="flex items-center justify-between mb-4">
+            <Typography variant="h3" className="text-xl font-semibold">
+              Phân bố nhãn (label)
+            </Typography>
+            <PieChart className="h-5 w-5 text-blue-600" />
+          </div>
+          {summary.labelDistribution?.length ? (
+            <ResponsiveContainer width="100%" height={260}>
+              <BarChart data={summary.labelDistribution.map(item => ({ label: item.name, count: item.count }))}>
+                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                <XAxis dataKey="label" />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="count" fill="#22c55e" />
+              </BarChart>
+            </ResponsiveContainer>
+          ) : (
+            <Typography variant="span" className="text-muted-foreground">Chưa có dữ liệu nhãn.</Typography>
+          )}
+          <Typography variant="span" className="text-xs text-muted-foreground block mt-3">
+            Ghi chú: Tỉ lệ cao của nhãn 0 thể hiện bộ dữ liệu cân bằng thấp; cần chú ý khi đánh giá độ chính xác.
+          </Typography>
+        </Card>
+
+        <Card className="p-6">
+          <div className="flex items-center justify-between mb-4">
+            <Typography variant="h3" className="text-xl font-semibold">
+              Phương thức thanh toán nổi bật
+            </Typography>
+            <SlidersHorizontal className="h-5 w-5 text-purple-600" />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <RechartsPieChart>
+                  <Pie
+                    data={summary.paymentMethods}
+                    dataKey="count"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={90}
+                    label
+                  >
+                    {summary.paymentMethods.map((_, idx) => (
+                      <Cell key={idx} fill={['#6366f1', '#22c55e', '#f97316', '#06b6d4', '#a855f7', '#f43f5e'][idx % 6]} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </RechartsPieChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="space-y-2">
+              {summary.paymentMethods?.map((item) => (
+                <div key={item.name} className="flex items-center justify-between">
+                  <Typography variant="span" className="text-sm">{item.name}</Typography>
+                  <Typography variant="span" className="text-sm text-muted-foreground">
+                    {item.count.toLocaleString()} giao dịch
+                  </Typography>
+                </div>
+              ))}
+            </div>
+          </div>
+          <Typography variant="span" className="text-xs text-muted-foreground block mt-3">
+            Ghi chú: So sánh nhanh giữa các kênh thanh toán giúp phát hiện kênh có xu hướng rủi ro cao.
+          </Typography>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card className="p-6">
+          <div className="flex items-center justify-between mb-4">
+            <Typography variant="h3" className="text-xl font-semibold">
+              Phân phối số tiền trước/sau clipping
+            </Typography>
+            <Sparkles className="h-5 w-5 text-amber-600" />
+          </div>
+          <ResponsiveContainer width="100%" height={280}>
+            <BarChart data={histogramData}>
+              <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+              <XAxis dataKey="bucket" tick={{ fontSize: 10 }} />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Bar dataKey="Trước" fill="#ef4444" />
+              <Bar dataKey="Sau" fill="#3b82f6" />
+            </BarChart>
+          </ResponsiveContainer>
+          <Typography variant="span" className="text-xs text-muted-foreground block mt-3">
+            Clipping cắt đỉnh bất thường nhưng giữ lại cấu trúc chính của phân phối. Để tránh mô hình quá phụ thuộc vào duy nhất một biến.
+          </Typography>
+        </Card>
+
+        <Card className="p-6">
+          <div className="flex items-center justify-between mb-4">
+            <Typography variant="h3" className="text-xl font-semibold">
+              Lưu lượng theo giờ giao dịch
+            </Typography>
+            <Clock className="h-5 w-5 text-sky-600" />
+          </div>
+          <ResponsiveContainer width="100%" height={280}>
+            <LineChart data={summary.hourlyDistribution}>
+              <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+              <XAxis dataKey="hour" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Line type="monotone" dataKey="count" name="Số giao dịch" stroke="#0ea5e9" strokeWidth={2} dot />
+            </LineChart>
+          </ResponsiveContainer>
+          <Typography variant="span" className="text-xs text-muted-foreground block mt-3">
+            Mẹo: Đỉnh vào giờ hành chính gợi ý hành vi hợp lệ; giao dịch đêm nhiều có thể là tín hiệu bất thường.
+          </Typography>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card className="p-6">
+          <Typography variant="h3" className="text-xl font-semibold mb-4">
+            Phân phối theo tháng
+          </Typography>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <ResponsiveContainer width="100%" height={220}>
+              <BarChart data={calendar.month}>
+                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                <XAxis dataKey="bucket" label={{ value: 'Tháng', position: 'insideBottom', offset: -5 }} />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="count" fill="#0ea5e9" />
+              </BarChart>
+            </ResponsiveContainer>
+           
+          </div>
+          <Typography variant="span" className="text-xs text-muted-foreground block mt-3">
+            Biểu đồ thời gian giúp nhìn rõ mùa vụ và xu hướng cuối/đầu tuần – tương tự lineplot trong notebook.
+          </Typography>
+        </Card>
+
+        <Card className="p-6">
+          <Typography variant="h3" className="text-xl font-semibold mb-4">
+            Ngày trong tháng/ ngày trong tuần
+          </Typography>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <ResponsiveContainer width="100%" height={220}>
+              <LineChart data={calendar.dayOfMonth}>
+                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                <XAxis dataKey="bucket" />
+                <YAxis />
+                <Tooltip />
+                <Line type="monotone" dataKey="count" stroke="#a855f7" strokeWidth={2} dot={false} />
+              </LineChart>
+            </ResponsiveContainer>
+            <ResponsiveContainer width="100%" height={220}>
+              <BarChart data={calendar.dayOfWeek}>
+                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                <XAxis dataKey="bucket" label={{ value: 'Thứ (0=Mon)', position: 'insideBottom', offset: -5 }} />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="count" fill="#22c55e" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+      
+        </Card>
+      </div>
+
+      <Card className="p-6">
+        <Typography variant="h3" className="text-xl font-semibold mb-4">
+          Khoảng thời gian hành vi theo nhãn
+        </Typography>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {[
+            { key: 'account_age', title: 'Account age: đã tồn tại bao lâu create_dt - register_date' },
+            { key: 'user_seniority', title: 'Thâm niên người dùng: đã giao dịch bao lâu hay gian lận này chính là giao dịch đầu tiên create_dt - first_transaction_date' },
+            { key: 'time_to_activate', title: 'Thời gian kích hoạt: first_transaction_date - register_date'},
+          ].map(item => (
+            <div key={item.key} className="p-2 bg-gray-50 dark:bg-gray-800 rounded-lg">
+              <Typography variant="span" className="text-sm font-semibold block mb-2">
+                {item.title}
+              </Typography>
+              <ResponsiveContainer width="100%" height={220}>
+                <BarChart data={buildStackedHist(timeHistsByLabel[item.key] || [])}>
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                  <XAxis dataKey="bin" tick={{ fontSize: 10 }} />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="0" name="Label 0" fill="#22c55e" />
+                  <Bar dataKey="1" name="Label 1" fill="#f97316" />
+                  <Bar dataKey="2" name="Label 2" fill="#ef4444" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          ))}
+        </div>
+        <Typography variant="span" className="text-xs text-muted-foreground block mt-3">
+          Nếu có label gian lận, các cột màu cam/đỏ sẽ tập trung ở bin thấp (tài khoản mới/ kích hoạt nhanh)
+        </Typography>
+      </Card>
+
+      <Card className="p-6">
+        <Typography variant="h3" className="text-xl font-semibold mb-4">
+          Phân phối theo nhãn: tháng, ngày trong tháng, ngày trong tuần, giờ trong ngày
+        </Typography>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <ResponsiveContainer width="100%" height={200}>
+            <BarChart data={groupCalendarByLabel(calendarByLabel.month)}>
+              <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+              <XAxis dataKey="bucket" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Bar dataKey="0" name="Label 0" fill="#22c55e" />
+              <Bar dataKey="1" name="Label 1" fill="#f97316" />
+              <Bar dataKey="2" name="Label 2" fill="#ef4444" />
+            </BarChart>
+          </ResponsiveContainer>
+          <ResponsiveContainer width="100%" height={200}>
+            <BarChart data={groupCalendarByLabel(calendarByLabel.dayOfMonth)}>
+              <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+              <XAxis dataKey="bucket" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Bar dataKey="0" name="Label 0" fill="#22c55e" />
+              <Bar dataKey="1" name="Label 1" fill="#f97316" />
+              <Bar dataKey="2" name="Label 2" fill="#ef4444" />
+            </BarChart>
+          </ResponsiveContainer>
+          <ResponsiveContainer width="100%" height={200}>
+            <BarChart data={groupCalendarByLabel(calendarByLabel.dayOfWeek)}>
+              <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+              <XAxis dataKey="bucket" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Bar dataKey="0" name="Label 0" fill="#22c55e" />
+              <Bar dataKey="1" name="Label 1" fill="#f97316" />
+              <Bar dataKey="2" name="Label 2" fill="#ef4444" />
+            </BarChart>
+          </ResponsiveContainer>
+          <ResponsiveContainer width="100%" height={200}>
+            <BarChart data={groupCalendarByLabel(calendarByLabel.hour)}>
+              <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+              <XAxis dataKey="bucket" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Bar dataKey="0" name="Label 0" fill="#22c55e" />
+              <Bar dataKey="1" name="Label 1" fill="#f97316" />
+              <Bar dataKey="2" name="Label 2" fill="#ef4444" />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <Typography variant="span" className="text-xs text-muted-foreground block mt-3">
+          Stacked bar giúp xem nhanh nhãn gian lận tập trung ở tháng/ngày/giờ nào; màu cam/đỏ nổi bật khi label &gt; 0.
+        </Typography>
+      </Card>
+
+
+      <Card className="p-6">
+        <Typography variant="h3" className="text-xl font-semibold mb-4">
+          Phân bổ quốc gia theo nhãn
+        </Typography>
+        <ResponsiveContainer width="100%" height={280}>
+          <BarChart data={groupByLabelGeneric(countryByLabel)}>
+            <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+            <XAxis dataKey="bucket" tick={{ fontSize: 10 }} />
+            <YAxis />
+            <Tooltip />
+            <Legend />
+            <Bar dataKey="0" name="Label 0" fill="#22c55e" />
+            <Bar dataKey="1" name="Label 1" fill="#f97316" />
+            <Bar dataKey="2" name="Label 2" fill="#ef4444" />
+          </BarChart>
+        </ResponsiveContainer>
+        <Typography variant="span" className="text-xs text-muted-foreground block mt-3">
+          Cho thấy quốc gia nhận tiền nào có tỷ trọng giao dịch gian lận cao hơn (màu cam/đỏ nếu có label &gt; 0).
+        </Typography>
+      </Card>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card className="p-6">
+          <div className="flex items-center justify-between mb-4">
+            <Typography variant="h3" className="text-xl font-semibold">
+              Xu hướng giao dịch theo ngày
+            </Typography>
+            <Activity className="h-5 w-5 text-emerald-600" />
+          </div>
+          <ResponsiveContainer width="100%" height={280}>
+            <LineChart data={dailyTrend}>
+              <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+              <XAxis dataKey="date" tick={{ fontSize: 10 }} height={60} />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Line type="monotone" dataKey="count" name="Giao dịch" stroke="#10b981" strokeWidth={2} dot={false} />
+            </LineChart>
+          </ResponsiveContainer>
+          <Typography variant="span" className="text-xs text-muted-foreground block mt-3">
+            Đồ thị này mô phỏng lineplot: dễ thấy ngày tăng giảm đột biến để điều tra bất thường.
+          </Typography>
+        </Card>
+
+        <Card className="p-6">
+          <div className="flex items-center justify-between mb-4">
+            <Typography variant="h3" className="text-xl font-semibold">
+              Tương quan đặc trưng (top)
+            </Typography>
+            <BarChart3 className="h-5 w-5 text-indigo-600" />
+          </div>
+          {corrPairs.length ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {corrPairs.map((pair) => {
+                const corr = pair.corr || 0;
+                const intensity = Math.min(1, Math.abs(corr));
+                const color = corr >= 0 ? `rgba(34,197,94,${0.15 + intensity * 0.6})` : `rgba(239,68,68,${0.15 + intensity * 0.6})`;
+                return (
+                  <div key={`${pair.f1}-${pair.f2}`} className="p-3 rounded-lg border bg-white dark:bg-gray-800" style={{ backgroundColor: color }}>
+                    <Typography variant="span" className="text-sm font-semibold block">
+                      {pair.f1} ↔ {pair.f2}
+                    </Typography>
+                    <Typography variant="span" className="text-xs text-muted-foreground">
+                      Hệ số tương quan: {corr.toFixed(2)}
+                    </Typography>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <Typography variant="span" className="text-muted-foreground text-sm">Chưa đủ dữ liệu để tính corr.</Typography>
+          )}
+          <Typography variant="span" className="text-xs text-muted-foreground block mt-3">
+            Đây là bản rút gọn heatmap tương quan; ô xanh dương/đỏ thể hiện mức độ +/− mạnh.
+          </Typography>
+        </Card>
+      </div>
+
+      <Card className="p-6">
+        <div className="flex items-center justify-between mb-4">
+          <Typography variant="h3" className="text-xl font-semibold">
+            Boxplot deposit_amount theo nhãn
+          </Typography>
+          <SlidersHorizontal className="h-5 w-5 text-sky-600" />
+        </div>
+        {boxStats.length ? (
+          <ResponsiveContainer width="100%" height={320}>
+            <ComposedChart data={boxChartData}>
+              <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+              <XAxis dataKey="label" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Bar dataKey="median" name="Median" fill="#0ea5e9" />
+              <ErrorBar dataKey="min" dataKey2="max" width={4} stroke="#ef4444" />
+              <Line type="monotone" dataKey="mean" name="Mean" stroke="#22c55e" strokeWidth={2} dot />
+            </ComposedChart>
+          </ResponsiveContainer>
+        ) : (
+          <Typography variant="span" className="text-muted-foreground">Không tìm thấy nhãn để vẽ boxplot.</Typography>
+        )}
+        <Typography variant="span" className="text-xs text-muted-foreground block mt-3">
+          Mô phỏng boxplot: cột xanh là median, đoạn đỏ biểu diễn min/max, đường xanh lá là mean để so sánh lệch.
+        </Typography>
+      </Card>
+
+      <Card className="p-6">
+        <div className="flex items-center justify-between mb-4">
+          <Typography variant="h3" className="text-xl font-semibold">
+            Cột thiếu dữ liệu (top)
+          </Typography>
+          <AlertTriangle className="h-5 w-5 text-yellow-600" />
+        </div>
+        <div className="space-y-3">
+          {(summary.missingRates || []).map((item) => (
+            <div key={item.column} className="flex items-center gap-3">
+              <div className="w-32 text-sm font-medium">{item.column}</div>
+              <div className="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                <div
+                  className="bg-gradient-to-r from-yellow-400 to-orange-500 h-2 rounded-full"
+                  style={{ width: `${(item.rate || 0) * 100}%` }}
+                />
+              </div>
+              <div className="w-16 text-right text-sm text-muted-foreground">
+                {((item.rate || 0) * 100).toFixed(1)}%
+              </div>
+            </div>
+          ))}
+        </div>
+        <Typography variant="span" className="text-xs text-muted-foreground block mt-3">
+          Ghi chú: Các cột NA cao cần xem xét lại nguồn dữ liệu hoặc chiến lược điền giá trị trước khi huấn luyện.
+        </Typography>
+      </Card>
+    </div>
+  );
+}
+
+// Tab Tiền xử lý & đặc trưng
+function PreprocessingTab({ summary, loading }: { summary: PreprocessingSummary | null; loading: boolean }) {
+  if (loading && !summary) {
+    return (
+      <Card className="p-12 text-center">
+        <RefreshCw className="h-10 w-10 animate-spin mx-auto mb-4 text-blue-500" />
+        <Typography variant="p" className="text-muted-foreground">
+          Đang tải luồng tiền xử lý và đặc trưng...
+        </Typography>
+      </Card>
+    );
+  }
+
+  const data = summary || {
+    histogram: [],
+    scalingPreview: [],
+    pipelineShape: [],
+    stageInfo: [],
+    encodedCategoricals: [],
+    engineeredDistributions: [],
+  };
+
+  const clippingStats = data.clippingStats;
+  const formatNumber = (value?: number | null) => value || value === 0 ? value.toLocaleString('en-US', { maximumFractionDigits: 2 }) : 'N/A';
+
+  return (
+    <div className="grid grid-cols-1 gap-6">
+      <Card className="p-6">
+        <div className="flex items-center justify-between mb-4">
+          <Typography variant="h3" className="text-xl font-semibold">
+            Luồng xử lý từ preProcessing
+          </Typography>
+          <Sparkles className="h-5 w-5 text-indigo-600" />
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {data.pipelineShape?.map((step, idx) => (
+            <div key={step.step} className="p-4 border rounded-lg bg-gray-50 dark:bg-gray-800">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold">
+                  {idx + 1}
+                </div>
+                <Typography variant="p" className="font-semibold">{step.step}</Typography>
+              </div>
+              <Typography variant="span" className="text-sm text-muted-foreground">
+                {step.rows.toLocaleString()} dòng • {step.cols} cột
+              </Typography>
+            </div>
+          ))}
+        </div>
+        <Typography variant="span" className="text-xs text-muted-foreground block mt-3">
+          Luồng gồm: load dữ liệu → làm sạch/cắt ngoại lệ → tạo đặc trưng → encode + scale.
+        </Typography>
+      </Card>
+
+      <Card className="p-6">
+        <Typography variant="h3" className="text-xl font-semibold mb-4">
+          Số lượng cột theo từng bước (raw → aligned → encoded → scaled)
+        </Typography>
+        <ResponsiveContainer width="100%" height={260}>
+          <BarChart data={data.stageInfo}>
+            <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+            <XAxis dataKey="stage" />
+            <YAxis />
+            <Tooltip />
+            <Legend />
+            <Bar dataKey="cols" name="Tổng cột" fill="#6366f1" />
+            <Bar dataKey="numericCols" name="Cột số" fill="#22c55e" />
+            <Bar dataKey="categoricalCols" name="Cột phân loại" fill="#f97316" />
+          </BarChart>
+        </ResponsiveContainer>
+        <Typography variant="span" className="text-xs text-muted-foreground block mt-3">
+          Bước aligned thêm feature thời gian/logic; encoded biến các cột phân loại thành số; scaled chuẩn hoá thang đo.
+        </Typography>
+      </Card>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card className="p-6">
+          <div className="flex items-center justify-between mb-4">
+            <Typography variant="h3" className="text-xl font-semibold">
+              Clipping số tiền (trước/sau)
+            </Typography>
+            <BarChart3 className="h-5 w-5 text-emerald-600" />
+          </div>
+          <ResponsiveContainer width="100%" height={260}>
+            <BarChart data={(data.histogram || []).map(item => ({ bucket: item.bucket, before: item.before, after: item.after }))}>
+              <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+              <XAxis dataKey="bucket" tick={{ fontSize: 10 }} />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Bar dataKey="before" name="Trước" fill="#f97316" />
+              <Bar dataKey="after" name="Sau" fill="#22c55e" />
+            </BarChart>
+          </ResponsiveContainer>
+          <div className="grid grid-cols-2 gap-3 mt-4">
+            <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+              <Typography variant="span" className="text-xs text-muted-foreground">Trước clipping</Typography>
+              <Typography variant="p" className="text-sm font-semibold">
+                Min: {formatNumber(clippingStats?.before?.min)} | Max: {formatNumber(clippingStats?.before?.max)}
+              </Typography>
+              <Typography variant="span" className="text-xs text-muted-foreground">
+                Mean: {formatNumber(clippingStats?.before?.mean)} | Median: {formatNumber(clippingStats?.before?.median)}
+              </Typography>
+            </div>
+            <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+              <Typography variant="span" className="text-xs text-muted-foreground">Sau clipping</Typography>
+              <Typography variant="p" className="text-sm font-semibold">
+                Min: {formatNumber(clippingStats?.after?.min)} | Max: {formatNumber(clippingStats?.after?.max)}
+              </Typography>
+              <Typography variant="span" className="text-xs text-muted-foreground">
+                Mean: {formatNumber(clippingStats?.after?.mean)} | Median: {formatNumber(clippingStats?.after?.median)}
+              </Typography>
+            </div>
+          </div>
+          <Typography variant="span" className="text-xs text-muted-foreground block mt-3">
+            Ghi chú: Cắt ngoại lệ giảm độ lệch chuẩn, giúp scaler hoạt động ổn định và tránh chi phối bởi outlier.
+          </Typography>
+        </Card>
+
+        <Card className="p-6">
+          <div className="flex items-center justify-between mb-4">
+            <Typography variant="h3" className="text-xl font-semibold">
+              Các đặc trưng mới nổi bật
+            </Typography>
+            <Sparkles className="h-5 w-5 text-amber-500" />
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {data.engineered?.newColumns?.length ? (
+              data.engineered.newColumns.map((col) => (
+                <span key={col} className="px-3 py-1 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-200 rounded-full text-xs font-medium">
+                  {col}
+                </span>
+              ))
+            ) : (
+              <Typography variant="span" className="text-muted-foreground text-sm">Chưa ghi nhận cột mới.</Typography>
+            )}
+          </div>
+          <Typography variant="span" className="text-xs text-muted-foreground block mt-3">
+            Tổng cột sau feature engineering: {data.engineered?.totalColumnsAfter || 0} (thêm {data.engineered?.totalNew || 0} cột).
+          </Typography>
+          <ul className="text-xs text-muted-foreground space-y-1 list-disc pl-4 mt-2">
+            <li><code>account_age</code> (create_dt - register_date): số ngày tài khoản tồn tại → tài khoản mới rủi ro hơn.</li>
+            <li><code>user_seniority</code> (create_dt - first_transaction_date): thâm niên giao dịch; thấp báo hiệu tài khoản “mới đi giao dịch”.</li>
+            <li><code>time_to_activate</code> (first_transaction_date - register_date): thời gian kích hoạt sau đăng ký; 0-1 ngày là hành vi bật nhanh đáng ngờ.</li>
+            <li><code>amount_type</code>: phân bucket tiền (nhỏ/vừa/lớn) để mô hình nhạy với mức giao dịch.</li>
+            <li><code>create_dt_hour</code>, <code>create_dt_is_night</code>: thời gian trong ngày, cờ giao dịch ban đêm.</li>
+            <li><code>country_mismatch</code>, <code>name_mismatch</code>: bẫy logic sai lệch thông tin (quốc gia/ tên gửi).</li>
+          </ul>
+          <div className="mt-3">
+            <Typography variant="span" className="text-xs text-muted-foreground">
+              Cột được encode: {data.encodedCategoricals?.length ? data.encodedCategoricals.join(', ') : 'Không có hoặc chưa lấy được danh sách.'}
+            </Typography>
+          </div>
+        </Card>
+      </div>
+
     </div>
   );
 }

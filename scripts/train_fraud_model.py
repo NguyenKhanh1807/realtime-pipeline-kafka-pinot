@@ -21,6 +21,7 @@ import joblib
 import mlflow
 import mlflow.xgboost
 import mlflow.sklearn
+from scripts.feature_engineering import train_pipeline
 
 def fetch_training_data(days_back=7, min_samples=1000):
     """
@@ -33,18 +34,46 @@ def fetch_training_data(days_back=7, min_samples=1000):
     Returns:
         DataFrame with transaction data
     """
-    # Use environment variable for Pinot broker URL, fallback to localhost
-    pinot_url = os.getenv("PINOT_BROKER_URL", "http://localhost:8099") + "/query/sql"
-    print(f"Pinot URL: {pinot_url}")
+    pinot_url = "http://localhost:8099/query/sql"
     
     # Calculate timestamp for N days ago
     cutoff_time = datetime.now() - timedelta(days=days_back)
     cutoff_str = cutoff_time.strftime("%Y-%m-%d %H:%M:%S")
     
+    # query = {
+    #     "sql": f"""
+    #         SELECT 
+    #             user_seq,
+    #             deposit_amount,
+    #             transaction_count_24hour,
+    #             transaction_amount_24hour,
+    #             transaction_count_1week,
+    #             transaction_amount_1week,
+    #             transaction_count_1month,
+    #             transaction_amount_1month,
+    #             payment_method,
+    #             receiving_country,
+    #             country_code,
+    #             stay_qualify,
+    #             id_type,
+    #             fraud_score,
+    #             label
+    #         FROM transactions
+    #         WHERE create_dt >= '{cutoff_str}'
+    #         AND fraud_score IS NOT NULL
+    #         LIMIT 100000
+    #     """
+    # }
     query = {
         "sql": f"""
             SELECT 
+                transaction_seq,
                 user_seq,
+                create_dt,
+                register_date,
+                first_transaction_date,
+                visa_expire_date,
+                birth_date,
                 deposit_amount,
                 transaction_count_24hour,
                 transaction_amount_24hour,
@@ -52,11 +81,13 @@ def fetch_training_data(days_back=7, min_samples=1000):
                 transaction_amount_1week,
                 transaction_count_1month,
                 transaction_amount_1month,
+                
                 payment_method,
                 receiving_country,
                 country_code,
                 stay_qualify,
                 id_type,
+                user_name,
                 fraud_score,
                 label
             FROM transactions
@@ -369,10 +400,8 @@ def main():
     print("FRAUD DETECTION MODEL TRAINING")
     print("="*60)
     
-    # Set MLflow tracking URI from environment or use default
-    tracking_uri = os.getenv("MLFLOW_TRACKING_URI", "http://localhost:5000")
-    print(f"\nMLflow Tracking URI: {tracking_uri}")
-    mlflow.set_tracking_uri(tracking_uri)
+    # Set MLflow tracking URI
+    mlflow.set_tracking_uri("http://localhost:5000")
     mlflow.set_experiment("fraud-detection")
     
     try:
@@ -389,7 +418,11 @@ def main():
             return
         
         # Prepare features
-        X, y, feature_names = prepare_features(df)
+        # X, y, feature_names = prepare_features(df)
+        result = train_pipeline(df, save_path="artifacts/pipeline_artifacts.pkl")
+        X = result['X']
+        y= result['y']
+        feature_names = X.columns.tolist()
         
         # Start MLflow run
         with mlflow.start_run(run_name=f"fraud_model_{datetime.now().strftime('%Y%m%d_%H%M%S')}"):
@@ -408,6 +441,13 @@ def main():
             # Log metrics (all numeric values)
             mlflow.log_metrics(metrics)
             
+            # Log model
+            mlflow.xgboost.log_model(
+                model, 
+                "model",
+                registered_model_name="fraud-detection-model"
+            )
+            
             # Log feature importance as artifact
             feature_importance.to_csv("feature_importance.csv", index=False)
             mlflow.log_artifact("feature_importance.csv")
@@ -418,12 +458,6 @@ def main():
                 json.dump(feature_names, f, indent=2)
             mlflow.log_artifact("features.json")
             os.remove("features.json")
-            
-            # Log model using XGBoost native logging (compatible with MLflow 2.10.0)
-            mlflow.xgboost.log_model(
-                model,
-                artifact_path="model"
-            )
             
             # Get run info
             run = mlflow.active_run()

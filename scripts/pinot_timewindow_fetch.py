@@ -40,7 +40,7 @@ def _require_config() -> PinotFetchConfig:
 def _format_ts(dt: datetime) -> str:
     return dt.astimezone(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
 
-# Xây dựng câu truy vấn SQL dựa trên tham số đầu vào
+# Xây dựng câu truy vấn SQL dựa trên tham số đầu vào (CÓ filter thời gian)
 def _build_sql(table: str, start_dt: datetime, end_dt: datetime, limit_nf: Optional[int]) -> str:
     start_literal = _format_ts(start_dt)
     end_literal = _format_ts(end_dt)
@@ -62,11 +62,12 @@ def _run_dbapi(cfg: PinotFetchConfig, sql: str):
         raise RuntimeError("pinotdb chưa được cài đặt. Cài bằng: pip install pinotdb") from exc
     conn = connect(host=cfg.host, port=cfg.port, path=cfg.path, scheme=cfg.scheme)
     cur = conn.cursor()
+    # eprint(f"Executing SQL: {sql}") # Uncomment để debug query nếu cần
     cur.execute(sql)
     cols = [meta[0] for meta in cur.description] if cur.description else []
     rows = cur.fetchall()
     import pandas as pd
-    return pd.DataFrame(rows, columns=cols or None) # Chuyển sang DataFrame pandas
+    return pd.DataFrame(rows, columns=cols or None)
 
 # Thực thi truy vấn sử dụng REST API
 def _run_rest(cfg: PinotFetchConfig, sql: str):
@@ -74,6 +75,7 @@ def _run_rest(cfg: PinotFetchConfig, sql: str):
     url = f"{cfg.scheme}://{cfg.host}:{cfg.port}{cfg.path}"
     payload = {"sql": sql}
     headers = {"Content-Type": "application/json"}
+    # eprint(f"Executing SQL via REST: {sql}") # Uncomment để debug query nếu cần
     response = requests.post(url, data=json.dumps(payload), headers=headers, timeout=cfg.timeout, verify=cfg.verify)
     response.raise_for_status()
     body = response.json()
@@ -95,6 +97,26 @@ def fetch(start_dt: datetime, end_dt: datetime, limit_nf: Optional[int] = None):
         return _run_rest(cfg, sql)
     raise ValueError(f"Unsupported mode: {cfg.mode}")
 
+# Hàm mới: Lấy TẤT CẢ dữ liệu, không filter thời gian
+def fetch_all(limit_nf: Optional[int] = None):
+    cfg = _require_config()
+    # Query đơn giản lấy toàn bộ
+    query = f"SELECT * FROM {cfg.table}"
+    
+    # Vẫn giữ limit nếu người dùng muốn test thử 10 dòng dù là fetch all
+    if limit_nf is not None:
+        query += f" LIMIT {limit_nf}"
+    
+    query += " OPTION(useMultistageEngine=true)"
+    
+    eprint("Fetching ALL data (no time filter)...")
+    
+    if cfg.mode == "dbapi":
+        return _run_dbapi(cfg, query)
+    if cfg.mode == "rest":
+        return _run_rest(cfg, query)
+    raise ValueError(f"Unsupported mode: {cfg.mode}")
+
 # Hàm để lấy dữ liệu dựa trên ngày kết thúc và số tháng cửa sổ
 def fetch_by_end_date(end_date: Optional[str], window_months: int, limit_nf: Optional[int] = None):
     if window_months < 0:
@@ -106,6 +128,7 @@ def fetch_by_end_date(end_date: Optional[str], window_months: int, limit_nf: Opt
         else datetime.now(tz)
     )
     start_dt = end_dt - timedelta(days=30 * window_months) if window_months > 0 else end_dt
+    eprint(f"Fetching data from {start_dt} to {end_dt}...")
     return fetch(start_dt, end_dt, limit_nf)
 
 # Giúp hàm để xác định đường dẫn đầu ra
@@ -136,7 +159,7 @@ def save_df(df, out_path: Optional[str]) -> None:
 
 def parse_args():
     parser = argparse.ArgumentParser(
-        description="Fetch Pinot data between start and end timestamps derived from create_dt."
+        description="Fetch Pinot data. Use --all to fetch everything, or defaults to time window."
     )
     parser.add_argument("--host", default="93.115.172.151")
     parser.add_argument("--port", type=int, default=8099)
@@ -146,8 +169,14 @@ def parse_args():
     parser.add_argument("--mode", choices=["dbapi", "rest"], default="dbapi")
     parser.add_argument("--timeout", type=int, default=60)
     parser.add_argument("--verify", action="store_true")
+    
+    # Time window arguments
     parser.add_argument("--end-date", dest="end_date", default=None)
     parser.add_argument("--window-months", type=int, default=1)
+    
+    # New argument to fetch everything
+    parser.add_argument("--all", action="store_true", help="Fetch ALL data ignoring time window")
+    
     parser.add_argument("--limit", type=int, default=None)
     parser.add_argument("--out", default="data/data.csv")
     parser.add_argument("--pretty", action="store_true")
@@ -169,7 +198,13 @@ def main():
     configure(cfg)
 
     t0 = time.time()
-    df = fetch_by_end_date(args.end_date, args.window_months, args.limit)
+    
+    # Logic chọn hàm fetch
+    if args.all:
+        df = fetch_all(args.limit)
+    else:
+        df = fetch_by_end_date(args.end_date, args.window_months, args.limit)
+        
     elapsed = time.time() - t0
     print(f"Fetched {0 if df is None else len(df)} rows in {elapsed:.2f}s", file=sys.stderr)
 
