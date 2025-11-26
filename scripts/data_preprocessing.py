@@ -277,6 +277,14 @@ def preProcessing(data_path: Optional[str] = None, pinot_cfg: Optional[dict] = N
     df = None
     try:
         df = load_training_dataframe(None, default_pinot_cfg)
+        #xóa cột label giả định nếu có
+        if 'label' in df.columns:
+            df = df.drop(columns=['label'])
+        # Xây dựng cột label thực tế từ cột 'fraud_score' nếu có. nếu lớn hơn 0.9 thì là gian lận 2. Nếu nhỏ 0.9 > 0.5 thì nghi ngờ gian lận 1. Ngược lại label=0
+        if 'fraud_score' in df.columns:
+            df['label'] = df['fraud_score'].apply(lambda x: 2 if x > 0.9 else (1 if x > 0.5 else 0))
+            df = df.drop(columns=['fraud_score'])
+        LOGGER.info(f"Data loaded from Pinot with shape: {df.shape}")
     except Exception as exc:
         pinot_error = exc
         LOGGER.warning("Pinot fetch failed (%s); falling back to CSV: %s", exc, fallback_csv)

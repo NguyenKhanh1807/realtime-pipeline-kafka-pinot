@@ -108,7 +108,12 @@ def train_pipeline(df: pd.DataFrame, save_path: str = "artifacts/pipeline_artifa
     
     # 1. Tách Label
     data = {}
-    label_candidates = ["label", "lable", "is_fraud", "fraud_score"]
+    if 'label' in df.columns:
+        df = df.drop(columns=['label'])
+    if 'fraud_score' in df.columns:
+        df['label'] = df['fraud_score'].apply(lambda x: 2 if x > 0.9 else (1 if x > 0.5 else 0))
+        df = df.drop(columns=['fraud_score'])
+    label_candidates = ["label"]
     label_col = next((c for c in label_candidates if c in df.columns), None)
     if label_col:
         data['y'] = df[label_col].copy()

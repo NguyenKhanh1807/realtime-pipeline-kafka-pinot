@@ -66,30 +66,7 @@ def fetch_training_data(days_back=7, min_samples=1000):
     # }
     query = {
         "sql": f"""
-            SELECT 
-                transaction_seq,
-                user_seq,
-                create_dt,
-                register_date,
-                first_transaction_date,
-                visa_expire_date,
-                birth_date,
-                deposit_amount,
-                transaction_count_24hour,
-                transaction_amount_24hour,
-                transaction_count_1week,
-                transaction_amount_1week,
-                transaction_count_1month,
-                transaction_amount_1month,
-                
-                payment_method,
-                receiving_country,
-                country_code,
-                stay_qualify,
-                id_type,
-                user_name,
-                fraud_score,
-                label
+            SELECT *
             FROM transactions
             WHERE create_dt >= '{cutoff_str}'
             AND fraud_score IS NOT NULL
@@ -441,12 +418,12 @@ def main():
             # Log metrics (all numeric values)
             mlflow.log_metrics(metrics)
             
-            # Log model
-            mlflow.xgboost.log_model(
-                model, 
-                "model",
-                registered_model_name="fraud-detection-model"
-            )
+            # # Log model
+            # mlflow.xgboost.log_model(
+            #     model, 
+            #     "model",
+            #     registered_model_name="fraud-detection-model"
+            # )
             
             # Log feature importance as artifact
             feature_importance.to_csv("feature_importance.csv", index=False)
@@ -458,6 +435,12 @@ def main():
                 json.dump(feature_names, f, indent=2)
             mlflow.log_artifact("features.json")
             os.remove("features.json")
+
+            # Log model using XGBoost native logging (compatible with MLflow 2.10.0)
+            mlflow.xgboost.log_model(
+                model,
+                artifact_path="model"
+            )
             
             # Get run info
             run = mlflow.active_run()
