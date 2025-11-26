@@ -168,6 +168,33 @@ services:
       - fraud-detection
     restart: unless-stopped
 
+  rt-processor:
+    image: python:3.11-slim
+    container_name: rt-processor
+    volumes:
+      - ./crawl_data:/app/crawl_data
+      - ./models:/app/models
+      - ./logs:/app/logs
+    working_dir: /app
+    command:
+      - bash
+      - -c
+      - |
+        pip install -q kafka-python-ng pandas numpy scikit-learn joblib requests
+        cd crawl_data
+        python -u rt_processor.py
+    environment:
+      - BOOTSTRAP_SERVERS=kafka:19092
+      - TOPIC_RAW=transactions_raw
+      - TOPIC_CLEAN=transactions_rt
+      - PINOT_BROKER=http://pinot-broker:8099
+    depends_on:
+      - kafka
+      - pinot-broker
+    networks:
+      - fraud-detection
+    restart: unless-stopped
+
   streamlit:
     image: python:3.11-slim
     container_name: streamlit-app

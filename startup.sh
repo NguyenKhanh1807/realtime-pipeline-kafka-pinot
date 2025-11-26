@@ -417,27 +417,13 @@ start_streamlit() {
 start_data_pipeline() {
     print_header "Starting Data Pipeline"
     
-    print_info "Starting real-time producer..."
-    cd crawl_data
-    nohup python3 rt_producer.py > "$LOGS_DIR/producer.log" 2>&1 &
-    echo $! > "$PIDS_DIR/producer.pid"
-    print_success "Producer started (PID: $(cat $PIDS_DIR/producer.pid))"
-    
+    print_info "Starting real-time processor in Docker..."
+    docker compose up -d rt-processor
     sleep 3
+    print_success "Processor started in Docker"
     
-    print_info "Starting real-time processor (with integrated ML fraud detector)..."
-    nohup python3 rt_processor.py > "$LOGS_DIR/processor.log" 2>&1 &
-    echo $! > "$PIDS_DIR/processor.pid"
-    print_success "Processor started (PID: $(cat $PIDS_DIR/processor.pid))"
-    
-    cd ..
-    
-    sleep 3
-    
-    print_info "Starting auto-ban monitor..."
-    nohup python3 -u scripts/auto_ban_monitor.py > "$LOGS_DIR/auto_ban_monitor.log" 2>&1 &
-    echo $! > "$PIDS_DIR/auto_ban_monitor.pid"
-    print_success "Auto-ban monitor started (PID: $(cat $PIDS_DIR/auto_ban_monitor.pid))"
+    # Note: Producer is started via Streamlit UI or manually
+    print_info "Producer can be started via Streamlit UI at http://localhost:8501"
 }
 
 ################################################################################
