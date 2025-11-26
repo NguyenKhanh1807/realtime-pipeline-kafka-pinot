@@ -312,14 +312,14 @@ export default function DatabaseManagementPage() {
         name: 'Grafana',
         status: grafanaResponse.ok && grafanaData.healthy ? 'healthy' : 'error',
         message: grafanaResponse.ok && grafanaData.version ? `Running v${grafanaData.version}` : grafanaData.error || 'Not responding',
-        url: 'http://10.107.101.128:3001'
+        url: 'http://localhost:3001'
       });
     } catch (error) {
       services.push({
         name: 'Grafana',
         status: 'error',
         message: 'Connection failed',
-        url: 'http://10.107.101.128:3001'
+        url: 'http://localhost:3001'
       });
     }
     
@@ -640,7 +640,7 @@ export default function DatabaseManagementPage() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => window.open('http://10.107.101.128:3001/d/817646a6-3666-48ee-9f62-2209e0b11407/pinot-query-performance', '_blank')}
+              onClick={() => window.open('http://localhost:3001/d/817646a6-3666-48ee-9f62-2209e0b11407/pinot-query-performance', '_blank')}
               className="gap-2"
             >
               <ExternalLink className="h-4 w-4" />
@@ -709,7 +709,7 @@ export default function DatabaseManagementPage() {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => window.open('http://10.107.101.128:3001/d/b43aa969-6b89-4ce7-989f-d2c5bb5d877a/pinot-performance-monitoring', '_blank')}
+                    onClick={() => window.open('http://localhost:3001/d/b43aa969-6b89-4ce7-989f-d2c5bb5d877a/pinot-performance-monitoring', '_blank')}
                     className="gap-2"
                   >
                     <BarChart3 className="h-4 w-4" />
@@ -718,7 +718,7 @@ export default function DatabaseManagementPage() {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => window.open('http://10.107.101.128:3001/d/817646a6-3666-48ee-9f62-2209e0b11407/pinot-query-performance', '_blank')}
+                    onClick={() => window.open('http://localhost:3001/d/817646a6-3666-48ee-9f62-2209e0b11407/pinot-query-performance', '_blank')}
                     className="gap-2"
                   >
                     <Activity className="h-4 w-4" />
