@@ -101,8 +101,8 @@ def fetch(start_dt: datetime, end_dt: datetime, limit_nf: Optional[int] = None):
 def fetch_all(limit_nf: Optional[int] = None):
     cfg = _require_config()
     # Query đơn giản lấy toàn bộ
-    query = f"SELECT * FROM {cfg.table}"
-    
+    # query = f"SELECT * FROM {cfg.table}"
+    query = f"SELECT * FROM {cfg.table} ORDER BY create_dt DESC LIMIT 1000000"
     # Vẫn giữ limit nếu người dùng muốn test thử 10 dòng dù là fetch all
     if limit_nf is not None:
         query += f" LIMIT {limit_nf}"
