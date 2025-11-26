@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/Users/nguyenthanh/Master/DataEngineering/final/realtime-pipeline-kafka-pinot-final/crawl_data/rt_producer.py", line 4, in <module>
+    from faker import Faker
+ModuleNotFoundError: No module named 'faker'

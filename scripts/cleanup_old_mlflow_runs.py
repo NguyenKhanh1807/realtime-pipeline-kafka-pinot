@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
 Clean up old MLflow runs, keeping only the latest one.
+Xóa tất cả các lịch sử huấn luyện (Runs) cũ của dự án "fraud-detection", chỉ giữ lại duy nhất 1 lần chạy mới nhất.
 """
 
 import requests
@@ -9,7 +10,7 @@ import sys
 MLFLOW_URL = 'http://localhost:5000'
 
 def get_experiment_id():
-    """Get the fraud-detection experiment ID."""
+    """Get the fraud-detection experiment ID. Tìm ID của thí nghiệm có tên là 'fraud-detection'."""
     response = requests.post(
         f'{MLFLOW_URL}/api/2.0/mlflow/experiments/search',
         json={'max_results': 1, 'filter': "name = 'fraud-detection'"}
@@ -27,7 +28,7 @@ def get_experiment_id():
     return data['experiments'][0]['experiment_id']
 
 def get_all_runs(experiment_id):
-    """Get all runs for the experiment."""
+    """Get all runs for the experiment. Lấy danh sách các lần chạy (runs) của thí nghiệm. Run mới nhất sẽ nằm ở vị trí đầu tiên (index 0)"""
     response = requests.post(
         f'{MLFLOW_URL}/api/2.0/mlflow/runs/search',
         json={
@@ -45,7 +46,11 @@ def get_all_runs(experiment_id):
     return data.get('runs', [])
 
 def delete_run(run_id):
-    """Delete a run by ID."""
+    """Delete a run by ID. 
+    Nó kiểm tra nếu chỉ có 1 Run hoặc ít hơn thì không làm gì cả.
+    latest_run = runs[0]: Giữ lại phần tử đầu tiên (Run mới nhất).
+    old_runs = runs[1:]: Lấy tất cả các phần tử từ vị trí thứ 2 trở đi (Các Run cũ).
+    Vòng lặp for sẽ chạy qua danh sách old_runs và gọi hàm delete_run() để xóa từng cái một."""
     response = requests.post(
         f'{MLFLOW_URL}/api/2.0/mlflow/runs/delete',
         json={'run_id': run_id}

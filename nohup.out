@@ -1,0 +1,5 @@
+INFO:     Will watch for changes in these directories: ['/Users/nguyenthanh/Master/Data Engineering/final/realtime-pipeline-kafka-pinot-final']
+ERROR:    [Errno 48] Address already in use
+nohup: streamlit: No such file or directory
+/Library/Developer/CommandLineTools/usr/bin/python3: can't open file '/Users/nguyenthanh/Master/DataEngineering/final/realtime-pipeline-kafka-pinot-final/streamlit': [Errno 2] No such file or directory
+nohup: python: No such file or directory
